@@ -27,7 +27,7 @@ Antes de ejecutar este proyecto, necesitas:
 | -------------------------------- | ------------------------------------ |
 | **JDK**                          | 8 (obligatorio para GlassFish 4.1.2) |
 | **GlassFish**                    | 4.1.2                                |
-| **NetBeans**                     | 12.x / 15 / 16 / 17                  |
+| **NetBeans**                     | Cualquiera (Uso nuevo 28)            |
 | **MySQL Server**                 | 5.7 o 8.0                            |
 | **MySQL Workbench / PhpMyAdmin** | Cualquiera                           |
 
@@ -83,16 +83,16 @@ GLASSFISH_HOME/glassfish/domains/
 domain1
 ```
 
-3. Copiar la carpeta:
-
-```
-glassfish-domain
-```
-
-4. Renombrarla como:
+3. Copiar la carpeta del repositorio:
 
 ```
 domain1
+```
+
+4. ubicarla donde se encontraba:
+
+```
+C:\Users\mynde\GlassFish_Server\glassfish\domains\(ubicar la carpeta domain1)
 ```
 
 ---
@@ -130,10 +130,9 @@ El proyecto está organizado por capas:
 
 ```
 /src
-   /controller      → ManagedBeans JSF
+   /beans      → ManagedBeans JSF
    /dao             → Acceso a datos
-   /model           → Entidades Java
-   /services        → Lógica de negocio
+   /modelos           → Entidades Java
 /web
    /views           → Vistas XHTML
 ```
