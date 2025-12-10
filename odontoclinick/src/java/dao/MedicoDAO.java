@@ -135,4 +135,43 @@ public class MedicoDAO {
     Medico buscar(int aInt) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    // AGREGAR EN: dao/MedicoDAO.java
+
+public Medico buscarPorIdUsuario(int idUsuario) {
+    Medico m = null;
+    // Corrección: Usamos 'medicos' (plural) según tu SQL
+    String sql = "SELECT * FROM medicos WHERE id_usuario = ?";
+    
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        conn = ds.getConnection();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, idUsuario);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+            m = new Medico();
+            m.setId_doctor(rs.getInt("id_doctor"));
+            m.setId_usuario(rs.getInt("id_usuario"));
+            m.setId_especialidad(rs.getInt("id_especialidad"));
+            m.setLicencia_medica(rs.getString("licencia_medica"));
+            m.setAnos_experiencia(rs.getInt("anos_experiencia"));
+            m.setFecha_ingreso(rs.getDate("fecha_ingreso"));
+            
+            // Cargar relaciones
+            m.setUsuario(usuarioDAO.buscar(rs.getInt("id_usuario")));
+            m.setEspecialidad(especialidadDAO.buscar(rs.getInt("id_especialidad")));
+        }
+    } catch (SQLException e) {
+        System.out.println("Error al buscar médico por usuario: " + e.getMessage());
+    } finally {
+        try { if (rs != null) rs.close(); } catch (SQLException e) {}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (conn != null) conn.close(); } catch (SQLException e) {}
+    }
+    return m;
+}
 }

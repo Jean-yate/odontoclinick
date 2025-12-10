@@ -3,8 +3,38 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/mynde/OneDrive/Documentos/NetBeansProjects/odontoclinick/src/java/dao/Conexion.java</file>
-            <file>file:/C:/Users/mynde/OneDrive/Documentos/NetBeansProjects/odontoclinick/web/index.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/index.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/CategoriaProductoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/CitaDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/CategoriaProducto.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Cita.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/CitaTratamiento.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Estado.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/EstadoCita.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/HistorialMedico.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Horario.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/MetodoPago.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Medico.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/MovimientoInventario.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Paciente.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Pago.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Producto.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Rol.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Secretaria.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Tratamiento.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/TratamientoProducto.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Usuario.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/HorarioDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/UsuarioDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/beans/SesionBean.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/Conexion.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/beans/RegistroBean.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/MedicoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/PacienteDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/beans/DashboardBean.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/beans/CitaBean.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Especialidad.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/TratamientoDAO.java</file>
         </group>
     </open-files>
 </project-private>

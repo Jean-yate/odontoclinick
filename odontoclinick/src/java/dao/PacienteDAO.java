@@ -179,4 +179,48 @@ public class PacienteDAO {
         try { if (ps != null) ps.close(); } catch (SQLException e) {}
         try { if (conn != null) conn.close(); } catch (SQLException e) {}
     }
+    // AGREGAR EN: dao/PacienteDAO.java
+
+public Paciente buscarPorIdUsuario(int idUsuario) {
+    Paciente p = null;
+    // Corrección: Usamos 'pacientes' (plural) según tu SQL
+    String sql = "SELECT * FROM pacientes WHERE id_usuario = ?";
+    
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        conn = ds.getConnection(); // Usando tu DataSource configurado
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, idUsuario);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+            p = new Paciente();
+            p.setId_paciente(rs.getInt("id_paciente"));
+            p.setId_usuario(rs.getInt("id_usuario"));
+            p.setDireccion(rs.getString("direccion"));
+            p.setEps(rs.getString("eps"));
+            p.setRh(rs.getString("rh"));
+            p.setAlergias(rs.getString("alergias"));
+            p.setEnfermedades_preexistentes(rs.getString("enfermedades_preexistentes"));
+            p.setContacto_emergencia_nombre(rs.getString("contacto_emergencia_nombre"));
+            p.setContacto_emergencia_telefono(rs.getString("contacto_emergencia_telefono"));
+            p.setFecha_nacimiento(rs.getDate("fecha_nacimiento"));
+            p.setFecha_registro(rs.getDate("fecha_registro"));
+
+            // Cargar el objeto Usuario completo para mostrar nombres
+            p.setUsuario(usuarioDAO.buscar(rs.getInt("id_usuario")));
+        }
+    } catch (SQLException e) {
+        System.out.println("Error al buscar paciente por usuario: " + e.getMessage());
+    } finally {
+        // Asegúrate de tener un método cerrarRecursos(conn, ps, rs) o cerrarlos manualmente
+        try { if (rs != null) rs.close(); } catch (SQLException e) {}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (conn != null) conn.close(); } catch (SQLException e) {}
+    }
+    return p;
+}
 }
