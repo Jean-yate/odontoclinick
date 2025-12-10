@@ -231,6 +231,7 @@ public boolean existeUsuario(String nombreUsuario) {
             existe = true;
         }
     } catch (SQLException e) {
+        e.printStackTrace();
     } finally {
         cerrarRecursos();
     }
