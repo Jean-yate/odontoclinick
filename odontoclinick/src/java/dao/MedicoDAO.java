@@ -140,11 +140,7 @@ public class MedicoDAO {
 public Medico buscarPorIdUsuario(int idUsuario) {
     Medico m = null;
     // Corrección: Usamos 'medicos' (plural) según tu SQL
-    String sql = "SELECT * FROM medicos WHERE id_usuario = ?";
-    
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
+    String sql = "SELECT * FROM medico WHERE id_usuario = ?";
 
     try {
         conn = ds.getConnection();

@@ -35,6 +35,18 @@
             <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/beans/CitaBean.java</file>
             <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Especialidad.java</file>
             <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/TratamientoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/CitaTratamientoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/EspecialidadDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/EstadoCitaDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/EstadoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/HistorialMedicoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/MetodoPagoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/MovimientoInventarioDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/PagoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/ProductoDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/RolDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/SecretariaDAO.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/dao/TratamientoProductoDAO.java</file>
         </group>
     </open-files>
 </project-private>

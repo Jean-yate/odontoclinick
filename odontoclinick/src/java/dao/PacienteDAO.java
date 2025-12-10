@@ -183,15 +183,9 @@ public class PacienteDAO {
 
 public Paciente buscarPorIdUsuario(int idUsuario) {
     Paciente p = null;
-    // Corrección: Usamos 'pacientes' (plural) según tu SQL
-    String sql = "SELECT * FROM pacientes WHERE id_usuario = ?";
-    
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-
+    String sql = "SELECT * FROM paciente WHERE id_usuario = ?";
     try {
-        conn = ds.getConnection(); // Usando tu DataSource configurado
+        conn = ds.getConnection();
         ps = conn.prepareStatement(sql);
         ps.setInt(1, idUsuario);
         rs = ps.executeQuery();
