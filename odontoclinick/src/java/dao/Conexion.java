@@ -16,6 +16,7 @@ public class Conexion {
     private static final String PASS = "12345";
 
     private static Connection conn;
+    
 
     public static Connection conectar() {
 
@@ -26,6 +27,7 @@ public class Conexion {
                 Class.forName("com.mysql.cj.jdbc.Driver");
 
                 conn = DriverManager.getConnection(URL, USER, PASS);
+                
             }
 
         } catch (ClassNotFoundException | SQLException e) {

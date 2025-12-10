@@ -2,7 +2,7 @@ package modelo;
 
 import java.sql.Timestamp;
 
-class MovimientoInventario {
+public class MovimientoInventario {
     private int idMovimiento, idProducto, cantidad, stockAnterior, stockNuevo, idUsuario;
     private String tipoMovimiento, motivo;
     private Timestamp fechaMovimiento;

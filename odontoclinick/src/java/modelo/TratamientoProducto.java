@@ -2,7 +2,7 @@ package modelo;
 
 import java.math.BigDecimal;
 
-class TratamientoProducto {
+public class TratamientoProducto {
     private int idTratamientoProducto, idTratamiento, idProducto;
     private BigDecimal cantidadRequerida;
 
