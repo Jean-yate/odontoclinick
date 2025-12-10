@@ -6,14 +6,14 @@ import java.sql.SQLException;
 
 public class Conexion {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/odontoclinick"
+    private static final String URL = "jdbc:mysql://localhost:3306/odontoclinic"
             + "?useSSL=false"
             + "&useUnicode=true"
             + "&characterEncoding=UTF-8"
             + "&serverTimezone=America/Bogota";
 
-    private static final String USER = "root";
-    private static final String PASS = "";  // si tienes clave, ponla aquí
+    private static final String USER = "jean";
+    private static final String PASS = "12345";
 
     private static Connection conn;
 
