@@ -192,7 +192,7 @@ public List<Cita> listarPorFiltrosDashboard(Integer idDoctor, Integer idPaciente
     String orden = futuras ? "ASC" : "DESC";
 
     // Corrección: Usamos 'citas' (plural) según tu SQL
-    StringBuilder sql = new StringBuilder("SELECT * FROM citas WHERE fecha_hora " + operador + " NOW() ");
+    StringBuilder sql = new StringBuilder("SELECT * FROM cita WHERE fecha_hora " + operador + " NOW() ");
 
     if (idDoctor != null) {
         sql.append(" AND id_doctor = ? ");
@@ -205,9 +205,6 @@ public List<Cita> listarPorFiltrosDashboard(Integer idDoctor, Integer idPaciente
     
     sql.append(" ORDER BY fecha_hora ").append(orden);
 
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
 
     try {
         conn = ds.getConnection();
@@ -253,11 +250,11 @@ public List<Cita> listarConFiltros(String textoPaciente, String textoMedico, Int
     
     // JOINs necesarios para buscar por nombre (que está en la tabla usuarios)
     StringBuilder sql = new StringBuilder(
-        "SELECT c.* FROM citas c " +
-        "JOIN pacientes p ON c.id_paciente = p.id_paciente " +
-        "JOIN usuarios up ON p.id_usuario = up.id_usuario " + // Usuario Paciente
-        "JOIN medicos m ON c.id_doctor = m.id_doctor " +
-        "JOIN usuarios um ON m.id_usuario = um.id_usuario " + // Usuario Medico
+        "SELECT c.* FROM cita c " +
+        "JOIN paciente p ON c.id_paciente = p.id_paciente " +
+        "JOIN usuario up ON p.id_usuario = up.id_usuario " + // Usuario Paciente
+        "JOIN medico m ON c.id_doctor = m.id_doctor " +
+        "JOIN usuario um ON m.id_usuario = um.id_usuario " + // Usuario Medico
         "WHERE 1=1 "
     );
 
@@ -273,9 +270,6 @@ public List<Cita> listarConFiltros(String textoPaciente, String textoMedico, Int
     
     sql.append(" ORDER BY c.fecha_hora ASC");
 
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
 
     try {
         conn = ds.getConnection();
@@ -327,7 +321,7 @@ public List<Cita> listarConFiltros(String textoPaciente, String textoMedico, Int
 public boolean existeCitaEnHorario(int idDoctor, java.util.Date fechaHora) {
     boolean existe = false;
     // Estado 5=Cancelada, 6=No asistió (ajustar IDs según tu tabla estados_cita)
-    String sql = "SELECT COUNT(*) FROM citas WHERE id_doctor = ? AND fecha_hora = ? AND id_estado_cita NOT IN (5, 6)";
+    String sql = "SELECT COUNT(*) FROM cita WHERE id_doctor = ? AND fecha_hora = ? AND id_estado_cita NOT IN (5, 6)";
     
     Connection conn = null;
     PreparedStatement ps = null;
@@ -357,11 +351,8 @@ public boolean existeCitaEnHorario(int idDoctor, java.util.Date fechaHora) {
 // 3. Obtener citas ocupadas de un día (Para calcular huecos disponibles)
 public List<String> obtenerHorasOcupadas(int idDoctor, java.util.Date fecha) {
     List<String> horas = new ArrayList<>();
-    String sql = "SELECT DATE_FORMAT(fecha_hora, '%H:%i') as hora FROM citas WHERE id_doctor = ? AND DATE(fecha_hora) = ? AND id_estado_cita NOT IN (5, 6)";
+    String sql = "SELECT DATE_FORMAT(fecha_hora, '%H:%i') as hora FROM cita WHERE id_doctor = ? AND DATE(fecha_hora) = ? AND id_estado_cita NOT IN (5, 6)";
     
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
 
     try {
         conn = ds.getConnection();

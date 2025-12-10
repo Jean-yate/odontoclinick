@@ -185,7 +185,7 @@ public class UsuarioDAO {
 public Usuario login(String user, String pass) {
     Usuario u = null;
     // Buscamos usuario por nombre_usuario y que esté ACTIVO (id_estado = 1)
-    String sql = "SELECT * FROM usuarios WHERE nombre_usuario = ? AND id_estado = 1";
+    String sql = "SELECT * FROM usuario WHERE nombre_usuario = ? AND id_estado = 1";
 
     try {
         // Asegúrate de usar tu variable de conexión 'conn' o 'ds'
@@ -221,7 +221,7 @@ public Usuario login(String user, String pass) {
 // Método para verificar si el usuario ya existe (Validación unique:usuarios)
 public boolean existeUsuario(String nombreUsuario) {
     boolean existe = false;
-    String sql = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?";
+    String sql = "SELECT COUNT(*) FROM usuario WHERE nombre_usuario = ?";
     try {
         conn = dao.Conexion.conectar();
         ps = conn.prepareStatement(sql);
@@ -231,7 +231,6 @@ public boolean existeUsuario(String nombreUsuario) {
             existe = true;
         }
     } catch (SQLException e) {
-        e.printStackTrace();
     } finally {
         cerrarRecursos();
     }
@@ -246,7 +245,7 @@ public void registrarMedicoTransaccion(Usuario u, modelo.Medico m) throws SQLExc
         connTransaccion.setAutoCommit(false); // Iniciar transacción
 
         // 1. Insertar Usuario y obtener ID generado
-        String sqlUser = "INSERT INTO usuarios (nombre_usuario, nombre, apellidos, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion, fecha_actualizacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+        String sqlUser = "INSERT INTO usuario (nombre_usuario, nombre, apellidos, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion, fecha_actualizacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
         PreparedStatement psUser = connTransaccion.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
         psUser.setString(1, u.getNombre_usuario());
         psUser.setString(2, u.getNombre());
@@ -263,7 +262,7 @@ public void registrarMedicoTransaccion(Usuario u, modelo.Medico m) throws SQLExc
         if (rsKeys.next()) idGenerado = rsKeys.getInt(1);
 
         // 2. Insertar Médico usando el ID del usuario
-        String sqlMed = "INSERT INTO medicos (id_usuario, id_especialidad, licencia_medica, anos_experiencia, fecha_ingreso) VALUES (?, ?, ?, ?, NOW())";
+        String sqlMed = "INSERT INTO medico (id_usuario, id_especialidad, licencia_medica, anos_experiencia, fecha_ingreso) VALUES (?, ?, ?, ?, NOW())";
         PreparedStatement psMed = connTransaccion.prepareStatement(sqlMed);
         psMed.setInt(1, idGenerado);
         psMed.setInt(2, m.getId_especialidad());
@@ -288,7 +287,7 @@ public void registrarPacienteTransaccion(Usuario u, modelo.Paciente p) throws SQ
         connTransaccion.setAutoCommit(false); 
 
         // 1. Insertar Usuario
-        String sqlUser = "INSERT INTO usuarios (nombre_usuario, nombre, apellidos, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion, fecha_actualizacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+        String sqlUser = "INSERT INTO usuario (nombre_usuario, nombre, apellidos, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion, fecha_actualizacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
         PreparedStatement psUser = connTransaccion.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
         psUser.setString(1, u.getNombre_usuario());
         psUser.setString(2, u.getNombre());
@@ -305,7 +304,7 @@ public void registrarPacienteTransaccion(Usuario u, modelo.Paciente p) throws SQ
         if (rsKeys.next()) idGenerado = rsKeys.getInt(1);
 
         // 2. Insertar Paciente
-        String sqlPac = "INSERT INTO pacientes (id_usuario, direccion, eps, rh, fecha_registro) VALUES (?, ?, ?, ?, NOW())";
+        String sqlPac = "INSERT INTO paciente (id_usuario, direccion, eps, rh, fecha_registro) VALUES (?, ?, ?, ?, NOW())";
         PreparedStatement psPac = connTransaccion.prepareStatement(sqlPac);
         psPac.setInt(1, idGenerado);
         psPac.setString(2, p.getDireccion());
@@ -330,7 +329,7 @@ public void registrarSecretariaTransaccion(Usuario u, modelo.Secretaria s) throw
         connTransaccion.setAutoCommit(false); 
 
         // 1. Insertar Usuario
-        String sqlUser = "INSERT INTO usuarios (nombre_usuario, nombre, apellidos, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion, fecha_actualizacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+        String sqlUser = "INSERT INTO usuario (nombre_usuario, nombre, apellidos, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion, fecha_actualizacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
         PreparedStatement psUser = connTransaccion.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
         psUser.setString(1, u.getNombre_usuario());
         psUser.setString(2, u.getNombre());
@@ -347,7 +346,7 @@ public void registrarSecretariaTransaccion(Usuario u, modelo.Secretaria s) throw
         if (rsKeys.next()) idGenerado = rsKeys.getInt(1);
 
         // 2. Insertar Secretaria
-        String sqlSec = "INSERT INTO secretarias (id_usuario, turno, fecha_ingreso) VALUES (?, ?, NOW())";
+        String sqlSec = "INSERT INTO secretaria (id_usuario, turno, fecha_ingreso) VALUES (?, ?, NOW())";
         PreparedStatement psSec = connTransaccion.prepareStatement(sqlSec);
         psSec.setInt(1, idGenerado);
         psSec.setString(2, s.getTurno());
