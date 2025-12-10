@@ -89,11 +89,11 @@ public class Producto {
         this.categoria = categoria;
     }
 
-    public void setCodigo(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+  public void setCodigo(String codigo) {
+    this.codigo_producto = codigo;
+}
 
-    public String getCodigo() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+public String getCodigo() {
+    return codigo_producto;
+}
 }
