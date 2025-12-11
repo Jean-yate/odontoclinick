@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
+import modelo.Usuario;
 /*
 imports innecesarios, imports de relacionalidad
 import dao.UsuarioDAO;
@@ -170,4 +170,91 @@ public Medico buscarPorIdUsuario(int idUsuario) {
     }
     return m;
 }
+
+    public boolean registrarMedicoTransaccion(Usuario u, Medico m) throws SQLException {
+        boolean exito = false;
+        Connection connTx = null;
+        PreparedStatement psUser = null;
+        PreparedStatement psMed = null;
+        ResultSet rsKeys = null;
+
+        try {
+            // 1. Usamos tu conexión (Asegúrate que dao.Conexion.conectar() funcione o usa ds.getConnection())
+            connTx = dao.Conexion.conectar(); 
+            // O si usas DataSource: connTx = ds.getConnection();
+            
+            connTx.setAutoCommit(false);
+
+            // ---------------------------------------------------------
+            // PASO A: Insertar el Usuario (Rol 2 = Doctor)
+            // ---------------------------------------------------------
+            String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, 2, 1, NOW())";
+            
+            psUser = connTx.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
+            psUser.setString(1, u.getNombre());
+            psUser.setString(2, u.getApellidos());
+            psUser.setString(3, u.getNombre_usuario());
+            psUser.setString(4, u.getCorreo());
+            psUser.setString(5, u.getTelefono());
+            psUser.setString(6, u.getContrasena());
+            psUser.executeUpdate();
+
+            // Obtener el ID que la base de datos le asignó al nuevo usuario
+            rsKeys = psUser.getGeneratedKeys();
+            int idGenerado = -1;
+            if (rsKeys.next()) {
+                idGenerado = rsKeys.getInt(1);
+            } else {
+                throw new SQLException("No se pudo generar el ID del usuario médico.");
+            }
+
+            // ---------------------------------------------------------
+            // PASO B: Insertar el Médico usando el ID del paso A
+            // ---------------------------------------------------------
+            String sqlMed = "INSERT INTO medico (id_usuario, id_especialidad, licencia_medica, anos_experiencia, fecha_ingreso) VALUES (?, ?, ?, ?, ?)";
+            
+            psMed = connTx.prepareStatement(sqlMed);
+            psMed.setInt(1, idGenerado);
+            psMed.setInt(2, m.getId_especialidad());
+            psMed.setString(3, m.getLicencia_medica());
+            psMed.setInt(4, m.getAnos_experiencia());
+            
+            // Manejo seguro de la fecha de ingreso
+            if (m.getFecha_ingreso() != null) {
+                psMed.setDate(5, new java.sql.Date(m.getFecha_ingreso().getTime()));
+            } else {
+                psMed.setDate(5, new java.sql.Date(System.currentTimeMillis())); // Fecha hoy
+            }
+            
+            psMed.executeUpdate();
+
+            // ---------------------------------------------------------
+            // PASO C: Confirmar todo
+            // ---------------------------------------------------------
+            connTx.commit(); 
+            exito = true;
+
+        } catch (SQLException e) {
+            // Si algo falla, deshacemos TODO (ni usuario ni médico se guardan)
+            if (connTx != null) {
+                try { connTx.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            e.printStackTrace(); // Imprime el error para que sepas qué pasó
+            throw e; // Avisamos al Bean que falló
+        } finally {
+            // Cerrar recursos manuales
+            try { if (rsKeys != null) rsKeys.close(); } catch (SQLException e) {}
+            try { if (psUser != null) psUser.close(); } catch (SQLException e) {}
+            try { if (psMed != null) psMed.close(); } catch (SQLException e) {}
+            try { 
+                if (connTx != null) {
+                    connTx.setAutoCommit(true);
+                    connTx.close(); 
+                }
+            } catch (SQLException e) {}
+        }
+        return exito;
+    }
+
 }
+

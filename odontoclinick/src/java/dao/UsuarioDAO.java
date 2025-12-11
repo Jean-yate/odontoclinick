@@ -362,4 +362,40 @@ public void registrarSecretariaTransaccion(Usuario u, modelo.Secretaria s) throw
     }
     
 }
+
+    // Listar usuarios filtrando por Rol (Ej: 1=Admin)
+    public List<Usuario> listarPorRol(int idRol) {
+        List<Usuario> lista = new ArrayList<>();
+        // Filtramos por rol y que esté activo
+        String sql = "SELECT * FROM usuario WHERE id_rol = ? AND id_estado = 1"; 
+
+        try {
+            conn = ds.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, idRol);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setId_usuario(rs.getInt("id_usuario"));
+                u.setNombre_usuario(rs.getString("nombre_usuario"));
+                u.setNombre(rs.getString("nombre"));
+                u.setApellidos(rs.getString("apellidos"));
+                u.setCorreo(rs.getString("correo"));
+                u.setTelefono(rs.getString("telefono"));
+                u.setId_rol(rs.getInt("id_rol"));
+                u.setId_estado(rs.getInt("id_estado"));
+                
+                // Si tienes los DAOs de Rol/Estado, úsalos aquí, si no, déjalo así.
+                // u.setRol(rolDAO.buscar(idRol)); 
+                
+                lista.add(u);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error listarPorRol: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
+        }
+        return lista;
+    }
 }
