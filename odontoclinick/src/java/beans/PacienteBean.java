@@ -60,6 +60,31 @@ public class PacienteBean implements Serializable {
             mensajeError("Error", e.getMessage());
         }
     }
+    
+    // Metodos para dashboard secretaria
+    
+    
+
+    // 1. Método para cargar datos al Editar
+    public void prepararEdicion(Paciente p) {
+        this.pacienteActual = p;
+        // IMPORTANTE: Cargar el usuario asociado para poder editar nombre, correo, etc.
+        this.usuarioActual = p.getUsuario(); 
+        // Mantenemos la contraseña vieja en memoria por si no la cambian
+    }
+
+    // 2. Método para eliminar (Inactivar)
+    public void eliminar(Paciente p) {
+        try {
+            Usuario u = p.getUsuario();
+            u.setId_estado(2); // 2 = Inactivo
+            new dao.UsuarioDAO().actualizar(u); // Actualizamos estado en tabla usuario
+            buscar(); // Recargar tabla
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", "Paciente inactivado."));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // Helpers y Getters/Setters iguales...
     private void mensaje(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, t, m)); }

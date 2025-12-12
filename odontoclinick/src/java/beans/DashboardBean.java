@@ -19,11 +19,11 @@ public class DashboardBean implements Serializable {
     private SesionBean sesionBean;
 
     // Instancias de DAOs
-    private CitaDAO citaDAO = new CitaDAO();
-    private MedicoDAO medicoDAO = new MedicoDAO();
-    private PacienteDAO pacienteDAO = new PacienteDAO();
-    private SecretariaDAO secretariaDAO = new SecretariaDAO();
-    private PagoDAO pagoDAO = new PagoDAO();
+    private final CitaDAO citaDAO = new CitaDAO();
+    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final PacienteDAO pacienteDAO = new PacienteDAO();
+    private final SecretariaDAO secretariaDAO = new SecretariaDAO();
+    private final PagoDAO pagoDAO = new PagoDAO();
     // private HistorialMedicoDAO historialDAO = new HistorialMedicoDAO(); // Descomentar si usas historiales
 
     // Listas para las vistas

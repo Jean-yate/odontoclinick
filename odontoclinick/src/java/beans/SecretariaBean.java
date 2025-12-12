@@ -98,7 +98,53 @@ public class SecretariaBean implements Serializable {
             mensajeError("Error Grave", e.getMessage());
         }
     }
-    // Mensajes helpers... (igual que AdminBean)
+    // Metodos para Dashboard de Secretaria
+
+    public void eliminar(Secretaria s) {
+        try {
+            // 1. Obtenemos el usuario asociado a la secretaria
+            Usuario u = s.getUsuario();
+            
+            // 2. Cambiamos su estado a 2 (Inactivo) según tu tabla 'estado'
+            u.setId_estado(2); 
+            
+            // 3. Actualizamos el USUARIO en la BD (porque ahí vive el estado)
+            dao.UsuarioDAO usuarioDAO = new dao.UsuarioDAO();
+            usuarioDAO.actualizar(u);
+            
+            // 4. Refrescamos la tabla y avisamos
+            cargarLista();
+            mensaje("Info", "Secretaria inactivada correctamente.");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            mensajeError("Error", "No se pudo inactivar: " + e.getMessage());
+        }
+    }
+
+    public void reactivar(Secretaria s) {
+        try {
+            // 1. Obtenemos el usuario
+            Usuario u = s.getUsuario();
+            
+            // 2. Cambiamos su estado a 1 (Activo)
+            u.setId_estado(1);
+            
+            // 3. Actualizamos el USUARIO
+            dao.UsuarioDAO usuarioDAO = new dao.UsuarioDAO();
+            usuarioDAO.actualizar(u);
+            
+            // 4. Refrescamos
+            cargarLista();
+            mensaje("Éxito", "Secretaria reactivada correctamente.");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            mensajeError("Error", "No se pudo reactivar: " + e.getMessage());
+        }
+    }
+    
+    // Mensajes helpers (igual que AdminBean)
     private void mensaje(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, t, m)); }
     private void mensajeError(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, t, m)); }
     

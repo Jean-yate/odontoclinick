@@ -1,4 +1,4 @@
-package controlador;
+package beans;
 
 import dao.TratamientoDAO;
 import modelo.Tratamiento;
@@ -18,7 +18,7 @@ public class TratamientoBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     // Dependencia del DAO
-    private TratamientoDAO tratamientoDAO = new TratamientoDAO();
+    private final TratamientoDAO tratamientoDAO = new TratamientoDAO();
 
     // Variables de Vista
     private List<Tratamiento> listaTratamientos;

@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title><ui:insert name="titulo">OdontoClinic</ui:insert></title>
+        <style>
+            body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #ecf0f5; }
+            .top-bar { background-color: #3c8dbc; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+            .main-container { display: flex; min-height: 100vh; }
+            .sidebar { width: 250px; background-color: #222d32; color: #b8c7ce; min-height: 100vh; }
+            .content { flex-grow: 1; padding: 20px; }
+            .ui-menu { border: none; background: none; width: 100%; }
+            .ui-menuitem-text { color: #b8c7ce; }
+            .ui-menuitem-icon { color: #b8c7ce; }
+        </style>
+    </h:head>
+
+    <h:body>
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{sesionBean.verificarSesion}" />
+        </f:metadata>
+
+        <div class="top-bar">
+            <span style="font-size: 20px; font-weight: bold;">OdontoClinic</span>
+            <h:form>
+                <h:outputText value="Hola, #{sesionBean.usuarioLogueado.nombre}" style="margin-right: 15px;" />
+                <p:commandButton value="Salir" action="#{sesionBean.cerrarSesion}" icon="pi pi-power-off" styleClass="ui-button-danger ui-button-flat"/>
+            </h:form>
+        </div>
+
+        <div class="main-container">
+            <div class="sidebar">
+                <h:form>
+                    <p:menu toggleable="true">
+                        <p:submenu label="Navegación">
+                            <p:menuitem value="Dashboard" outcome="/dashboard/index" icon="pi pi-home"/>
+                        </p:submenu>
+
+                        <p:submenu label="Gestión" rendered="#{sesionBean.esSecretaria() or sesionBean.esAdmin()}">
+                            <p:menuitem value="Citas" outcome="/citas/index" icon="pi pi-calendar"/>
+                            <p:menuitem value="Pacientes" outcome="/pacientes/index" icon="pi pi-users"/>
+                            <p:menuitem value="Pagos" outcome="/pagos/index" icon="pi pi-dollar"/>
+                        </p:submenu>
+
+                        <p:submenu label="Administración" rendered="#{sesionBean.esAdmin()}">
+                            <p:menuitem value="Médicos" outcome="/medicos/index" icon="pi pi-briefcase"/>
+                            <p:menuitem value="Secretarias" outcome="/secretarias/index" icon="pi pi-user"/>
+                            <p:menuitem value="Inventario" outcome="/inventario/index" icon="pi pi-box"/>
+                        </p:submenu>
+                        
+                         <p:submenu label="Mi Cuenta" rendered="#{sesionBean.esPaciente()}">
+                            <p:menuitem value="Mis Citas" outcome="/pacientes/mis_citas" icon="pi pi-calendar"/>
+                        </p:submenu>
+                    </p:menu>
+                </h:form>
+            </div>
+
+            <div class="content">
+                <p:messages id="messages" showDetail="true" closable="true" globalOnly="true">
+                    <p:autoUpdate />
+                </p:messages>
+                
+                <ui:insert name="contenido">
+                    Contenido por defecto
+                </ui:insert>
+            </div>
+        </div>
+
+    </h:body>
+</html>

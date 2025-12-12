@@ -23,9 +23,9 @@ import java.util.List;
 public class RegistroBean implements Serializable {
 
     // DAOs
-    private UsuarioDAO usuarioDAO = new UsuarioDAO();
-    private RolDAO rolDAO = new RolDAO();
-    private EspecialidadDAO especialidadDAO = new EspecialidadDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final RolDAO rolDAO = new RolDAO();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
 
     // Objetos para capturar datos
     private Usuario nuevoUsuario;
