@@ -9,15 +9,21 @@ import java.util.List;
 import modelo.Especialidad;
 
 public class EspecialidadDAO {
-    private final Connection conn = Conexion.conectar();
+
+    // 1. ELIMINAMOS la variable global 'conn'
+    // private final Connection conn = Conexion.conectar(); <--- ESTO ESTABA MAL
+    
+    private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
 
     // Listar todas las especialidades
     public List<Especialidad> listar() {
         List<Especialidad> lista = new ArrayList<>();
+        String sql = "SELECT * FROM especialidad";
+        
         try {
-            String sql = "SELECT * FROM especialidad";
+            conn = Conexion.conectar(); // 2. Pedimos conexión aquí
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
@@ -30,6 +36,8 @@ public class EspecialidadDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error listar Especialidad: " + e.getMessage());
+        } finally {
+            cerrarRecursos(); // 3. Cerramos siempre
         }
         return lista;
     }
@@ -37,8 +45,10 @@ public class EspecialidadDAO {
     // Buscar especialidad por ID
     public Especialidad buscar(int id) {
         Especialidad esp = null;
+        String sql = "SELECT * FROM especialidad WHERE id_especialidad = ?";
+        
         try {
-            String sql = "SELECT * FROM especialidad WHERE id_especialidad = ?";
+            conn = Conexion.conectar(); // Pedimos conexión
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
@@ -51,27 +61,33 @@ public class EspecialidadDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error buscar Especialidad: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
         return esp;
     }
 
     // Guardar nueva especialidad
     public void guardar(Especialidad esp) {
+        String sql = "INSERT INTO especialidad(nombre_especialidad, descripcion) VALUES(?, ?)";
         try {
-            String sql = "INSERT INTO especialidad(nombre_especialidad, descripcion) VALUES(?, ?)";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setString(1, esp.getNombre_especialidad());
             ps.setString(2, esp.getDescripcion());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error guardar Especialidad: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
     }
 
     // Actualizar especialidad existente
     public void actualizar(Especialidad esp) {
+        String sql = "UPDATE especialidad SET nombre_especialidad = ?, descripcion = ? WHERE id_especialidad = ?";
         try {
-            String sql = "UPDATE especialidad SET nombre_especialidad = ?, descripcion = ? WHERE id_especialidad = ?";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setString(1, esp.getNombre_especialidad());
             ps.setString(2, esp.getDescripcion());
@@ -79,18 +95,30 @@ public class EspecialidadDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error actualizar Especialidad: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
     }
 
     // Eliminar especialidad por ID
     public void eliminar(int id) {
+        String sql = "DELETE FROM especialidad WHERE id_especialidad = ?";
         try {
-            String sql = "DELETE FROM especialidad WHERE id_especialidad = ?";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error eliminar Especialidad: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
+    }
+    
+    // Método helper para cerrar todo
+    private void cerrarRecursos() {
+        try { if (rs != null) rs.close(); } catch (SQLException e) {}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (conn != null) conn.close(); } catch (SQLException e) {}
     }
 }

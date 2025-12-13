@@ -21,12 +21,12 @@ public class CitaBean implements Serializable {
     @ManagedProperty("#{sesionBean}")
     private SesionBean sesionBean;
 
-    // DAOs
-    private final CitaDAO citaDAO = new CitaDAO();
-    private final PacienteDAO pacienteDAO = new PacienteDAO();
-    private final MedicoDAO medicoDAO = new MedicoDAO();
-    private final EstadoCitaDAO estadoDAO = new EstadoCitaDAO();
-    private final HorarioDAO horarioDAO = new HorarioDAO();
+    // --- CORRECCIÓN 1: Quitamos 'final' y el 'new' de aquí para evitar que la página se rompa al iniciar ---
+    private CitaDAO citaDAO;
+    private PacienteDAO pacienteDAO;
+    private MedicoDAO medicoDAO;
+    private EstadoCitaDAO estadoDAO;
+    private HorarioDAO horarioDAO;
 
     // Listas para la Vista
     private List<Cita> listaCitas;
@@ -47,21 +47,48 @@ public class CitaBean implements Serializable {
 
     @PostConstruct
     public void init() {
+        // --- 1. ZONA DE SEGURIDAD ---
+        // Inicializamos las listas PRIMERO. Así, si la BD falla, 
+        // la ventana se abre vacía en lugar de bloquearse.
         citaActual = new Cita();
         horasDisponibles = new ArrayList<>();
+        listaPacientes = new ArrayList<>(); 
+        listaMedicos = new ArrayList<>();   
+        listaEstados = new ArrayList<>();   
+        listaCitas = new ArrayList<>();     
+
+        // --- 2. Inicializar DAOs ---
+        citaDAO = new CitaDAO();
+        pacienteDAO = new PacienteDAO();
+        medicoDAO = new MedicoDAO();
+        estadoDAO = new EstadoCitaDAO();
+        horarioDAO = new HorarioDAO();
         
-        // Cargar listas para selects
-        listaPacientes = pacienteDAO.listarTodos();
-        listaMedicos = medicoDAO.listarTodos();
-        listaEstados = estadoDAO.listar();
-        
-        // Cargar tabla inicial
-        buscar();
+        // --- 3. Intentar cargar datos ---
+        try {
+            // Usamos variables temporales para no dejar nula la lista principal si el DAO falla
+            List<Paciente> p = pacienteDAO.listarTodos();
+            if (p != null) listaPacientes = p;
+
+            List<Medico> m = medicoDAO.listarTodos();
+            if (m != null) listaMedicos = m;
+
+            List<EstadoCita> e = estadoDAO.listar();
+            if (e != null) listaEstados = e;
+            
+            buscar(); // Cargar la tabla
+            
+        } catch (Exception e) {
+            System.out.println("ADVERTENCIA: No se cargaron datos iniciales: " + e.getMessage());
+            // No lanzamos error fatal para permitir que la página se vea
+        }
     }
 
     // --- 1. REPLICA DE MÉTODO index() CON FILTROS ---
     public void buscar() {
-        listaCitas = citaDAO.listarConFiltros(filtroPaciente, filtroMedico, filtroEstado);
+        if (citaDAO != null) {
+            listaCitas = citaDAO.listarConFiltros(filtroPaciente, filtroMedico, filtroEstado);
+        }
     }
 
     // --- 2. REPLICA DE MÉTODO getAvailableHours() (Lógica AJAX) ---
@@ -95,11 +122,11 @@ public class CitaBean implements Serializable {
         long inicio = horario.getHora_inicio().getTime();
         long fin = horario.getHora_fin().getTime();
         int duracionMinutos = horario.getDuracion_cita_minutos();
+        if (duracionMinutos <= 0) duracionMinutos = 30; // Evitar loop infinito
 
         // Usamos Calendar para iterar sumando minutos
         Calendar iterador = Calendar.getInstance();
         iterador.setTimeInMillis(inicio);
-        // Ajustamos la fecha base del iterador para que no afecte comparaciones, solo nos importa la hora
         
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 
@@ -110,7 +137,15 @@ public class CitaBean implements Serializable {
             if (!horasOcupadas.contains(horaStr)) {
                 // Validación extra: Si es HOY, no mostrar horas pasadas
                 if (esHoy(fechaSeleccionada)) {
-                    if (iterador.getTimeInMillis() > obtenerHoraActualEnMillis()) {
+                    // Lógica simple para comparar horas hoy
+                    Calendar ahora = Calendar.getInstance();
+                    Calendar slot = Calendar.getInstance();
+                    slot.setTime(fechaSeleccionada);
+                    String[] parts = horaStr.split(":");
+                    slot.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
+                    slot.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
+                    
+                    if (slot.after(ahora)) {
                          horasDisponibles.add(horaStr);
                     }
                 } else {
@@ -151,11 +186,11 @@ public class CitaBean implements Serializable {
                 citaActual.setFecha_creacion(new Timestamp(new Date().getTime()));
                 
                 // Si el usuario es PACIENTE, estado inicial = Pendiente (ID 1 o el que definas)
-                if (sesionBean.esPaciente()) {
-                    citaActual.setId_paciente(sesionBean.getUsuarioLogueado().getId_usuario()); // OJO: necesitas buscar ID paciente real
-                    // Busca el ID paciente real usando el DAO que hicimos antes
+                if (sesionBean != null && sesionBean.esPaciente()) {
                     Paciente p = pacienteDAO.buscarPorIdUsuario(sesionBean.getUsuarioLogueado().getId_usuario());
-                    citaActual.setId_paciente(p.getId_paciente());
+                    if (p != null) {
+                        citaActual.setId_paciente(p.getId_paciente());
+                    }
                     citaActual.setId_estado_cita(1); // 1 = Programada/Pendiente
                 } else {
                     // Si es Secretaria/Admin, usa el estado seleccionado o por defecto
@@ -179,9 +214,11 @@ public class CitaBean implements Serializable {
             horaSeleccionada = null;
             buscar();
             
-            return "index?faces-redirect=true"; // Redirigir al listado
+            // --- CORRECCIÓN 3: Agregamos la extensión .xhtml para que funcione la navegación ---
+            return "index.xhtml?faces-redirect=true"; 
 
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
             return null;
@@ -190,15 +227,45 @@ public class CitaBean implements Serializable {
     
     // --- LÓGICA DE CANCELAR (destroy) ---
     public void cancelar(Cita cita) {
-        // En lugar de borrar físico, cambiamos estado a 'Cancelada' (ID 5 según tus inserts)
-        cita.setId_estado_cita(5);
-        citaDAO.actualizar(cita);
-        buscar(); // Recargar tabla
-        FacesContext.getCurrentInstance().addMessage(null, 
-            new FacesMessage(FacesMessage.SEVERITY_WARN, "Cancelada", "La cita ha sido cancelada."));
+        try {
+            // En lugar de borrar físico, cambiamos estado a 'Cancelada' (ID 5 según tus inserts)
+            cita.setId_estado_cita(5);
+            citaDAO.actualizar(cita);
+            buscar(); // Recargar tabla
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Cancelada", "La cita ha sido cancelada."));
+        } catch (Exception e) {
+             System.out.println("Error al cancelar: " + e.getMessage());
+        }
     }
 
     // --- UTILIDADES ---
+    public void prepararCreacion() {
+        System.out.println("--- CLICK EN NUEVA CITA ---"); // Chismoso para la consola
+        
+        try {
+            // 1. Reiniciar el objeto cita
+            this.citaActual = new Cita();
+            
+            // 2. Establecer fecha de hoy por defecto
+            this.fechaSeleccionada = new Date();
+            this.horaSeleccionada = null;
+            
+            // 3. Inicializar la lista de horas (IMPORTANTE: new ArrayList, no clear)
+            this.horasDisponibles = new ArrayList<>();
+            
+            // 4. Si el usuario es paciente, pre-asignarlo (opcional)
+            if (sesionBean != null && sesionBean.esPaciente()) {
+                // lógica para asignar paciente actual...
+            }
+            
+            System.out.println("--- CITA PREPARADA CORRECTAMENTE ---");
+            
+        } catch (Exception e) {
+            System.out.println("ERROR EN PREPARAR CREACION: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     
     private Date combinarFechaHora(Date fecha, String hora) {
         if (fecha == null || hora == null) return null;
@@ -222,12 +289,9 @@ public class CitaBean implements Serializable {
     
     private long obtenerHoraActualEnMillis() {
         Calendar now = Calendar.getInstance();
-        // Creamos un calendar base solo con la hora actual
         Calendar base = Calendar.getInstance();
         base.set(1970, 0, 1, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
         return base.getTimeInMillis(); 
-        // Nota: Esta lógica de comparación de horas es simplificada. 
-        // Idealmente compararías Timestamp completo.
     }
 
     // --- Getters y Setters ---

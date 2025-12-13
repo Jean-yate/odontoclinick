@@ -27,7 +27,7 @@
         </f:metadata>
 
         <div class="top-bar">
-            <span style="font-size: 20px; font-weight: bold;">OdontoClinic</span>
+            <span style="font-size: 20px; font-weight: bold;">OdontoClinick</span>
             <h:form>
                 <h:outputText value="Hola, #{sesionBean.usuarioLogueado.nombre}" style="margin-right: 15px;" />
                 <p:commandButton value="Salir" action="#{sesionBean.cerrarSesion}" icon="pi pi-power-off" styleClass="ui-button-danger ui-button-flat"/>
@@ -43,9 +43,9 @@
                         </p:submenu>
 
                         <p:submenu label="Gestión" rendered="#{sesionBean.esSecretaria() or sesionBean.esAdmin()}">
-                            <p:menuitem value="Citas" outcome="/citas/index" icon="pi pi-calendar"/>
-                            <p:menuitem value="Pacientes" outcome="/pacientes/index" icon="pi pi-users"/>
-                            <p:menuitem value="Pagos" outcome="/pagos/index" icon="pi pi-dollar"/>
+                            <p:menuitem value="Citas" outcome="/secretaria/citas/index.xhtml" icon="pi pi-calendar"/>
+                            <p:menuitem value="Pacientes" outcome="/secretaria/pacientes/index.xhtml" icon="pi pi-users"/>
+                            <p:menuitem value="Pagos" outcome="/secretaria/pagos/index.xhtml" icon="pi pi-dollar"/>
                         </p:submenu>
 
                         <p:submenu label="Administración" rendered="#{sesionBean.esAdmin()}">

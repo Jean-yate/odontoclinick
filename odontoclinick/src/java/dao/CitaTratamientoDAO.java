@@ -7,24 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-/*
-imports innecesarios, imports de relacionalidad
-import modelo.Cita;
-import modelo.Tratamiento;
-*/
 
 public class CitaTratamientoDAO {
 
-    @Resource(lookup = "jdbc/odontoclinic")
-    private DataSource ds;
-
+    // 1. ELIMINAMOS @Resource y DataSource
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
 
+    // Instanciamos los DAOs auxiliares
     private final CitaDAO citaDAO = new CitaDAO();
     private final TratamientoDAO tratamientoDAO = new TratamientoDAO();
 
@@ -33,7 +24,7 @@ public class CitaTratamientoDAO {
         String sql = "SELECT * FROM cita_tratamiento";
 
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar(); // 2. Usamos conexión correcta
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
@@ -46,8 +37,22 @@ public class CitaTratamientoDAO {
                 ct.setCosto_aplicado(rs.getFloat("costo_aplicado"));
                 ct.setCompletado(rs.getBoolean("completado"));
 
-                ct.setCita(citaDAO.buscar(ct.getId_cita()));
-                ct.setTratamiento(tratamientoDAO.buscar(ct.getId_tratamiento()));
+                // Cargamos la Cita completa usando el DAO auxiliar
+                // Si citaDAO.buscar() no existe, dará error (Ver Parte 2 abajo)
+                try {
+                    ct.setCita(citaDAO.buscar(ct.getId_cita()));
+                } catch (Exception e) {
+                    System.out.println("Error cargando cita en CitaTratamiento: " + e.getMessage());
+                }
+
+                // Cargamos el Tratamiento completo
+                try {
+                    if (tratamientoDAO != null) {
+                         ct.setTratamiento(tratamientoDAO.buscar(ct.getId_tratamiento()));
+                    }
+                } catch (Exception e) {
+                     System.out.println("Error cargando tratamiento: " + e.getMessage());
+                }
 
                 lista.add(ct);
             }
@@ -66,7 +71,7 @@ public class CitaTratamientoDAO {
         String sql = "SELECT * FROM cita_tratamiento WHERE id_cita_tratamiento = ?";
 
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
@@ -81,7 +86,7 @@ public class CitaTratamientoDAO {
                 ct.setCompletado(rs.getBoolean("completado"));
 
                 ct.setCita(citaDAO.buscar(ct.getId_cita()));
-                ct.setTratamiento(tratamientoDAO.buscar(ct.getId_tratamiento()));
+                // ct.setTratamiento(tratamientoDAO.buscar(ct.getId_tratamiento())); 
             }
 
         } catch (SQLException e) {
@@ -98,7 +103,7 @@ public class CitaTratamientoDAO {
                    + "VALUES (?, ?, ?, ?, ?)";
 
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, ct.getId_cita());
             ps.setInt(2, ct.getId_tratamiento());
@@ -119,7 +124,7 @@ public class CitaTratamientoDAO {
                    + "WHERE id_cita_tratamiento = ?";
 
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, ct.getId_cita());
             ps.setInt(2, ct.getId_tratamiento());
@@ -140,7 +145,7 @@ public class CitaTratamientoDAO {
         String sql = "DELETE FROM cita_tratamiento WHERE id_cita_tratamiento = ?";
 
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ps.executeUpdate();

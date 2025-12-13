@@ -15,88 +15,84 @@ public class SesionBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // DAO
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    // IMPORTANTE: No hacemos "new UsuarioDAO()" aquí para evitar pantalla blanca.
+    private UsuarioDAO usuarioDAO;
 
-    // Variables del formulario de Login
-    private String usuario;
-    private String contrasena;
+    // Variables del formulario
+    private String usuario = "";
+    private String contrasena = "";
 
-    // Objeto que almacena los datos del usuario logueado (Equivalente a Auth::user())
     private Usuario usuarioLogueado;
 
-    // --- LÓGICA DE LOGIN (Reemplaza AuthController@login) ---
+    // --- LÓGICA DE LOGIN ---
     public String iniciarSesion() {
         try {
+            // Inicializamos el DAO aquí (Lazy Loading)
+            if (usuarioDAO == null) {
+                usuarioDAO = new UsuarioDAO();
+            }
+
             Usuario u = usuarioDAO.login(usuario, contrasena);
 
             if (u != null) {
-                // Login exitoso
                 this.usuarioLogueado = u;
                 
-                // Mensaje flash (opcional)
                 FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Bienvenido", u.getNombre()));
 
-                // Redirección al Dashboard según Rol (Similar al switch de Laravel)
-                // Usamos 'faces-redirect=true' para cambiar la URL del navegador
+                // Redirección al Dashboard
                 return "/dashboard/index.xhtml?faces-redirect=true";
             } else {
-                // Login fallido
                 FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Credenciales incorrectas o usuario inactivo."));
-                return null; // Se queda en la misma página
+                return null;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Error de conexión"));
+                new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Error de conexión: " + e.getMessage()));
             return null;
         }
     }
 
-    // --- LÓGICA DE LOGOUT (Reemplaza AuthController@logout) ---
+    // --- LÓGICA DE LOGOUT ---
     public String cerrarSesion() {
-        // Invalida la sesión HTTP completa
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        // CORRECCIÓN: Ruta con 'auth' en minúscula
         return "/auth/login.xhtml?faces-redirect=true";
     }
 
-    // --- SEGURIDAD EN VISTAS (Middleware) ---
-    // Coloca esto en tus vistas protegidas: <f:event type="preRenderView" listener="#{sesionBean.verificarSesion}" />
+    // --- SEGURIDAD EN VISTAS ---
     public void verificarSesion() {
         try {
             if (usuarioLogueado == null) {
-                FacesContext.getCurrentInstance().getExternalContext()
-                    .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/auth/login.xhtml");
+                FacesContext context = FacesContext.getCurrentInstance();
+                String path = context.getExternalContext().getRequestContextPath();
+                // CORRECCIÓN: Ruta con 'auth' en minúscula
+                context.getExternalContext().redirect(path + "/auth/login.xhtml");
             }
         } catch (IOException e) {
-            // Manejo de error en redirección
+            System.out.println("Error en redirección: " + e.getMessage());
         }
     }
 
-    // --- HELPERS PARA VISTAS (Para usar en 'rendered' de JSF) ---
+    // --- HELPERS PARA VISTAS (Roles) ---
     
-    public boolean isLogueado() {
-        return usuarioLogueado != null;
-    }
+    public boolean isLogueado() { return usuarioLogueado != null; }
 
     public boolean esAdmin() {
-        // id_rol 1 = Administrador (según tu SQL)
         return usuarioLogueado != null && usuarioLogueado.getId_rol() == 1;
     }
 
     public boolean esMedico() {
-        // id_rol 2 = Doctor
         return usuarioLogueado != null && usuarioLogueado.getId_rol() == 2;
     }
 
     public boolean esSecretaria() {
-        // id_rol 3 = Secretaria
         return usuarioLogueado != null && usuarioLogueado.getId_rol() == 3;
     }
 
     public boolean esPaciente() {
-        // id_rol 4 = Paciente
         return usuarioLogueado != null && usuarioLogueado.getId_rol() == 4;
     }
 

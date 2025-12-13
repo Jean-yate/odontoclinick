@@ -1,9 +1,9 @@
 package beans;
 
 import dao.PagoDAO;
-import dao.CitaDAO; // ¡Asegurado!
+import dao.CitaDAO; 
 import modelo.Pago;
-import modelo.Cita; // ¡Asegurado!
+import modelo.Cita; 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -19,24 +19,38 @@ import java.util.List;
 @ViewScoped
 public class PagoBean implements Serializable {
 
-    // DAOs
-    private final PagoDAO pagoDAO = new PagoDAO();
-    private final CitaDAO citaDAO = new CitaDAO(); 
+    // CORRECCIÓN 1: Quitamos 'final' y el 'new'. Solo declaramos las variables.
+    private PagoDAO pagoDAO;
+    private CitaDAO citaDAO; 
 
     // Listas para la Vista
     private List<Pago> listaPagos;
-    private List<Cita> listaCitasPendientes; // <-- Aquí necesitas la lista Cita
+    private List<Cita> listaCitasPendientes; 
 
-    // Variables para Formulario (store/update)
+    // Variables para Formulario
     private Pago pagoActual;
 
     @PostConstruct
     public void init() {
-        pagoActual = new Pago();
-        listaPagos = pagoDAO.listar(); 
-        // LÍNEA CRÍTICA: Debes asegurarte que CitaDAO.java tiene un método listar()
-        listaCitasPendientes = citaDAO.listarTodos(); 
-        pagoActual.setMonto(BigDecimal.ZERO);
+        // CORRECCIÓN 2: Inicializamos los DAOs aquí dentro (Zona Segura)
+        try {
+            pagoDAO = new PagoDAO();
+            citaDAO = new CitaDAO(); 
+            
+            pagoActual = new Pago();
+            pagoActual.setMonto(BigDecimal.ZERO);
+            
+            // Ahora sí podemos llamar a la base de datos
+            listaPagos = pagoDAO.listar(); 
+            
+            // Asegúrate de que CitaDAO tenga el método listarTodos()
+            if(citaDAO != null) {
+                listaCitasPendientes = citaDAO.listarConFiltros(null, null, null);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error al iniciar PagoBean: " + e.getMessage());
+        }
     }
     
     // ... (Métodos de guardar, eliminar, etc.) ...

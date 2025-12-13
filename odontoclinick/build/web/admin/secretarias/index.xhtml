@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/plantilla.xhtml">
+
+    <ui:define name="titulo">Gestión de Secretarias</ui:define>
+
+    <ui:define name="contenido">
+        
+        <h:form id="formLista">
+            <p:panel header="Administración de Secretarias">
+
+                <div style="text-align: right; margin-bottom: 10px;">
+                    <p:commandButton value="Agregar Secretaria" icon="pi pi-user-plus"
+                                     actionListener="#{secretariaBean.prepararNuevo()}"
+                                     update=":dialogoForm"
+                                     oncomplete="PF('wdialogo').show();"
+                                     styleClass="ui-button-success" />
+                </div>
+
+                <p:dataTable id="tablaSecretarias" value="#{secretariaBean.listaSecretarias}" var="sec"
+                             paginator="true" rows="10"
+                             emptyMessage="No hay secretarias registradas."
+                             rowKey="#{sec.id_secretaria}">
+
+                    <p:column headerText="ID" width="50" style="text-align: center;">
+                        <h:outputText value="#{sec.id_secretaria}" />
+                    </p:column>
+
+                    <p:column headerText="Nombre Completo" filterBy="#{sec.usuario.nombre} #{sec.usuario.apellidos}" filterMatchMode="contains">
+                        <h:outputText value="#{sec.usuario.nombre} #{sec.usuario.apellidos}" />
+                    </p:column>
+
+                    <p:column headerText="Usuario">
+                        <h:outputText value="#{sec.usuario.nombre_usuario}" />
+                    </p:column>
+
+                    <p:column headerText="Teléfono">
+                        <h:outputText value="#{sec.usuario.telefono}" />
+                    </p:column>
+
+                    <p:column headerText="Turno">
+                         <h:outputText value="#{sec.turno}" />
+                    </p:column>
+                    
+                    <p:column headerText="Estado" style="text-align: center;" sortBy="#{sec.usuario.estado.nombre_estado}">
+                        <h:panelGroup rendered="#{sec.usuario.estado.id_estado eq 1}">
+                            <span style="background-color: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.9em;">Activo</span>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{sec.usuario.estado.id_estado ne 1}">
+                            <span style="background-color: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.9em;">Inactivo</span>
+                        </h:panelGroup>
+                    </p:column>
+
+                    <p:column headerText="Acciones" style="text-align: center; width: 140px;">
+                        
+                        <p:commandButton icon="pi pi-pencil" title="Editar"
+                                         actionListener="#{secretariaBean.setSecretariaActual(sec)}"
+                                         action="#{secretariaBean.setUsuarioActual(sec.usuario)}"
+                                         update=":dialogoForm"
+                                         oncomplete="PF('wdialogo').show();"
+                                         styleClass="ui-button-primary ui-button-flat" />
+
+                        <p:commandButton icon="pi pi-ban" title="Inactivar"
+                                         actionListener="#{secretariaBean.eliminar(sec)}" 
+                                         update="tablaSecretarias"
+                                         styleClass="ui-button-danger ui-button-flat"
+                                         rendered="#{sec.usuario.estado.id_estado eq 1}">
+                            <p:confirm header="Confirmar" message="¿Inactivar a esta secretaria?" icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                        
+                        <p:commandButton icon="pi pi-check-circle" title="Reactivar"
+                                         actionListener="#{secretariaBean.reactivar(sec)}" 
+                                         update="tablaSecretarias"
+                                         styleClass="ui-button-success ui-button-flat"
+                                         rendered="#{sec.usuario.estado.id_estado ne 1}">
+                        </p:commandButton>
+
+                    </p:column>
+
+                </p:dataTable>
+            </p:panel>
+        </h:form>
+
+        <p:dialog id="dialogoForm" widgetVar="wdialogo" header="Datos de Secretaria" modal="true" resizable="false" width="600">
+            <h:form>
+                <p:messages showDetail="true" closable="true" />
+                
+                <h:panelGrid columns="2" cellpadding="5" style="width: 100%">
+                    
+                    <h:outputText value="Datos Personales" style="font-weight: bold; grid-column: span 2; color: #3c8dbc; margin-top: 10px; display: block;" />
+                    <h:outputText value="" /> <p:outputLabel for="nombre" value="Nombre:" />
+                    <p:inputText id="nombre" value="#{secretariaBean.usuarioActual.nombre}" required="true" style="width: 100%"/>
+
+                    <p:outputLabel for="apellidos" value="Apellidos:" />
+                    <p:inputText id="apellidos" value="#{secretariaBean.usuarioActual.apellidos}" required="true" style="width: 100%"/>
+
+                    <p:outputLabel for="telefono" value="Teléfono:" />
+                    <p:inputText id="telefono" value="#{secretariaBean.usuarioActual.telefono}" style="width: 100%"/>
+
+                    <p:outputLabel for="correo" value="Correo:" />
+                    <p:inputText id="correo" value="#{secretariaBean.usuarioActual.correo}" required="true" type="email" style="width: 100%"/>
+
+                    <p:separator style="grid-column: span 2;" />
+                    
+                    <h:outputText value="Datos Laborales y Acceso" style="font-weight: bold; grid-column: span 2; color: #3c8dbc;" />
+                    <h:outputText value="" />
+
+                    <p:outputLabel for="turno" value="Turno:" />
+                    <p:selectOneMenu id="turno" value="#{secretariaBean.secretariaActual.turno}" style="width: 100%" required="true">
+                        <f:selectItem itemLabel="Completo" itemValue="Completo" />
+                        <f:selectItem itemLabel="Mañana" itemValue="Mañana" />
+                        <f:selectItem itemLabel="Tarde" itemValue="Tarde" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="fecha" value="Fecha Ingreso:" />
+                    <p:calendar id="fecha" value="#{secretariaBean.secretariaActual.fecha_ingreso}" pattern="dd/MM/yyyy" showOn="button" required="true" />
+
+                    <p:outputLabel for="user" value="Usuario:" />
+                    <p:inputText id="user" value="#{secretariaBean.usuarioActual.nombre_usuario}" required="true" style="width: 100%"/>
+
+                    <p:outputLabel for="pass" value="Contraseña:" />
+                    <p:password id="pass" value="#{secretariaBean.usuarioActual.contrasena}" 
+                    feedback="true" 
+                    style="width: 100%"
+                    placeholder="#{secretariaBean.secretariaActual.id_secretaria > 0 ? '(Dejar vacío para mantener)' : ''}"
+                    required="#{secretariaBean.secretariaActual.id_secretaria == 0}"/>
+                    </h:panelGrid>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <p:commandButton value="Guardar" actionListener="#{secretariaBean.guardarSecretaria()}"
+                                     update=":formLista:tablaSecretarias :dialogoForm"
+                                     oncomplete="if (!args.validationFailed) PF('wdialogo').hide();"
+                                     icon="pi pi-save" styleClass="ui-button-success" />
+                    
+                    <p:commandButton value="Cancelar" type="button" onclick="PF('wdialogo').hide();"
+                                     icon="pi pi-times" styleClass="ui-button-secondary" style="margin-left: 10px;"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <h:form>
+            <p:confirmDialog global="true">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+            </p:confirmDialog>
+        </h:form>
+
+    </ui:define>
+</ui:composition>
