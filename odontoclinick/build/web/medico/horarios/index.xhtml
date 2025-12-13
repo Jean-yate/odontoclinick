@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/plantilla.xhtml">
+
+    <ui:define name="titulo">Mis Horarios</ui:define>
+
+    <ui:define name="contenido">
+        
+        <div class="card-modern" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #333;">Gestión de Horarios</h2>
+                <p:commandButton value="Agregar Nuevo Horario" icon="pi pi-clock" 
+                                 actionListener="#{horarioBean.prepararNuevo()}"
+                                 oncomplete="PF('dlgHorario').show();" update=":formDialogo"
+                                 styleClass="ui-button btn-primary"/>
+            </div>
+
+            <h:form id="formHorarios">
+                <p:dataTable value="#{horarioBean.listaHorarios}" var="hor" 
+                             emptyMessage="No tienes horarios asignados." reflow="true">
+                    
+                    <p:column headerText="Día Semana">
+                        <h:outputText value="#{hor.dia_semana}" style="font-weight: bold;"/>
+                    </p:column>
+
+                    <p:column headerText="Hora Inicio">
+                        <h:outputText value="#{hor.hora_inicio}">
+                            <f:convertDateTime pattern="HH:mm" />
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Hora Fin">
+                        <h:outputText value="#{hor.hora_fin}">
+                            <f:convertDateTime pattern="HH:mm" />
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Duración Cita">
+                        <h:outputText value="#{hor.duracion_cita_minutos} min" />
+                    </p:column>
+
+                    <p:column headerText="Acciones" style="text-align: center;">
+                        <p:commandButton icon="pi pi-pencil" title="Editar"
+                                         actionListener="#{horarioBean.prepararEdicion(hor)}"
+                                         oncomplete="PF('dlgHorario').show();" update=":formDialogo"
+                                         styleClass="ui-button btn-warning" style="margin-right: 5px;"/>
+
+                        <p:commandButton icon="pi pi-trash" title="Eliminar"
+                                         actionListener="#{horarioBean.eliminar(hor.id_horario)}"
+                                         update="formHorarios"
+                                         styleClass="ui-button btn-danger">
+                            <p:confirm header="Confirmar" message="¿Eliminar este horario?" icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+        <p:dialog header="Configurar Horario" widgetVar="dlgHorario" modal="true" responsive="true" width="400">
+            <h:form id="formDialogo">
+                <div class="ui-fluid">
+                    <p:outputLabel value="Día de la Semana" for="dia"/>
+                    <p:selectOneMenu id="dia" value="#{horarioBean.horarioActual.dia_semana}" required="true">
+                        <f:selectItem itemLabel="Lunes" itemValue="Lunes"/>
+                        <f:selectItem itemLabel="Martes" itemValue="Martes"/>
+                        <f:selectItem itemLabel="Miércoles" itemValue="Miércoles"/>
+                        <f:selectItem itemLabel="Jueves" itemValue="Jueves"/>
+                        <f:selectItem itemLabel="Viernes" itemValue="Viernes"/>
+                        <f:selectItem itemLabel="Sábado" itemValue="Sábado"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Hora Inicio" for="ini" style="margin-top: 10px; display:block;"/>
+                    <p:calendar id="ini" value="#{horarioBean.horaInicioUtil}" pattern="HH:mm" timeOnly="true" stepMinute="30" required="true"/>
+
+                    <p:outputLabel value="Hora Fin" for="fin" style="margin-top: 10px; display:block;"/>
+                    <p:calendar id="fin" value="#{horarioBean.horaFinUtil}" pattern="HH:mm" timeOnly="true" stepMinute="30" required="true"/>
+                    
+                    <p:outputLabel value="Duración por Cita (Min)" for="dur" style="margin-top: 10px; display:block;"/>
+                    <p:spinner id="dur" value="#{horarioBean.horarioActual.duracion_cita_minutos}" min="15" stepFactor="15" required="true"/>
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <p:commandButton value="Guardar" actionListener="#{horarioBean.guardar()}" 
+                                     oncomplete="if(!args.validationFailed) PF('dlgHorario').hide();"
+                                     update=":formHorarios :formDialogo" styleClass="btn-success"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+</ui:composition>

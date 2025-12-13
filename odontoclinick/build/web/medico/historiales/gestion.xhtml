@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/plantilla.xhtml">
+
+    <ui:define name="titulo">Nueva Atención Médica</ui:define>
+
+    <f:metadata>
+        <f:viewParam name="idCita" value="#{historialMedicoBean.idCitaSeleccionada}" />
+        <f:event type="preRenderView" listener="#{historialMedicoBean.cargarDatosCita}" />
+    </f:metadata>
+
+    <ui:define name="contenido">
+        
+        <div class="ui-g">
+            <div class="ui-g-12 ui-md-8 ui-lg-6" style="margin: 0 auto;">
+                
+                <h:form id="formAtencion">
+                    <p:growl showDetail="true" />
+
+                    <div class="card-modern" style="border-top: 4px solid #198754;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0;">Ficha de Atención</h3>
+                            <span class="badge" style="background: #198754; color: white; padding: 5px 10px; border-radius: 5px;">
+                                #{historialMedicoBean.fechaActual}
+                            </span>
+                        </div>
+                        <p:separator/>
+                        
+                        <div class="ui-fluid p-formgrid p-grid">
+                            <div class="p-field p-col-12">
+                                <label style="font-weight: bold;">Paciente:</label>
+                                <p:inputText value="#{historialMedicoBean.historialActual.paciente.usuario.nombre} #{historialMedicoBean.historialActual.paciente.usuario.apellidos}" 
+                                             readonly="true" style="background-color: #e9ecef;"/>
+                            </div>
+                            
+                            <div class="p-field p-col-12">
+                                <label style="font-weight: bold;">Motivo Consulta (Cita):</label>
+                                <p:inputText value="#{historialMedicoBean.citaAsociada.notas_paciente}" 
+                                             readonly="true" style="background-color: #e9ecef;"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-modern">
+                        <h4 style="color: #0d6efd; margin-top: 0;">Detalles Clínicos</h4>
+                        
+                        <div class="ui-fluid">
+                            <p:outputLabel value="Diagnóstico" for="diag" style="font-weight: bold;"/>
+                            <p:inputTextarea id="diag" value="#{historialMedicoBean.historialActual.diagnostico}" 
+                                             rows="3" required="true" placeholder="Escriba el diagnóstico del paciente..."/>
+                            
+                            <p:outputLabel value="Procedimiento / Tratamiento Realizado" for="proc" style="font-weight: bold; margin-top: 10px; display: block;"/>
+                            <p:inputTextarea id="proc" value="#{historialMedicoBean.historialActual.tratamiento_realizado}" 
+                                             rows="3" required="true" placeholder="Descripción del procedimiento..."/>
+                            
+                            <p:outputLabel value="Observaciones / Receta" for="obs" style="font-weight: bold; margin-top: 10px; display: block;"/>
+                            <p:inputTextarea id="obs" value="#{historialMedicoBean.historialActual.observaciones}" 
+                                             rows="2" placeholder="Indicaciones adicionales..."/>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: right;">
+                            <p:button value="Cancelar" outcome="/dashboard/index" styleClass="btn-danger" style="margin-right: 10px;"/>
+                            
+                            <p:commandButton value="Finalizar Atención" action="#{historialMedicoBean.guardar()}" 
+                                             update="@form" icon="pi pi-check" styleClass="btn-success">
+                                <p:confirm header="Confirmar" message="¿Finalizar atención y cerrar cita?" icon="pi pi-exclamation-triangle" />
+                            </p:commandButton>
+                        </div>
+                    </div>
+                </h:form>
+                
+                <h:form>
+                    <p:confirmDialog global="true">
+                        <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+                    </p:confirmDialog>
+                </h:form>
+
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

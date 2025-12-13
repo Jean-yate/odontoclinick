@@ -16,7 +16,7 @@ import java.sql.Time;
 
 public class HorarioDAO {
 
-    private final Connection conn = Conexion.conectar();
+    private Connection conn = Conexion.conectar();
     private PreparedStatement ps;
     private ResultSet rs;
     private final MedicoDAO medicoDAO = new MedicoDAO();
@@ -170,6 +170,34 @@ public modelo.Horario buscarPorMedicoYDia(int idDoctor, String diaSemana) {
     */
     return h;
 }
+    public List<modelo.Horario> listarPorDoctor(int idDoctor) {
+        List<modelo.Horario> lista = new ArrayList<>();
+        String sql = "SELECT * FROM horario WHERE id_doctor = ?";
+        try {
+            // Usamos tu conexión estática o la variable conn si está abierta
+            if (conn == null || conn.isClosed()) conn = Conexion.conectar();
+            
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, idDoctor);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                modelo.Horario h = new modelo.Horario();
+                h.setId_horario(rs.getInt("id_horario"));
+                h.setId_doctor(rs.getInt("id_doctor"));
+                h.setDia_semana(rs.getString("dia_semana"));
+                h.setDuracion_cita_minutos(rs.getInt("duracion_cita_minutos"));
+                h.setHora_inicio(rs.getTime("hora_inicio"));
+                h.setHora_fin(rs.getTime("hora_fin"));
+                h.setActivo(rs.getBoolean("activo"));
+                // No cargamos el objeto Médico completo para evitar ciclos, ya sabemos quién es
+                lista.add(h);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error listarPorDoctor: " + e.getMessage());
+        }
+        return lista;
     }
+}
     
 

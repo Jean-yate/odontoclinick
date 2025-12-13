@@ -4,116 +4,186 @@ import dao.HorarioDAO;
 import dao.MedicoDAO;
 import modelo.Horario;
 import modelo.Medico;
+
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @ManagedBean
 @ViewScoped
 public class HorarioBean implements Serializable {
 
-    // DAOs
+    // --- INYECCIÓN DE DEPENDENCIA (SESIÓN) ---
+    // Necesario para saber qué médico está logueado y filtrar sus horarios
+    @ManagedProperty("#{sesionBean}")
+    private SesionBean sesionBean;
+
+    // --- DAOs ---
     private final HorarioDAO horarioDAO = new HorarioDAO();
     private final MedicoDAO medicoDAO = new MedicoDAO();
 
-    // Listas para la Vista
+    // --- VARIABLES DE VISTA ---
     private List<Horario> listaHorarios;
-    private List<Medico> listaMedicos;
-    private List<String> diasSemana;
-
-    // Variables para Formulario (store/update)
     private Horario horarioActual;
-    private java.util.Date horaInicioUtil; // Para manejo con p:calendar/h:input
-    private java.util.Date horaFinUtil;
 
+    // Variables auxiliares para el componente de hora (p:calendar trabaja con java.util.Date)
+    private Date horaInicioUtil;
+    private Date horaFinUtil;
+
+    // --- INICIALIZACIÓN ---
     @PostConstruct
     public void init() {
-        horarioActual = new Horario();
-        listaHorarios = horarioDAO.listar();
-        listaMedicos = medicoDAO.listarTodos();
-        
-        // Días de la semana para el select
-        diasSemana = new ArrayList<>();
-        diasSemana.add("Lunes");
-        diasSemana.add("Martes");
-        diasSemana.add("Miércoles");
-        diasSemana.add("Jueves");
-        diasSemana.add("Viernes");
-        diasSemana.add("Sábado");
-        diasSemana.add("Domingo");
+        cargarHorarios();
+        prepararNuevo(); // Inicializa el objeto para evitar errores de nulos al cargar
     }
 
-    // --- Métodos de CRUD ---
+    /**
+     * Carga la tabla de horarios.
+     * Si es MÉDICO: Solo carga sus propios horarios.
+     * Si es ADMIN: Carga todos.
+     */
+    public void cargarHorarios() {
+        if (sesionBean.esMedico()) {
+            // Buscamos el objeto Medico usando el ID del Usuario logueado
+            Medico m = medicoDAO.buscarPorIdUsuario(sesionBean.getUsuarioLogueado().getId_usuario());
+            if (m != null) {
+                listaHorarios = horarioDAO.listarPorDoctor(m.getId_doctor());
+            } else {
+                listaHorarios = new ArrayList<>();
+            }
+        } else {
+            // Caso Admin u otros roles
+            listaHorarios = horarioDAO.listar();
+        }
+    }
+
+    /**
+     * Este método limpia el formulario para crear un registro nuevo.
+     * Reemplaza al antiguo 'resetFormulario'.
+     */
+    public void prepararNuevo() {
+        this.horarioActual = new Horario();
+        this.horarioActual.setActivo(true);            // Por defecto activo
+        this.horarioActual.setDuracion_cita_minutos(30); // Valor sugerido
+        
+        // Limpiamos las variables temporales de fecha
+        this.horaInicioUtil = null;
+        this.horaFinUtil = null;
+    }
+
+    /**
+     * Carga los datos de un horario existente para editarlo.
+     * Convierte la hora SQL a Date para que el calendario la entienda.
+     */
+    public void prepararEdicion(Horario h) {
+        this.horarioActual = h;
+        // Conversión necesaria: java.sql.Time -> java.util.Date
+        if (h.getHora_inicio() != null) {
+            this.horaInicioUtil = new Date(h.getHora_inicio().getTime());
+        }
+        if (h.getHora_fin() != null) {
+            this.horaFinUtil = new Date(h.getHora_fin().getTime());
+        }
+    }
 
     public void guardar() {
         try {
-            // Convertir java.util.Date a java.sql.Time
+            // Validar que se hayan ingresado las horas
+            if (horaInicioUtil == null || horaFinUtil == null) {
+                mensajeError("Error", "Debe seleccionar hora de inicio y fin.");
+                return;
+            }
+
+            // Conversión inversa: java.util.Date -> java.sql.Time
             horarioActual.setHora_inicio(new Time(horaInicioUtil.getTime()));
             horarioActual.setHora_fin(new Time(horaFinUtil.getTime()));
 
-            // Si es nuevo horario
-            if (horarioActual.getId_horario() == 0) {
-                horarioDAO.guardar(horarioActual);
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Horario guardado correctamente."));
-            } 
-            // Si es edición
-            else {
-                horarioDAO.actualizar(horarioActual);
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Horario actualizado correctamente."));
+            // Si el usuario es médico, asignamos automáticamente su ID
+            if (sesionBean.esMedico()) {
+                Medico m = medicoDAO.buscarPorIdUsuario(sesionBean.getUsuarioLogueado().getId_usuario());
+                if (m != null) {
+                    horarioActual.setId_doctor(m.getId_doctor());
+                }
             }
 
-            // Limpiar y recargar
-            resetFormulario();
-            listaHorarios = horarioDAO.listar();
+            // Decidir si es registro Nuevo (ID 0) o Edición
+            if (horarioActual.getId_horario() == 0) {
+                horarioDAO.guardar(horarioActual);
+                mensaje("Éxito", "Horario agregado correctamente.");
+            } else {
+                horarioDAO.actualizar(horarioActual);
+                mensaje("Éxito", "Horario actualizado.");
+            }
+
+            // Actualizar la tabla y limpiar el formulario
+            cargarHorarios();
+            prepararNuevo();
 
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error al guardar: " + e.getMessage()));
+            e.printStackTrace();
+            mensajeError("Error", "No se pudo guardar: " + e.getMessage());
         }
     }
-    
-    public void prepararEdicion(Horario h) {
-        this.horarioActual = h;
-        // Convertir java.sql.Time a java.util.Date para el formulario
-        this.horaInicioUtil = h.getHora_inicio();
-        this.horaFinUtil = h.getHora_fin();
-    }
-    
+
     public void eliminar(int idHorario) {
         try {
             horarioDAO.eliminar(idHorario);
-            listaHorarios = horarioDAO.listar(); // Recargar lista
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Eliminado", "Horario eliminado correctamente."));
+            cargarHorarios();
+            mensaje("Info", "Horario eliminado.");
         } catch (Exception e) {
-             FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error al eliminar: " + e.getMessage()));
+            mensajeError("Error", "No se pudo eliminar.");
         }
     }
 
-    public void resetFormulario() {
-        horarioActual = new Horario();
-        horaInicioUtil = null;
-        horaFinUtil = null;
+    // --- MENSAJES DE ALERTA ---
+    private void mensaje(String titulo, String texto) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, titulo, texto));
     }
 
-    // --- Getters y Setters ---
+    private void mensajeError(String titulo, String texto) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, titulo, texto));
+    }
 
-    public List<Horario> getListaHorarios() { return listaHorarios; }
-    public List<Medico> getListaMedicos() { return listaMedicos; }
-    public List<String> getDiasSemana() { return diasSemana; }
-    public Horario getHorarioActual() { return horarioActual; }
-    public void setHorarioActual(Horario horarioActual) { this.horarioActual = horarioActual; }
-    public java.util.Date getHoraInicioUtil() { return horaInicioUtil; }
-    public void setHoraInicioUtil(java.util.Date horaInicioUtil) { this.horaInicioUtil = horaInicioUtil; }
-    public java.util.Date getHoraFinUtil() { return horaFinUtil; }
-    public void setHoraFinUtil(java.util.Date horaFinUtil) { this.horaFinUtil = horaFinUtil; }
+    // --- GETTERS Y SETTERS ---
+
+    // Importante: Setter para la inyección de dependencia
+    public void setSesionBean(SesionBean sesionBean) {
+        this.sesionBean = sesionBean;
+    }
+
+    public List<Horario> getListaHorarios() {
+        return listaHorarios;
+    }
+
+    public Horario getHorarioActual() {
+        return horarioActual;
+    }
+
+    public void setHorarioActual(Horario horarioActual) {
+        this.horarioActual = horarioActual;
+    }
+
+    public Date getHoraInicioUtil() {
+        return horaInicioUtil;
+    }
+
+    public void setHoraInicioUtil(Date horaInicioUtil) {
+        this.horaInicioUtil = horaInicioUtil;
+    }
+
+    public Date getHoraFinUtil() {
+        return horaFinUtil;
+    }
+
+    public void setHoraFinUtil(Date horaFinUtil) {
+        this.horaFinUtil = horaFinUtil;
+    }
 }
