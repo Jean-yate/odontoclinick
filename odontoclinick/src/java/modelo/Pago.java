@@ -1,13 +1,26 @@
 package modelo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class Pago {
+public class Pago implements Serializable {
+    
+    // Campos primitivos (los que ya tenías)
     private int idPago, idCita, idMetodoPago;
     private Timestamp fechaPago;
     private BigDecimal monto;
     private String referencia, notas;
+
+    private Cita cita; 
+
+    public Cita getCita() {
+        return cita;
+    }
+
+    public void setCita(Cita cita) {
+        this.cita = cita;
+    }
 
     public int getIdPago() {
         return idPago;

@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 public class Conexion {
 
     // Nombre JNDI exacto que configuraste en GlassFish
-    private static final String JNDI_NAME = "jdbc/odontoclinic";
+    private static final String JNDI_NAME = "jdbc/odontoclinick";
 
     public static Connection conectar() {
         Connection conn = null;

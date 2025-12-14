@@ -62,42 +62,41 @@ public class MovimientoInventarioBean implements Serializable {
     }
 
     public void registrar() {
-        try {
-            // 1. Asignar las claves foráneas seleccionadas
-            movimiento.setIdProducto(idProductoSeleccionado);
-            movimiento.setIdUsuario(idUsuarioSeleccionado);
-            
-            // 2. Asignar fecha actual automática si es un nuevo registro
-            if (movimiento.getFechaMovimiento() == null) {
-                Date date = new Date();
-                movimiento.setFechaMovimiento(new Timestamp(date.getTime()));
+    try {
+        // Obtenemos el producto actual para saber su stock
+        Producto prodActual = productoDAO.buscar(idProductoSeleccionado);
+        
+        movimiento.setIdProducto(idProductoSeleccionado);
+        movimiento.setIdUsuario(idUsuarioSeleccionado); // 
+        
+        // Calcular stocks para el historial
+        int stockActual = prodActual.getStock_actual();
+        movimiento.setStockAnterior(stockActual);
+        
+        if (movimiento.getTipoMovimiento().equals("ENTRADA")) {
+            movimiento.setStockNuevo(stockActual + movimiento.getCantidad());
+        } else if (movimiento.getTipoMovimiento().equals("SALIDA")) {
+            if (stockActual < movimiento.getCantidad()) {
+                // Aquí podrías lanzar una alerta de "Stock insuficiente"
+                return; 
             }
-
-            /* NOTA LÓGICA IMPORTANTE:
-               Aquí deberías implementar la lógica para calcular 'stockAnterior' y 'stockNuevo'
-               automáticamente basándote en el producto seleccionado, en lugar de escribirlos manualmente.
-               
-               Ejemplo pseudo-código:
-               Producto prod = productoDAO.buscar(idProductoSeleccionado);
-               movimiento.setStockAnterior(prod.getStock_actual());
-               if(movimiento.getTipoMovimiento().equals("ENTRADA")) {
-                   movimiento.setStockNuevo(prod.getStock_actual() + movimiento.getCantidad());
-               } ...
-            */
-
-            // 3. Guardar o Actualizar
-            if (movimiento.getIdMovimiento() > 0) {
-                movimientoDAO.actualizar(movimiento);
-            } else {
-                movimientoDAO.guardar(movimiento);
-            }
-
-            limpiar();
-            listar();
-        } catch (Exception e) {
-            System.out.println("Error al registrar movimiento: " + e.getMessage());
+            movimiento.setStockNuevo(stockActual - movimiento.getCantidad());
         }
+
+        // Asignar fecha 
+        if (movimiento.getFechaMovimiento() == null) {
+            movimiento.setFechaMovimiento(new Timestamp(new Date().getTime()));
+        }
+
+        // Guardar (llamará al DAO modificado con transacción)
+        movimientoDAO.guardar(movimiento);
+
+        limpiar();
+        listar();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
 
     public void leer(MovimientoInventario movSeleccionado) {
         this.movimiento = movSeleccionado;

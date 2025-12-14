@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/plantilla.xhtml">
+
+    <ui:define name="titulo">Mis Citas</ui:define>
+
+    <ui:define name="contenido">
+        
+        <h:form id="formMisCitas">
+            
+            <div class="card-modern" style="padding: 20px;">
+                <h2 style="color: #0d6efd; margin-top: 0; margin-bottom: 20px;">
+                    <i class="pi pi-calendar-check"></i> Mi Historial de Citas
+                </h2>
+
+                <p:dataTable value="#{citaBean.listaCitas}" var="cita" 
+                             reflow="true" paginator="true" rows="10"
+                             emptyMessage="No tienes citas registradas.">
+
+                    <p:column headerText="Fecha y Hora" sortBy="#{cita.fecha_hora}" width="150">
+                        <h:outputText value="#{cita.fecha_hora}" style="font-weight: bold; font-size: 1.1em; color: #333;">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Doctor Asignado">
+                        <i class="pi pi-user-md" style="margin-right: 5px; color: #0d6efd;"></i>
+                        <h:outputText value="#{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}" style="font-weight: bold;"/>
+                    </p:column>
+
+                    <p:column headerText="Motivo / Notas">
+                        <h:outputText value="#{cita.notas_paciente}" style="color: #555; font-style: italic;"/>
+                    </p:column>
+
+                    <p:column headerText="Estado" style="text-align: center;" width="120">
+                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 1}">
+                            <span class="badge" style="background: #ffc107; color: #000; padding: 5px 10px; border-radius: 4px;">Pendiente</span>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 2}">
+                            <span class="badge" style="background: #0d6efd; color: #fff; padding: 5px 10px; border-radius: 4px;">Confirmada</span>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 3}">
+                            <span class="badge" style="background: #dc3545; color: #fff; padding: 5px 10px; border-radius: 4px;">Cancelada</span>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 4}">
+                            <span class="badge" style="background: #198754; color: #fff; padding: 5px 10px; border-radius: 4px;">Atendida</span>
+                        </h:panelGroup>
+                    </p:column>
+
+                </p:dataTable>
+                
+                <div style="margin-top: 15px; color: #777; font-size: 0.9em;">
+                    <i class="pi pi-info-circle"></i> Para cancelar o reprogramar una cita, por favor comuníquese con la secretaría.
+                </div>
+            </div>
+
+        </h:form>
+
+    </ui:define>
+</ui:composition>

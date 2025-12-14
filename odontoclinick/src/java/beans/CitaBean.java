@@ -83,11 +83,41 @@ public class CitaBean implements Serializable {
             // No lanzamos error fatal para permitir que la página se vea
         }
     }
+    // --- NUEVO: MÉTODO AUXILIAR PARA PACIENTES ---
+    private void cargarMisCitas() {
+        try {
+            int idUsuario = sesionBean.getUsuarioLogueado().getId_usuario();
+            // Buscamos quién es el paciente basado en su usuario
+            Paciente p = pacienteDAO.buscarPorIdUsuario(idUsuario);
 
-    // --- 1. REPLICA DE MÉTODO index() CON FILTROS ---
+            if (p != null) {
+                // Traemos TODAS las citas (usando null en los filtros)
+                List<Cita> todas = citaDAO.listarConFiltros(null, null, null);
+                listaCitas = new ArrayList<>();
+                
+                // Filtramos manualmente en Java solo las de este paciente
+                for (Cita c : todas) {
+                    if (c.getId_paciente() == p.getId_paciente()) {
+                        listaCitas.add(c);
+                    }
+                }
+            } else {
+                listaCitas = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void buscar() {
         if (citaDAO != null) {
-            listaCitas = citaDAO.listarConFiltros(filtroPaciente, filtroMedico, filtroEstado);
+            // NUEVO: Si es Paciente, ignoramos los filtros de la vista y cargamos solo las suyas
+            if (sesionBean != null && sesionBean.esPaciente()) {
+                cargarMisCitas(); 
+            } else {
+                // Si es Secretaria/Admin, usa los filtros normales
+                listaCitas = citaDAO.listarConFiltros(filtroPaciente, filtroMedico, filtroEstado);
+            }
         }
     }
 
@@ -241,22 +271,22 @@ public class CitaBean implements Serializable {
 
     // --- UTILIDADES ---
     public void prepararCreacion() {
-        System.out.println("--- CLICK EN NUEVA CITA ---"); // Chismoso para la consola
+        System.out.println("--- CLICK EN NUEVA CITA ---"); 
         
         try {
-            // 1. Reiniciar el objeto cita
             this.citaActual = new Cita();
-            
-            // 2. Establecer fecha de hoy por defecto
             this.fechaSeleccionada = new Date();
             this.horaSeleccionada = null;
-            
-            // 3. Inicializar la lista de horas (IMPORTANTE: new ArrayList, no clear)
             this.horasDisponibles = new ArrayList<>();
             
-            // 4. Si el usuario es paciente, pre-asignarlo (opcional)
+            // --- LÓGICA PACIENTE AGREGADA ---
             if (sesionBean != null && sesionBean.esPaciente()) {
-                // lógica para asignar paciente actual...
+                // Buscamos el objeto Paciente del usuario logueado
+                Paciente p = pacienteDAO.buscarPorIdUsuario(sesionBean.getUsuarioLogueado().getId_usuario());
+                if (p != null) {
+                    // Auto-asignamos el ID del paciente a la cita
+                    this.citaActual.setId_paciente(p.getId_paciente());
+                }
             }
             
             System.out.println("--- CITA PREPARADA CORRECTAMENTE ---");

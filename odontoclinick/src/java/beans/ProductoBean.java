@@ -7,8 +7,10 @@ import modelo.Producto;
 import java.io.Serializable;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 
 @ManagedBean
 @ViewScoped
@@ -20,7 +22,7 @@ public class ProductoBean implements Serializable {
     
     // Para el combo box de categorías en el formulario
     private List<CategoriaProducto> listaCategorias; 
-    private int idCategoriaSeleccionada; // Para capturar la selección del combo
+    private int idCategoriaSeleccionada; 
 
     // DAOs
     private final ProductoDAO productoDAO = new ProductoDAO();
@@ -28,25 +30,23 @@ public class ProductoBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        // Inicializamos el objeto y cargamos las listas al entrar a la página
         this.producto = new Producto();
         this.listar();
         this.listarCategorias();
     }
 
-    // --- MÉTODOS DE LÓGICA DE NEGOCIO ---
+    // --- MÉTODOS EXISTENTES (NO TOCADOS) ---
 
     public void listar() {
         try {
             listaProductos = productoDAO.listar();
         } catch (Exception e) {
-            e.printStackTrace(); // Considera usar un logger o FacesMessage
+            e.printStackTrace(); 
         }
     }
     
     public void listarCategorias() {
         try {
-            // Asumo que tu CategoriaDAO tiene un método listar() similar
             listaCategorias = categoriaDAO.listar(); 
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,40 +55,51 @@ public class ProductoBean implements Serializable {
 
     public void registrar() {
         try {
-            // Asignamos la categoría seleccionada al producto
             CategoriaProducto cat = new CategoriaProducto();
             cat.setId_categoria(idCategoriaSeleccionada);
             producto.setCategoria(cat);
             
-            // Lógica para saber si guardar o actualizar (dependiendo si tiene ID)
             if (producto.getId_producto() > 0) {
                 productoDAO.actualizar(producto);
+                mensaje("Éxito", "Producto actualizado correctamente.");
             } else {
                 productoDAO.guardar(producto);
+                mensaje("Éxito", "Producto registrado correctamente.");
             }
             
             limpiar();
-            listar(); // Actualizar la tabla
+            listar(); 
         } catch (Exception e) {
             System.out.println("Error al registrar: " + e.getMessage());
+            mensajeError("Error", e.getMessage());
         }
     }
 
     public void leer(Producto prodSeleccionado) {
-        // Copiamos el producto seleccionado al objeto del formulario para editarlo
         this.producto = prodSeleccionado;
-        // Sincronizamos el combo box de categoría
         if (this.producto.getCategoria() != null) {
             this.idCategoriaSeleccionada = this.producto.getCategoria().getId_categoria();
         }
     }
 
-    public void eliminar(Producto prodSeleccionado) {
+    public void eliminar(Producto prodSeleccionado) { // Este recibe objeto
         try {
             productoDAO.eliminar(prodSeleccionado.getId_producto());
-            listar(); // Refrescar la tabla
+            listar(); 
+            mensaje("Info", "Producto eliminado.");
         } catch (Exception e) {
             System.out.println("Error al eliminar: " + e.getMessage());
+        }
+    }
+    
+    // Sobrecarga para eliminar por ID (si la vista manda solo el int)
+    public void eliminar(int id) {
+        try {
+            productoDAO.eliminar(id);
+            listar();
+            mensaje("Info", "Producto eliminado.");
+        } catch (Exception e) {
+            System.out.println("Error al eliminar por ID: " + e.getMessage());
         }
     }
 
@@ -97,37 +108,50 @@ public class ProductoBean implements Serializable {
         this.idCategoriaSeleccionada = 0;
     }
 
+    // =======================================================
+    // NUEVOS MÉTODOS (PUENTES PARA LA VISTA)
+    // =======================================================
+
+    // La vista llama a 'prepararNuevo', nosotros llamamos a 'limpiar'
+    public void prepararNuevo() {
+        this.limpiar();
+    }
+
+    // La vista llama a 'prepararEdicion', nosotros llamamos a 'leer'
+    public void prepararEdicion(Producto p) {
+        this.leer(p);
+    }
+
+    // La vista llama a 'guardar', nosotros llamamos a 'registrar'
+    public void guardar() {
+        this.registrar();
+    }
+
+    // La vista llama a 'productoActual', nosotros devolvemos 'producto'
+    public Producto getProductoActual() {
+        return this.producto;
+    }
+
+    // Lógica visual para el semáforo de colores en la tabla
+    public boolean esStockBajo(int stock) {
+        return stock <= 5; 
+    }
+
+    // Helpers para mensajes
+    private void mensaje(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, t, m)); }
+    private void mensajeError(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, t, m)); }
+
     // --- GETTERS Y SETTERS ---
 
-    public Producto getProducto() {
-        return producto;
-    }
+    public Producto getProducto() { return producto; }
+    public void setProducto(Producto producto) { this.producto = producto; }
 
-    public void setProducto(Producto producto) {
-        this.producto = producto;
-    }
+    public List<Producto> getListaProductos() { return listaProductos; }
+    public void setListaProductos(List<Producto> listaProductos) { this.listaProductos = listaProductos; }
 
-    public List<Producto> getListaProductos() {
-        return listaProductos;
-    }
+    public List<CategoriaProducto> getListaCategorias() { return listaCategorias; }
+    public void setListaCategorias(List<CategoriaProducto> listaCategorias) { this.listaCategorias = listaCategorias; }
 
-    public void setListaProductos(List<Producto> listaProductos) {
-        this.listaProductos = listaProductos;
-    }
-
-    public List<CategoriaProducto> getListaCategorias() {
-        return listaCategorias;
-    }
-
-    public void setListaCategorias(List<CategoriaProducto> listaCategorias) {
-        this.listaCategorias = listaCategorias;
-    }
-
-    public int getIdCategoriaSeleccionada() {
-        return idCategoriaSeleccionada;
-    }
-
-    public void setIdCategoriaSeleccionada(int idCategoriaSeleccionada) {
-        this.idCategoriaSeleccionada = idCategoriaSeleccionada;
-    }
+    public int getIdCategoriaSeleccionada() { return idCategoriaSeleccionada; }
+    public void setIdCategoriaSeleccionada(int idCategoriaSeleccionada) { this.idCategoriaSeleccionada = idCategoriaSeleccionada; }
 }

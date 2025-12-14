@@ -145,32 +145,35 @@
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{sesionBean.esAdmin()}">
-                        <li class="header">ADMINISTRACIÓN</li>
-                        <li>
-                            <h:link outcome="/admin/medicos/index">
-                                <i class="pi pi-user-md"></i> <span>Médicos</span>
-                            </h:link>
-                        </li>
-                        <li>
-                            <h:link outcome="/admin/secretarias/index">
-                                <i class="pi pi-id-card"></i> <span>Secretarias</span>
-                            </h:link>
-                        </li>
-                        <li>
-                            <a href="#" onclick="alert('Módulo en construcción'); return false;">
-                                <i class="pi pi-box"></i> <span>Inventario</span>
-                            </a>
-                        </li>
-                    </h:panelGroup>
-
+                        <li class="header">ADMINISTRACIÓN</li> 
+                            <li>
+                                <h:link outcome="/admin/medicos/index">
+                                    <i class="pi pi-user-md"></i> 
+                                    <span>Médicos</span>
+                                </h:link>
+                            </li>
+                            <li>
+                                <h:link outcome="/admin/secretarias/index">
+                                    <i class="pi pi-id-card"></i> 
+                                    <span>Secretarias</span>
+                                </h:link>
+                            </li>
+                            <li>
+                                <h:link outcome="/admin/inventario/index">
+                                    <i class="pi pi-box"></i> 
+                                    <span>Inventario</span>
+                                </h:link>
+                            </li>
+                    </h:panelGroup>                
                     <h:panelGroup rendered="#{sesionBean.esPaciente()}">
                         <li class="header">MI CUENTA</li>
                         <li>
-                            <a href="#" onclick="alert('Módulo Mis Citas en construcción'); return false;">
-                                <i class="pi pi-calendar"></i> <span>Mis Citas</span>
-                            </a>
+                            <h:link outcome="/paciente/mis_citas">
+                                <i class="pi pi-calendar"></i>
+                                <span>Mis Citas</span>
+                            </h:link>
                         </li>
-                    </h:panelGroup>
+                        </h:panelGroup>
 
                     <h:panelGroup rendered="#{sesionBean.esMedico()}">
                         <li class="header">CONFIGURACIÓN</li>

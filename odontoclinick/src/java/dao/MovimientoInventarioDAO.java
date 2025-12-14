@@ -47,53 +47,6 @@ public class MovimientoInventarioDAO {
         return lista;
     }
 
-    // Guardar movimiento
-    public void guardar(MovimientoInventario mov) {
-        try {
-            String sql = "INSERT INTO movimiento_inventario(id_producto, cantidad, stock_anterior, stock_nuevo, id_usuario, tipo_movimiento, motivo, fecha_movimiento) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, mov.getIdProducto());
-            ps.setInt(2, mov.getCantidad());
-            ps.setInt(3, mov.getStockAnterior());
-            ps.setInt(4, mov.getStockNuevo());
-            ps.setInt(5, mov.getIdUsuario());
-            ps.setString(6, mov.getTipoMovimiento());
-            ps.setString(7, mov.getMotivo());
-            ps.setTimestamp(8, mov.getFechaMovimiento());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Error guardar movimiento: " + e.getMessage());
-        }
-    }
-
-    // Buscar movimiento por ID
-    public MovimientoInventario buscar(int id) {
-        MovimientoInventario mov = null;
-        try {
-            String sql = "SELECT * FROM movimiento_inventario WHERE id_movimiento = ?";
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, id);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                mov = new MovimientoInventario();
-                mov.setIdMovimiento(rs.getInt("id_movimiento"));
-                mov.setIdProducto(rs.getInt("id_producto"));
-                mov.setCantidad(rs.getInt("cantidad"));
-                mov.setStockAnterior(rs.getInt("stock_anterior"));
-                mov.setStockNuevo(rs.getInt("stock_nuevo"));
-                mov.setIdUsuario(rs.getInt("id_usuario"));
-                mov.setTipoMovimiento(rs.getString("tipo_movimiento"));
-                mov.setMotivo(rs.getString("motivo"));
-                mov.setFechaMovimiento(rs.getTimestamp("fecha_movimiento"));
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error buscar movimiento: " + e.getMessage());
-        }
-        return mov;
-    }
-
     // Actualizar movimiento
     public void actualizar(MovimientoInventario mov) {
         try {
@@ -125,4 +78,70 @@ public class MovimientoInventarioDAO {
             System.out.println("Error eliminar movimiento: " + e.getMessage());
         }
     }
+
+    public void guardar(MovimientoInventario mov) {
+    try {
+        // Desactivamos el auto-commit para manejar transacción
+        conn.setAutoCommit(false); 
+
+        // 1. INSERTAR EL MOVIMIENTO
+        String sqlMov = "INSERT INTO movimiento_inventario(...) VALUES(...)";
+        // ... (tu código actual de insert) ...
+        ps = conn.prepareStatement(sqlMov);
+        // ... set params ...
+        ps.executeUpdate();
+
+        // 2. ACTUALIZAR EL STOCK DEL PRODUCTO
+        String sqlUpdate = "";
+        if (mov.getTipoMovimiento().equals("ENTRADA")) {
+            sqlUpdate = "UPDATE producto SET stock_actual = stock_actual + ? WHERE id_producto = ?";
+        } else { // SALIDA
+            sqlUpdate = "UPDATE producto SET stock_actual = stock_actual - ? WHERE id_producto = ?";
+        }
+        
+        ps = conn.prepareStatement(sqlUpdate);
+        ps.setInt(1, mov.getCantidad());
+        ps.setInt(2, mov.getIdProducto());
+        ps.executeUpdate();
+
+        // Confirmamos la transacción
+        conn.commit(); 
+
+    } catch (SQLException e) {
+        try {
+            conn.rollback(); // Si falla, deshacemos todo
+        } catch (SQLException ex) { ex.printStackTrace(); }
+        System.out.println("Error transacción inventario: " + e.getMessage());
+    } finally {
+        try { conn.setAutoCommit(true); } catch (SQLException e) {}
+    }
 }
+}
+    // antiguo buscar
+    /* public MovimientoInventario buscar(int id) {
+        MovimientoInventario mov = null;
+        try {
+            String sql = "SELECT * FROM movimiento_inventario WHERE id_movimiento = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                mov = new MovimientoInventario();
+                mov.setIdMovimiento(rs.getInt("id_movimiento"));
+                mov.setIdProducto(rs.getInt("id_producto"));
+                mov.setCantidad(rs.getInt("cantidad"));
+                mov.setStockAnterior(rs.getInt("stock_anterior"));
+                mov.setStockNuevo(rs.getInt("stock_nuevo"));
+                mov.setIdUsuario(rs.getInt("id_usuario"));
+                mov.setTipoMovimiento(rs.getString("tipo_movimiento"));
+                mov.setMotivo(rs.getString("motivo"));
+                mov.setFechaMovimiento(rs.getTimestamp("fecha_movimiento"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error buscar movimiento: " + e.getMessage());
+        }
+        return mov;
+    }
+    */
