@@ -48,13 +48,18 @@
                             <p:menuitem value="Pagos" outcome="/secretaria/pagos/index.xhtml" icon="pi pi-dollar"/>
                         </p:submenu>
 
+                        <p:submenu label="Área Médica" rendered="#{sesionBean.esMedico()}">
+                            <p:menuitem value="Historial Pacientes" outcome="/medico/historiales/index" icon="pi pi-folder-open"/>
+                            <p:menuitem value="Mis Horarios" outcome="/medico/horarios/index" icon="pi pi-clock" rendered="false"/> 
+                        </p:submenu>
+
                         <p:submenu label="Administración" rendered="#{sesionBean.esAdmin()}">
-                            <p:menuitem value="Médicos" outcome="/medicos/index" icon="pi pi-briefcase"/>
-                            <p:menuitem value="Secretarias" outcome="/secretarias/index" icon="pi pi-user"/>
+                            <p:menuitem value="Médicos" outcome="/admin/medicos/index" icon="pi pi-briefcase"/>
+                            <p:menuitem value="Secretarias" outcome="/admin/secretarias/index" icon="pi pi-user"/>
                             <p:menuitem value="Inventario" outcome="/inventario/index" icon="pi pi-box"/>
                         </p:submenu>
                         
-                         <p:submenu label="Mi Cuenta" rendered="#{sesionBean.esPaciente()}">
+                        <p:submenu label="Mi Cuenta" rendered="#{sesionBean.esPaciente()}">
                             <p:menuitem value="Mis Citas" outcome="/pacientes/mis_citas" icon="pi pi-calendar"/>
                         </p:submenu>
                     </p:menu>

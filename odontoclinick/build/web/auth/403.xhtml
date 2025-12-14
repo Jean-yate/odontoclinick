@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Error 403 - Acceso denegado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #f8d7da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .error-box {
+            text-align: center;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .error-code {
+            font-size: 90px;
+            font-weight: bold;
+            color: #721c24;
+        }
+
+        .error-text {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .error-sub {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 25px;
+        }
+    </style>
+</h:head>
+
+<h:body>
+
+    <div class="error-box">
+        <div class="error-code">403</div>
+
+        <div class="error-text">
+            No tienes permisos para acceder a este recurso.
+        </div>
+
+        <div class

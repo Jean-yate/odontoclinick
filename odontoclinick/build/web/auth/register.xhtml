@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+    <title>Registro de Usuario (Tema Aristo)</title>
+    <style>
+        /* BASE Y CENTRADO */
+        body {
+            /* Mantenemos un fondo claro y el centrado */
+            background-color: #F8F8F8; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        /* TARJETA PRINCIPAL (Simulando un p:panel grande) */
+        .registro-box {
+            width: 100%;
+            max-width: 550px;
+            background: #fff;
+            padding: 30px;
+            /* Usamos la sombra y borde de Aristo */
+            border-radius: 6px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        }
+        /* TÍTULO (Usamos el color primario de Aristo) */
+        .titulo {
+            text-align: center;
+            color: #4B78A5; /* Color azul de Aristo */
+            margin-bottom: 25px;
+            font-weight: 700;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 0 #eee; /* Leve sombra para el estilo Aristo */
+        }
+        /* ESPACIADO Y GRIDS */
+        .ui-fluid .ui-inputtext, 
+        .ui-fluid .ui-selectonemenu, 
+        .ui-fluid .ui-password {
+            margin-bottom: 15px; 
+        }
+        .ui-g {
+            margin-left: -5px;
+            margin-right: -5px;
+        }
+        .ui-g-6 {
+            padding: 5px;
+        }
+        
+        /* PANELES DE DATOS ADICIONALES (Respetamos los bordes de PF) */
+        .ui-panel {
+            margin-top: 20px;
+        }
+        .paciente-panel .ui-panel-titlebar { background-color: #d1e2f7 !important; border-color: #9ac2e6 !important; }
+        .medico-panel .ui-panel-titlebar { background-color: #d0e7d0 !important; border-color: #a3c9a3 !important; }
+        .secretaria-panel .ui-panel-titlebar { background-color: #fff3c9 !important; border-color: #e6d39a !important; }
+        
+        /* BOTÓN PRINCIPAL (Adoptando el estilo Primary de Aristo, es decir, 'ui-button-action') */
+        .register-button {
+            background: #4B78A5 !important;
+            background-image: linear-gradient(to bottom, #7da5d7 0%, #4B78A5 100%) !important; /* Degradado de Aristo */
+            color: white !important;
+            border-color: #3b6289 !important;
+            height: 50px !important;
+            font-size: 1.1em !important;
+            margin-top: 25px !important;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        /* LINK INICIAR SESIÓN */
+        .login-link {
+            color: #4B78A5 !important;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</h:head>
+
+<h:body>
+
+<div class="registro-box">
+    <h2 class="titulo">
+        <i class="pi pi-user-plus" style="margin-right: 10px;"></i>
+        Crear Cuenta Nueva
+    </h2>
+
+    <h:form id="frmRegistro">
+        <p:messages id="msgs" showDetail="true" closable="true" severity="info, warn, error, fatal"/>
+
+        <div class="ui-fluid">
+
+            <p:panel header="Datos de Acceso" toggleable="false" style="margin-bottom:20px;">
+                <p:outputLabel value="Usuario:"/>
+                <p:inputText value="#{registroBean.nuevoUsuario.nombre_usuario}"
+                             required="true"
+                             placeholder="Ej. jperez"/>
+            </p:panel>
+            
+            <p:panel header="Información Personal" toggleable="false">
+                <div class="ui-g">
+                    <div class="ui-g-6">
+                        <p:outputLabel value="Nombre:"/>
+                        <p:inputText value="#{registroBean.nuevoUsuario.nombre}" required="true"/>
+                    </div>
+                    <div class="ui-g-6">
+                        <p:outputLabel value="Apellidos:"/>
+                        <p:inputText value="#{registroBean.nuevoUsuario.apellidos}" required="true"/>
+                    </div>
+                </div>
+
+                <p:outputLabel value="Correo Electrónico:"/>
+                <p:inputText value="#{registroBean.nuevoUsuario.correo}"
+                             type="email"
+                             required="true"
+                             placeholder="correo@ejemplo.com"/>
+
+                <p:outputLabel value="Teléfono:"/>
+                <p:inputText value="#{registroBean.nuevoUsuario.telefono}" required="true"/>
+            </p:panel>
+            
+            <p:panel header="Contraseña" toggleable="false" style="margin-top:20px;">
+                <div class="ui-g">
+                    <div class="ui-g-6">
+                        <p:outputLabel value="Contraseña:"/>
+                        <p:password value="#{registroBean.nuevoUsuario.contrasena}"
+                                    feedback="true"
+                                    required="true"
+                                    placeholder="Ingrese Contraseña"/>
+                    </div>
+                    <div class="ui-g-6">
+                        <p:outputLabel value="Confirmar:"/>
+                        <p:password value="#{registroBean.confirmacionPassword}"
+                                    required="true"
+                                    placeholder="Confirme Contraseña"/>
+                    </div>
+                </div>
+            </p:panel>
+
+            <p:separator style="margin-top:25px; margin-bottom: 25px;"/>
+
+            <p:outputLabel value="Seleccione el Tipo de Usuario:" style="font-weight:bold; display:block; margin-bottom: 8px;"/>
+            <p:selectOneMenu value="#{registroBean.idRolSeleccionado}"
+                             required="true"
+                             style="width:100%">
+                <f:selectItem itemLabel="-- Seleccione --" itemValue=""/>
+                <f:selectItems value="#{registroBean.listaRoles}"
+                               var="r"
+                               itemLabel="#{r.nombre_rol}"
+                               itemValue="#{r.id_rol}"/>
+                <p:ajax update="panelDatosAdicionales msgs"/>
+            </p:selectOneMenu>
+
+
+            <h:panelGroup id="panelDatosAdicionales">
+
+                <p:panel header="Datos Médicos del Paciente"
+                         rendered="#{registroBean.idRolSeleccionado == 4}"
+                         styleClass="paciente-panel">
+
+                    <p:outputLabel value="Fecha Nacimiento:"/>
+                    <p:calendar value="#{registroBean.nuevoPaciente.fecha_nacimiento}"
+                                pattern="dd/MM/yyyy"
+                                navigator="true"
+                                yearRange="c-100:c"
+                                required="#{registroBean.idRolSeleccionado == 4}"/>
+
+                    <div class="ui-g">
+                        <div class="ui-g-6">
+                            <p:outputLabel value="EPS:"/>
+                            <p:inputText value="#{registroBean.nuevoPaciente.eps}" required="#{registroBean.idRolSeleccionado == 4}"/>
+                        </div>
+                        <div class="ui-g-6">
+                            <p:outputLabel value="RH (Grupo Sanguíneo):"/>
+                            <p:selectOneMenu value="#{registroBean.nuevoPaciente.rh}" required="#{registroBean.idRolSeleccionado == 4}">
+                                <f:selectItem itemLabel="Seleccione" itemValue=""/>
+                                <f:selectItem itemLabel="O+" itemValue="O+"/>
+                                <f:selectItem itemLabel="O-" itemValue="O-"/>
+                                <f:selectItem itemLabel="A+" itemValue="A+"/>
+                                <f:selectItem itemLabel="A-" itemValue="A-"/>
+                                <f:selectItem itemLabel="B+" itemValue="B+"/>
+                                <f:selectItem itemLabel="B-" itemValue="B-"/>
+                                <f:selectItem itemLabel="AB+" itemValue="AB+"/>
+                                <f:selectItem itemLabel="AB-" itemValue="AB-"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+
+                    <p:outputLabel value="Dirección:"/>
+                    <p:inputText value="#{registroBean.nuevoPaciente.direccion}" required="#{registroBean.idRolSeleccionado == 4}"/>
+                </p:panel>
+
+                <p:panel header="Información Profesional"
+                         rendered="#{registroBean.idRolSeleccionado == 2}"
+                         styleClass="medico-panel">
+
+                    <p:outputLabel value="Especialidad:"/>
+                    <p:selectOneMenu value="#{registroBean.nuevoMedico.id_especialidad}" required="#{registroBean.idRolSeleccionado == 2}">
+                        <f:selectItems value="#{registroBean.listaEspecialidades}"
+                                       var="e"
+                                       itemLabel="#{e.nombre_especialidad}"
+                                       itemValue="#{e.id_especialidad}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="No. Licencia Médica:"/>
+                    <p:inputText value="#{registroBean.nuevoMedico.licencia_medica}" required="#{registroBean.idRolSeleccionado == 2}"/>
+
+                    <p:outputLabel value="Años Experiencia:"/>
+                    <p:inputText value="#{registroBean.nuevoMedico.anos_experiencia}"/>
+                </p:panel>
+
+                <p:panel header="Datos Laborales"
+                         rendered="#{registroBean.idRolSeleccionado == 3}"
+                         styleClass="secretaria-panel">
+
+                    <p:outputLabel value="Turno:"/>
+                    <p:selectOneMenu value="#{registroBean.nuevaSecretaria.turno}" required="#{registroBean.idRolSeleccionado == 3}">
+                        <f:selectItem itemLabel="Seleccione" itemValue=""/>
+                        <f:selectItem itemLabel="Mañana (8:00 - 12:00)" itemValue="Mañana"/>
+                        <f:selectItem itemLabel="Tarde (14:00 - 18:00)" itemValue="Tarde"/>
+                        <f:selectItem itemLabel="Completo" itemValue="Completo"/>
+                    </p:selectOneMenu>
+                </p:panel>
+
+                </h:panelGroup>
+
+            <p:commandButton value="Crear Cuenta"
+                             action="#{registroBean.registrar}"
+                             update="frmRegistro"
+                             icon="pi pi-check"
+                             styleClass="register-button"
+                             style="width:100%;" />
+
+            <div style="text-align:center; margin-top:20px">
+                <h:link outcome="/auth/login.xhtml"
+                        value="¿Ya tienes cuenta? Iniciar Sesión"
+                        styleClass="login-link"/>
+            </div>
+
+        </div>
+    </h:form>
+</div>
+
+</h:body>
+</html>

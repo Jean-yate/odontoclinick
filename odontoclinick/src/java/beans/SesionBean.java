@@ -2,12 +2,13 @@ package beans;
 
 import dao.UsuarioDAO;
 import java.io.IOException;
-import modelo.Usuario;
+import java.io.Serializable;
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
+import modelo.Usuario;
 
 @ManagedBean(name = "sesionBean")
 @SessionScoped
@@ -15,19 +16,26 @@ public class SesionBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // IMPORTANTE: No hacemos "new UsuarioDAO()" aquí para evitar pantalla blanca.
     private UsuarioDAO usuarioDAO;
 
-    // Variables del formulario
-    private String usuario = "";
-    private String contrasena = "";
+    // Campos del formulario
+    private String usuario;
+    private String contrasena;
 
+    // Usuario autenticado
     private Usuario usuarioLogueado;
 
-    // --- LÓGICA DE LOGIN ---
+    // Inicialización controlada por JSF
+    @PostConstruct
+    public void init() {
+        usuario = "";
+        contrasena = "";
+        usuarioLogueado = null;
+    }
+
+    // LOGIN
     public String iniciarSesion() {
         try {
-            // Inicializamos el DAO aquí (Lazy Loading)
             if (usuarioDAO == null) {
                 usuarioDAO = new UsuarioDAO();
             }
@@ -35,50 +43,45 @@ public class SesionBean implements Serializable {
             Usuario u = usuarioDAO.login(usuario, contrasena);
 
             if (u != null) {
-                this.usuarioLogueado = u;
-                
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Bienvenido", u.getNombre()));
-
-                // Redirección al Dashboard
+                usuarioLogueado = u;
                 return "/dashboard/index.xhtml?faces-redirect=true";
-            } else {
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Credenciales incorrectas o usuario inactivo."));
-                return null;
             }
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Error", "Credenciales incorrectas o usuario inactivo."));
+            return null;
+
         } catch (Exception e) {
-            e.printStackTrace();
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Error de conexión: " + e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    "Error", "Error de conexión."));
             return null;
         }
     }
 
-    // --- LÓGICA DE LOGOUT ---
+    // LOGOUT
     public String cerrarSesion() {
-        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        // CORRECCIÓN: Ruta con 'auth' en minúscula
+        FacesContext.getCurrentInstance()
+                    .getExternalContext()
+                    .invalidateSession();
         return "/auth/login.xhtml?faces-redirect=true";
     }
 
-    // --- SEGURIDAD EN VISTAS ---
-    public void verificarSesion() {
-        try {
-            if (usuarioLogueado == null) {
-                FacesContext context = FacesContext.getCurrentInstance();
-                String path = context.getExternalContext().getRequestContextPath();
-                // CORRECCIÓN: Ruta con 'auth' en minúscula
-                context.getExternalContext().redirect(path + "/auth/login.xhtml");
-            }
-        } catch (IOException e) {
-            System.out.println("Error en redirección: " + e.getMessage());
+    // PROTECCIÓN DE VISTAS
+    public void verificarSesion() throws IOException {
+        if (usuarioLogueado == null) {
+            FacesContext context = FacesContext.getCurrentInstance();
+            context.getExternalContext().redirect(
+                context.getExternalContext().getRequestContextPath()
+                + "/auth/login.xhtml");
         }
     }
 
-    // --- HELPERS PARA VISTAS (Roles) ---
-    
-    public boolean isLogueado() { return usuarioLogueado != null; }
+    // ROLES
+    public boolean isLogueado() {
+        return usuarioLogueado != null;
+    }
 
     public boolean esAdmin() {
         return usuarioLogueado != null && usuarioLogueado.getId_rol() == 1;
@@ -96,8 +99,7 @@ public class SesionBean implements Serializable {
         return usuarioLogueado != null && usuarioLogueado.getId_rol() == 4;
     }
 
-    // --- Getters y Setters ---
-
+    // GETTERS & SETTERS
     public String getUsuario() { return usuario; }
     public void setUsuario(String usuario) { this.usuario = usuario; }
 
@@ -105,5 +107,7 @@ public class SesionBean implements Serializable {
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
     public Usuario getUsuarioLogueado() { return usuarioLogueado; }
-    public void setUsuarioLogueado(Usuario usuarioLogueado) { this.usuarioLogueado = usuarioLogueado; }
+    public void setUsuarioLogueado(Usuario usuarioLogueado) {
+        this.usuarioLogueado = usuarioLogueado;
+    }
 }

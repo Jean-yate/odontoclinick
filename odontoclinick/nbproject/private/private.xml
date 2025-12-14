@@ -35,6 +35,18 @@
             <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/conf/MANIFEST.MF</file>
             <file>jar:file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/lib/all-themes-1.1.0.jar!/META-INF/maven/org.primefaces.themes/aristo/pom.xml</file>
             <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Horario.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/medico/historiales/index.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/secretaria/pacientes/index.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/auth/register.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/beans/SecretariaBean.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Rol.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/src/java/modelo/Usuario.java</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/admin/medicos/index.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/auth/404.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/auth/500.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/auth/403.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/medico/perfil/index.xhtml</file>
+            <file>file:/C:/Users/famil/OneDrive/Escritorio/odontoclinick/odontoclinick/web/medico/historiales/gestion.xhtml</file>
         </group>
     </open-files>
 </project-private>

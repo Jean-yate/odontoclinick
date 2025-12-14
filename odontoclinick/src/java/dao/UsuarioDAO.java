@@ -190,9 +190,50 @@ public class UsuarioDAO {
     // SECCIÓN 3: TRANSACCIONES (RegistroBean)
     // ==========================================
     
-    // Estos métodos devuelven SQLException para que el Bean pueda capturar el error y mostrarlo en pantalla
+    // MÉTODO NUEVO: Para el Administrador (Rol 1) o cualquier rol sin tabla secundaria
+    /**
+     * Registra solo en la tabla 'usuario' (para roles sin tablas secundarias, ej. Admin).
+     */
+    public void registrarUsuarioTransaccionSimple(Usuario u) throws SQLException {
+        Connection connTx = null;
+        PreparedStatement psUser = null;
+        ResultSet rsKeys = null;
+        
+        // La consulta usa el ID_ROL que viene en el objeto 'u' (será 1 para Admin)
+        String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, ?, 1, NOW())";
+        
+        try {
+            connTx = Conexion.conectar();
+            connTx.setAutoCommit(false); // Inicio Transacción
 
-    // Usado por RegistroBean (Línea 76)
+            psUser = connTx.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
+            psUser.setString(1, u.getNombre());
+            psUser.setString(2, u.getApellidos());
+            psUser.setString(3, u.getNombre_usuario());
+            psUser.setString(4, u.getCorreo());
+            psUser.setString(5, u.getTelefono());
+            psUser.setString(6, u.getContrasena());
+            psUser.setInt(7, u.getId_rol()); // Usamos el ID de rol que viene del Bean (ej. 1)
+            psUser.executeUpdate();
+
+            rsKeys = psUser.getGeneratedKeys();
+            if (!rsKeys.next()) {
+                 throw new SQLException("Fallo al obtener ID del usuario (Admin/Simple)");
+            }
+            
+            connTx.commit(); // Confirmar
+        } catch (SQLException e) {
+            if (connTx != null) connTx.rollback();
+            throw e;
+        } finally {
+            try { if (rsKeys != null) rsKeys.close(); } catch (SQLException e) {}
+            try { if (psUser != null) psUser.close(); } catch (SQLException e) {}
+            if (connTx != null) { connTx.setAutoCommit(true); connTx.close(); }
+        }
+    }
+
+
+    // Usado por RegistroBean (Médico - Rol 2)
     public void registrarMedicoTransaccion(Usuario u, Medico m) throws SQLException {
         Connection connTx = null;
         try {
@@ -237,13 +278,14 @@ public class UsuarioDAO {
         }
     }
 
-    // Usado por RegistroBean (Línea 79)
+    // Usado por RegistroBean (Secretaria - Rol 3)
     public void registrarSecretariaTransaccion(Usuario u, Secretaria s) throws SQLException {
         Connection connTx = null;
         try {
             connTx = Conexion.conectar();
             connTx.setAutoCommit(false);
 
+            // A. Insertar Usuario
             String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, 3, 1, NOW())";
             PreparedStatement psUser = connTx.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
             psUser.setString(1, u.getNombre());
@@ -262,6 +304,7 @@ public class UsuarioDAO {
             psUser.close();
             rsKeys.close();
 
+            // B. Insertar Secretaria
             String sqlSec = "INSERT INTO secretaria (id_usuario, turno, fecha_ingreso) VALUES (?, ?, NOW())";
             PreparedStatement psSec = connTx.prepareStatement(sqlSec);
             psSec.setInt(1, idGenerado);
@@ -278,13 +321,14 @@ public class UsuarioDAO {
         }
     }
 
-    // Usado por RegistroBean (Línea 82)
+    // Usado por RegistroBean (Paciente - Rol 4)
     public void registrarPacienteTransaccion(Usuario u, Paciente p) throws SQLException {
         Connection connTx = null;
         try {
             connTx = Conexion.conectar();
             connTx.setAutoCommit(false);
 
+            // A. Insertar Usuario
             String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, 4, 1, NOW())";
             PreparedStatement psUser = connTx.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
             psUser.setString(1, u.getNombre());
@@ -303,12 +347,21 @@ public class UsuarioDAO {
             psUser.close();
             rsKeys.close();
 
-            String sqlPac = "INSERT INTO paciente (id_usuario, direccion, eps, rh, fecha_registro) VALUES (?, ?, ?, ?, NOW())";
+            // B. Insertar Paciente (CORRECCIÓN: Se agrega fecha_nacimiento)
+            String sqlPac = "INSERT INTO paciente (id_usuario, direccion, eps, rh, fecha_nacimiento, fecha_registro) VALUES (?, ?, ?, ?, ?, NOW())";
             PreparedStatement psPac = connTx.prepareStatement(sqlPac);
             psPac.setInt(1, idGenerado);
             psPac.setString(2, p.getDireccion());
             psPac.setString(3, p.getEps());
             psPac.setString(4, p.getRh());
+            
+            // CUIDADO: Convertir java.util.Date a java.sql.Date y manejar nulls
+            if (p.getFecha_nacimiento() != null) {
+                psPac.setDate(5, new java.sql.Date(p.getFecha_nacimiento().getTime()));
+            } else {
+                psPac.setNull(5, java.sql.Types.DATE);
+            }
+            
             psPac.executeUpdate();
             psPac.close();
 
