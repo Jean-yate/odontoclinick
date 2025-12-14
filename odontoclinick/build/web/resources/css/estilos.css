@@ -1,0 +1,194 @@
+/* =========================================
+   1. ESTILOS GENERALES (Reset & Fuente)
+   ========================================= */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+    background-color: #f4f6f9 !important; /* Fondo gris claro moderno */
+    font-size: 14px;
+    color: #333;
+}
+
+/* =========================================
+   2. ESTRUCTURA (LAYOUT)
+   ========================================= */
+/* Barra Superior */
+.top-bar {
+    background: linear-gradient(90deg, #0d6efd 0%, #004d99 100%);
+    color: white;
+    padding: 0 15px;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Contenedor Principal */
+.wrapper {
+    display: flex;
+    height: 100%;
+    padding-top: 60px; /* Espacio para la barra fija */
+    box-sizing: border-box;
+}
+
+/* Sidebar (Menú Lateral) */
+.sidebar {
+    width: 250px;
+    background-color: #343a40; /* Gris oscuro */
+    color: #fff;
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
+}
+
+/* Área de Contenido */
+.content {
+    margin-left: 250px; /* Deja espacio para el sidebar */
+    width: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* =========================================
+   3. ESTILOS DEL MENÚ (Lista HTML)
+   ========================================= */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li.header {
+    padding: 10px 25px 10px 15px;
+    font-size: 12px;
+    color: #6c757d;
+    background: #212529;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.sidebar-menu li a {
+    display: block;
+    padding: 12px 20px;
+    color: #c2c7d0;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.sidebar-menu li a:hover {
+    background-color: #495057;
+    color: #fff;
+    border-left-color: #0d6efd; /* Azul al pasar el mouse */
+}
+
+.sidebar-menu li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Botón Hamburguesa (Oculto en PC) */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* =========================================
+   4. PRIMEFACES MODERNO (Tipo Bootstrap 5)
+   ========================================= */
+/* Quitar bordes redondeados viejos y sombras 3D */
+.ui-widget-content { border: none !important; }
+.ui-panel, .card-modern {
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    margin-bottom: 20px;
+}
+
+/* Botones Planos */
+.ui-button {
+    border-radius: 4px !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    font-weight: 500 !important;
+}
+
+/* Colores de Botones Manuales */
+.btn-primary, .ui-button.btn-primary { background-color: #0d6efd !important; color: white !important; }
+.btn-success, .ui-button.btn-success { background-color: #198754 !important; color: white !important; }
+.btn-warning, .ui-button.btn-warning { background-color: #ffc107 !important; color: #000 !important; }
+.btn-danger, .ui-button.btn-danger  { background-color: #dc3545 !important; color: white !important; }
+.btn-info, .ui-button.btn-info    { background-color: #0dcaf0 !important; color: #000 !important; }
+.btn-secondary { background-color: #6c757d !important; color: white !important; }
+
+/* Inputs Modernos */
+.ui-inputtext, .ui-selectonemenu {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 8px !important;
+    box-shadow: none !important;
+    width: 100%; /* Full width por defecto en form-grid */
+}
+.ui-inputtext:focus {
+    border-color: #86b7fe !important;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25) !important;
+}
+
+/* Tablas */
+.ui-datatable thead th {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 12px !important;
+}
+.ui-datatable tbody td {
+    border: 1px solid #dee2e6 !important;
+    padding: 10px !important;
+}
+
+/* =========================================
+   5. RESPONSIVE (MÓVIL)
+   ========================================= */
+@media (max-width: 768px) {
+    /* Ocultar sidebar por defecto */
+    .sidebar { transform: translateX(-100%); }
+    
+    /* Contenido ocupa todo el ancho */
+    .content { margin-left: 0; }
+    
+    /* Mostrar botón menú */
+    .menu-toggle { display: block; }
+    
+    /* Cuando el menú está activo (clase agregada por JS) */
+    .sidebar.active { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+    
+    /* Fondo oscuro al abrir menú */
+    .overlay { 
+        display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+        background: rgba(0,0,0,0.5); z-index: 998;
+    }
+    .overlay.active { display: block; }
+}

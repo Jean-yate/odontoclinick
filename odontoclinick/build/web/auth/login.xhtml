@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Acceso - Odontoclinick</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: #e9ebee;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 380px;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #1E88E5;
+        }
+        .login-header {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .login-button {
+            width: 100%;
+            font-size: 1.1em !important;
+            padding: 10px 0 !important;
+            margin-top: 15px;
+        }
+        .input-wrapper {
+            margin-bottom: 20px;
+        }
+        .p-input-icon-left .p-inputtext {
+            padding-left: 2.5rem !important;
+        }
+        .ui-fluid .ui-panelgrid {
+            border: none !important;
+        }
+        .login-footer a {
+            color: #1E88E5;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        /* --- ESTILOS MEJORADOS PARA EL BOTÓN DE VOLVER --- */
+        .back-link {
+            /* Aseguramos que el contenedor esté arriba */
+            display: block;
+            margin-bottom: 25px; 
+        }
+        .back-button-style {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            border: 1px solid #ced4da; /* Borde sutil */
+            border-radius: 5px;
+            color: #495057; /* Texto oscuro */
+            background-color: #f8f9fa; /* Fondo gris claro */
+            transition: all 0.2s;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        .back-button-style:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+            cursor: pointer;
+        }
+        .back-button-style i {
+            margin-right: 5px;
+            font-size: 1em;
+        }
+        /* ------------------------------------------------ */
+    </style>
+</h:head>
+
+<h:body>
+    <h:form id="loginForm">
+        <p:growl id="growl" showDetail="true" life="4000" />
+        <div class="login-container">
+        
+            <div class="back-link">
+                <h:outputLink value="#{request.contextPath}/index.xhtml" styleClass="back-button-style">
+                    <i class="pi pi-arrow-left"></i> Volver
+                </h:outputLink>
+            </div>
+        
+            <div class="login-header">
+                <i class="pi pi-briefcase" style="font-size: 2rem; color: #1E88E5; margin-right: 10px;"></i>
+                Acceso al Sistema
+            </div>
+            <div class="ui-fluid"> 
+                <div class="input-wrapper">
+                    <p:outputLabel for="usuario" value="Usuario" />
+                    <div class="p-input-icon-left">
+                        <i class="pi pi-user"></i>
+                        <p:inputText id="usuario"
+                                     value="#{sesionBean.usuario}"
+                                     required="true"
+                                     placeholder="Ingrese su nombre de usuario"
+                                     styleClass="ui-corner-all" />
+                    </div>
+                    <p:message for="usuario" />
+                </div>
+                <div class="input-wrapper">
+                    <p:outputLabel for="contrasena" value="Contraseña" />
+                    <div class="p-input-icon-left">
+                        <i class="pi pi-lock"></i>
+                        <p:password id="contrasena"
+                                    value="#{sesionBean.contrasena}"
+                                    required="true"
+                                    placeholder="********"
+                                    feedback="false"
+                                    styleClass="ui-corner-all" />
+                    </div>
+                    <p:message for="contrasena" />
+                </div>
+                <p:commandButton value="Ingresar"
+                                 action="#{sesionBean.iniciarSesion}"
+                                 update="growl"
+                                 icon="pi pi-arrow-right"
+                                 styleClass="ui-button-primary login-button" 
+                                 process="@form" />
+            </div>
+            <p:separator style="margin-top: 25px; margin-bottom: 15px;"/>
+            <div class="login-footer">
+                <h:outputLink value="#{request.contextPath}/auth/register.xhtml">
+                    <i class="pi pi-user-plus"></i> ¿No tienes cuenta? Regístrate
+                </h:outputLink>
+            </div>
+        </div>
+    </h:form>
+</h:body>
+</html>

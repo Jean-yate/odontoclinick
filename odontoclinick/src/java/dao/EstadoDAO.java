@@ -1,4 +1,5 @@
 package dao;
+
 import modelo.Estado;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,14 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Resource;
-import javax.sql.DataSource;
 
 public class EstadoDAO {
 
-    @Resource(lookup = "jdbc/odontoclinic")
-    private DataSource ds;
-
+    // 1. Eliminamos @Resource y DataSource
+    
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
@@ -24,7 +22,7 @@ public class EstadoDAO {
         String sql = "SELECT * FROM estado";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar(); // 2. Usamos nuestra clase Conexion
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             
@@ -49,7 +47,7 @@ public class EstadoDAO {
         String sql = "SELECT * FROM estado WHERE id_estado = ?";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
@@ -73,7 +71,7 @@ public class EstadoDAO {
         String sql = "INSERT INTO estado(nombre_estado) VALUES (?)";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setString(1, estado.getNombre_estado());
             ps.executeUpdate();
@@ -89,7 +87,7 @@ public class EstadoDAO {
         String sql = "UPDATE estado SET nombre_estado = ? WHERE id_estado = ?";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setString(1, estado.getNombre_estado());
             ps.setInt(2, estado.getId_estado());
@@ -106,7 +104,7 @@ public class EstadoDAO {
         String sql = "DELETE FROM estado WHERE id_estado = ?";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ps.executeUpdate();

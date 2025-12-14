@@ -8,16 +8,72 @@
 
     <h:head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title><ui:insert name="titulo">OdontoClinic</ui:insert></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        
+        <title><ui:insert name="titulo">OdontoClinick</ui:insert></title>
+        
+        <h:outputStylesheet library="css" name="estilos.css" />
+
         <style>
-            body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #ecf0f5; }
-            .top-bar { background-color: #3c8dbc; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-            .main-container { display: flex; min-height: 100vh; }
-            .sidebar { width: 250px; background-color: #222d32; color: #b8c7ce; min-height: 100vh; }
-            .content { flex-grow: 1; padding: 20px; }
-            .ui-menu { border: none; background: none; width: 100%; }
-            .ui-menuitem-text { color: #b8c7ce; }
-            .ui-menuitem-icon { color: #b8c7ce; }
+            /* ESTILOS BASE RESPONSIVE (Si no tienes el archivo externo, esto funcionará aquí) */
+            body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; }
+            
+            /* HEADER */
+            .top-bar {
+                background: linear-gradient(90deg, #0d6efd 0%, #004d99 100%);
+                color: white; padding: 0 15px; height: 60px;
+                display: flex; justify-content: space-between; align-items: center;
+                position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+
+            /* LAYOUT PRINCIPAL */
+            .wrapper { display: flex; height: 100%; padding-top: 60px; box-sizing: border-box; }
+
+            /* SIDEBAR (MENÚ LATERAL) */
+            .sidebar {
+                width: 250px; background-color: #343a40; color: #fff;
+                position: fixed; top: 60px; bottom: 0; left: 0;
+                overflow-y: auto; transition: transform 0.3s ease-in-out;
+                z-index: 999;
+            }
+            
+            /* CONTENIDO */
+            .content {
+                margin-left: 250px; width: 100%; padding: 20px;
+                overflow-y: auto; transition: margin-left 0.3s ease-in-out;
+            }
+
+            /* MENÚ LISTA (Reemplazo de p:menu) */
+            .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+            .sidebar-menu li.header {
+                padding: 10px 25px 10px 15px; font-size: 12px; color: #b8c7ce;
+                background: #2c3136; text-transform: uppercase; letter-spacing: 1px;
+            }
+            .sidebar-menu li a {
+                display: block; padding: 12px 20px; color: #c2c7d0; text-decoration: none;
+                border-left: 3px solid transparent; transition: all 0.2s;
+            }
+            .sidebar-menu li a:hover { background-color: #495057; color: #fff; border-left-color: #0d6efd; }
+            .sidebar-menu li a i { margin-right: 10px; width: 20px; text-align: center; }
+
+            /* BOTÓN HAMBURGUESA (Móvil) */
+            .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+            /* === REGLAS PARA CELULARES (RESPONSIVE) === */
+            @media (max-width: 768px) {
+                .sidebar { transform: translateX(-100%); } /* Ocultar sidebar */
+                .content { margin-left: 0; } /* Contenido full width */
+                .menu-toggle { display: block; } /* Mostrar botón menú */
+                
+                /* Clase activa para mostrar menú en móvil */
+                .sidebar.active { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+                .overlay { 
+                    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                    background: rgba(0,0,0,0.5); z-index: 998;
+                }
+                .overlay.active { display: block; }
+            }
         </style>
     </h:head>
 
@@ -27,38 +83,105 @@
         </f:metadata>
 
         <div class="top-bar">
-            <span style="font-size: 20px; font-weight: bold;">OdontoClinic</span>
+            <div style="display: flex; align-items: center;">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="pi pi-bars"></i>
+                </button>
+                <span style="font-size: 20px; font-weight: bold; margin-left: 10px;">OdontoClinick</span>
+            </div>
+            
             <h:form>
-                <h:outputText value="Hola, #{sesionBean.usuarioLogueado.nombre}" style="margin-right: 15px;" />
-                <p:commandButton value="Salir" action="#{sesionBean.cerrarSesion}" icon="pi pi-power-off" styleClass="ui-button-danger ui-button-flat"/>
+                <span style="margin-right: 10px; font-size: 0.9rem;">Hola, <b>#{sesionBean.usuarioLogueado.nombre}</b></span>
+                <p:commandButton action="#{sesionBean.cerrarSesion}" icon="pi pi-power-off" 
+                                 styleClass="ui-button-rounded ui-button-danger ui-button-flat" title="Salir"/>
             </h:form>
         </div>
 
-        <div class="main-container">
-            <div class="sidebar">
-                <h:form>
-                    <p:menu toggleable="true">
-                        <p:submenu label="Navegación">
-                            <p:menuitem value="Dashboard" outcome="/dashboard/index" icon="pi pi-home"/>
-                        </p:submenu>
+        <div class="wrapper">
+            
+            <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-                        <p:submenu label="Gestión" rendered="#{sesionBean.esSecretaria() or sesionBean.esAdmin()}">
-                            <p:menuitem value="Citas" outcome="/citas/index" icon="pi pi-calendar"/>
-                            <p:menuitem value="Pacientes" outcome="/pacientes/index" icon="pi pi-users"/>
-                            <p:menuitem value="Pagos" outcome="/pagos/index" icon="pi pi-dollar"/>
-                        </p:submenu>
+            <div class="sidebar" id="sidebar">
+                <ul class="sidebar-menu">
+                    
+                    <li class="header">NAVEGACIÓN</li>
+                    <li>
+                        <h:link outcome="/dashboard/index">
+                            <i class="pi pi-th-large"></i> <span>Dashboard</span>
+                        </h:link>
+                    </li>
 
-                        <p:submenu label="Administración" rendered="#{sesionBean.esAdmin()}">
-                            <p:menuitem value="Médicos" outcome="/medicos/index" icon="pi pi-briefcase"/>
-                            <p:menuitem value="Secretarias" outcome="/secretarias/index" icon="pi pi-user"/>
-                            <p:menuitem value="Inventario" outcome="/inventario/index" icon="pi pi-box"/>
-                        </p:submenu>
-                        
-                         <p:submenu label="Mi Cuenta" rendered="#{sesionBean.esPaciente()}">
-                            <p:menuitem value="Mis Citas" outcome="/pacientes/mis_citas" icon="pi pi-calendar"/>
-                        </p:submenu>
-                    </p:menu>
-                </h:form>
+                    <h:panelGroup rendered="#{sesionBean.esSecretaria() or sesionBean.esAdmin()}">
+                        <li class="header">GESTIÓN</li>
+                        <li>
+                            <h:link outcome="/secretaria/citas/index">
+                                <i class="pi pi-calendar-plus"></i> <span>Agenda de Citas</span>
+                            </h:link>
+                        </li>
+                        <li>
+                            <h:link outcome="/secretaria/pacientes/index">
+                                <i class="pi pi-users"></i> <span>Pacientes</span>
+                            </h:link>
+                        </li>
+                        <li>
+                            <h:link outcome="/secretaria/pagos/index">
+                                <i class="pi pi-dollar"></i> <span>Pagos</span>
+                            </h:link>
+                        </li>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{sesionBean.esMedico()}">
+                        <li class="header">ÁREA MÉDICA</li>
+                        <li>
+                            <h:link outcome="/medico/historiales/index">
+                                <i class="pi pi-folder-open"></i> <span>Historiales</span>
+                            </h:link>
+                        </li>
+                        <li>
+                            <h:link outcome="/medico/horarios/index">
+                                <i class="pi pi-clock"></i> <span>Mis Horarios</span>
+                            </h:link>
+                        </li>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{sesionBean.esAdmin()}">
+                        <li class="header">ADMINISTRACIÓN</li>
+                        <li>
+                            <h:link outcome="/admin/medicos/index">
+                                <i class="pi pi-user-md"></i> <span>Médicos</span>
+                            </h:link>
+                        </li>
+                        <li>
+                            <h:link outcome="/admin/secretarias/index">
+                                <i class="pi pi-id-card"></i> <span>Secretarias</span>
+                            </h:link>
+                        </li>
+                        <li>
+                            <a href="#" onclick="alert('Módulo en construcción'); return false;">
+                                <i class="pi pi-box"></i> <span>Inventario</span>
+                            </a>
+                        </li>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{sesionBean.esPaciente()}">
+                        <li class="header">MI CUENTA</li>
+                        <li>
+                            <a href="#" onclick="alert('Módulo Mis Citas en construcción'); return false;">
+                                <i class="pi pi-calendar"></i> <span>Mis Citas</span>
+                            </a>
+                        </li>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{sesionBean.esMedico()}">
+                        <li class="header">CONFIGURACIÓN</li>
+                        <li>
+                            <h:link outcome="/medico/perfil/index">
+                                <i class="pi pi-user-edit"></i> <span>Mi Perfil</span>
+                            </h:link>
+                        </li>
+                    </h:panelGroup>
+
+                </ul>
             </div>
 
             <div class="content">
@@ -67,10 +190,23 @@
                 </p:messages>
                 
                 <ui:insert name="contenido">
-                    Contenido por defecto
-                </ui:insert>
+                    </ui:insert>
             </div>
         </div>
 
+        <script type="text/javascript">
+            function toggleSidebar() {
+                var sidebar = document.getElementById('sidebar');
+                var overlay = document.getElementById('overlay');
+                // Alternar clase 'active' para mostrar/ocultar
+                if (sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                } else {
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                }
+            }
+        </script>
     </h:body>
 </html>

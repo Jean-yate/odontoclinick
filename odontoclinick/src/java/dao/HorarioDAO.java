@@ -8,80 +8,66 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.Horario;
 
-/*
-imports innecesarios, imports de relacionalidad  o sql
-import modelo.Medico;
-import java.sql.Time;
-*/
-
 public class HorarioDAO {
 
-    private Connection conn = Conexion.conectar();
+    // Variables de conexión
+    private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
+    
+    // Instancia de MedicoDAO
     private final MedicoDAO medicoDAO = new MedicoDAO();
 
-    // Listar todos los horarios
+    // 1. Listar todos los horarios
     public List<Horario> listar() {
         List<Horario> horarios = new ArrayList<>();
+        String sql = "SELECT * FROM horario";
+        
         try {
-            String sql = "SELECT * FROM horario";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                Horario h = new Horario();
-                h.setId_horario(rs.getInt("id_horario"));
-                h.setId_doctor(rs.getInt("id_doctor"));
-                h.setDia_semana(rs.getString("dia_semana"));
-                h.setDuracion_cita_minutos(rs.getInt("duracion_cita_minutos"));
-                h.setHora_inicio(rs.getTime("hora_inicio"));
-                h.setHora_fin(rs.getTime("hora_fin"));
-                h.setActivo(rs.getBoolean("activo"));
-                h.setMedico(medicoDAO.buscar(rs.getInt("id_doctor")));
-
+                Horario h = mapResultSetToHorario(rs);
                 horarios.add(h);
             }
-
         } catch (SQLException e) {
             System.out.println("Error listar Horarios: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
 
         return horarios;
     }
 
-    // Buscar horario por ID
+    // 2. Buscar horario por ID
     public Horario buscar(int id) {
         Horario h = null;
+        String sql = "SELECT * FROM horario WHERE id_horario = ?";
+        
         try {
-            String sql = "SELECT * FROM horario WHERE id_horario = ?";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                h = new Horario();
-                h.setId_horario(rs.getInt("id_horario"));
-                h.setId_doctor(rs.getInt("id_doctor"));
-                h.setDia_semana(rs.getString("dia_semana"));
-                h.setDuracion_cita_minutos(rs.getInt("duracion_cita_minutos"));
-                h.setHora_inicio(rs.getTime("hora_inicio"));
-                h.setHora_fin(rs.getTime("hora_fin"));
-                h.setActivo(rs.getBoolean("activo"));
-                h.setMedico(medicoDAO.buscar(rs.getInt("id_doctor")));
+                h = mapResultSetToHorario(rs);
             }
-
         } catch (SQLException e) {
             System.out.println("Error buscar Horario: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
-
         return h;
     }
-
-    // Guardar nuevo horario
+    
+    // 3. Guardar nuevo horario
     public void guardar(Horario h) {
+        String sql = "INSERT INTO horario (id_doctor, dia_semana, duracion_cita_minutos, hora_inicio, hora_fin, activo) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            String sql = "INSERT INTO horario (id_doctor, dia_semana, duracion_cita_minutos, hora_inicio, hora_fin, activo) VALUES (?, ?, ?, ?, ?, ?)";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, h.getId_doctor());
             ps.setString(2, h.getDia_semana());
@@ -92,13 +78,16 @@ public class HorarioDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error guardar Horario: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
     }
 
-    // Actualizar horario existente
+    // 4. Actualizar horario existente
     public void actualizar(Horario h) {
+        String sql = "UPDATE horario SET id_doctor = ?, dia_semana = ?, duracion_cita_minutos = ?, hora_inicio = ?, hora_fin = ?, activo = ? WHERE id_horario = ?";
         try {
-            String sql = "UPDATE horario SET id_doctor = ?, dia_semana = ?, duracion_cita_minutos = ?, hora_inicio = ?, hora_fin = ?, activo = ? WHERE id_horario = ?";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, h.getId_doctor());
             ps.setString(2, h.getDia_semana());
@@ -110,73 +99,62 @@ public class HorarioDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error actualizar Horario: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
     }
 
-    // Eliminar horario
+    // 5. Eliminar horario
     public void eliminar(int id) {
+        String sql = "DELETE FROM horario WHERE id_horario = ?";
         try {
-            String sql = "DELETE FROM horario WHERE id_horario = ?";
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error eliminar Horario: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
     }
-    // AGREGAR O REEMPLAZAR EN: dao/HorarioDAO.java
-
-public modelo.Horario buscarPorMedicoYDia(int idDoctor, String diaSemana) {
-    modelo.Horario h = null;
-    // Compara ignorando mayúsculas/minúsculas y verifica que esté activo
-    String sql = "SELECT * FROM horario WHERE id_doctor = ? AND LOWER(dia_semana) = LOWER(?) AND activo = 1";
     
-    try {
-        // CORRECCIÓN: Usamos tu variable 'conn' existente o llamamos a tu clase Conexion
-        if (conn == null || conn.isClosed()) {
-             // Si la conexión se cerró, la reabrimos usando tu clase estática
-             // (Asumiendo que 'conn' no sea final, si es final, usa una variable local)
-             // Para seguridad, usaremos una variable local aquí:
-             java.sql.Connection conexionLocal = dao.Conexion.conectar();
-             ps = conexionLocal.prepareStatement(sql);
-        } else {
-             ps = conn.prepareStatement(sql);
-        }
+    // 6. Buscar por Médico y Día
+    public modelo.Horario buscarPorMedicoYDia(int idDoctor, String diaSemana) {
+        modelo.Horario h = null;
+        String sql = "SELECT * FROM horario WHERE id_doctor = ? AND LOWER(dia_semana) = LOWER(?) AND activo = 1";
+        
+        try {
+            conn = Conexion.conectar();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, idDoctor);
+            ps.setString(2, diaSemana);
+            rs = ps.executeQuery();
 
-        ps.setInt(1, idDoctor);
-        ps.setString(2, diaSemana);
-        rs = ps.executeQuery();
-
-        if (rs.next()) {
-            h = new modelo.Horario();
-            h.setId_horario(rs.getInt("id_horario"));
-            h.setId_doctor(rs.getInt("id_doctor"));
-            h.setDia_semana(rs.getString("dia_semana"));
-            h.setDuracion_cita_minutos(rs.getInt("duracion_cita_minutos"));
-            h.setHora_inicio(rs.getTime("hora_inicio"));
-            h.setHora_fin(rs.getTime("hora_fin"));
-            h.setActivo(rs.getBoolean("activo"));
+            if (rs.next()) {
+                h = new modelo.Horario();
+                h.setId_horario(rs.getInt("id_horario"));
+                h.setId_doctor(rs.getInt("id_doctor"));
+                h.setDia_semana(rs.getString("dia_semana"));
+                h.setDuracion_cita_minutos(rs.getInt("duracion_cita_minutos"));
+                h.setHora_inicio(rs.getTime("hora_inicio"));
+                h.setHora_fin(rs.getTime("hora_fin"));
+                h.setActivo(rs.getBoolean("activo"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error buscarPorMedicoYDia: " + e.getMessage());
+        } finally {
+            cerrarRecursos();
         }
-    } catch (SQLException e) {
-        System.out.println("Error buscarPorMedicoYDia: " + e.getMessage());
-    } 
-    // No cerramos recursos aquí si tu 'conn' es compartida y final en el DAO,
-    // pero si usas el patrón de abrir/cerrar por método, descomenta el finally.
-    /*
-    finally {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        return h;
     }
-    */
-    return h;
-}
+
+    // 7. Listar por Doctor (Estaba fuera de la clase, ahora está dentro)
     public List<modelo.Horario> listarPorDoctor(int idDoctor) {
         List<modelo.Horario> lista = new ArrayList<>();
         String sql = "SELECT * FROM horario WHERE id_doctor = ?";
         try {
-            // Usamos tu conexión estática o la variable conn si está abierta
-            if (conn == null || conn.isClosed()) conn = Conexion.conectar();
-            
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, idDoctor);
             rs = ps.executeQuery();
@@ -190,14 +168,38 @@ public modelo.Horario buscarPorMedicoYDia(int idDoctor, String diaSemana) {
                 h.setHora_inicio(rs.getTime("hora_inicio"));
                 h.setHora_fin(rs.getTime("hora_fin"));
                 h.setActivo(rs.getBoolean("activo"));
-                // No cargamos el objeto Médico completo para evitar ciclos, ya sabemos quién es
                 lista.add(h);
             }
         } catch (SQLException e) {
             System.out.println("Error listarPorDoctor: " + e.getMessage());
+        } finally {
+            cerrarRecursos(); // Agregado finally para seguridad
         }
         return lista;
     }
-}
-    
 
+    // --- MÉTODOS PRIVADOS / UTILITARIOS ---
+
+    private Horario mapResultSetToHorario(ResultSet rs) throws SQLException {
+        Horario h = new Horario();
+        h.setId_horario(rs.getInt("id_horario"));
+        h.setId_doctor(rs.getInt("id_doctor"));
+        h.setDia_semana(rs.getString("dia_semana"));
+        h.setDuracion_cita_minutos(rs.getInt("duracion_cita_minutos"));
+        h.setHora_inicio(rs.getTime("hora_inicio"));
+        h.setHora_fin(rs.getTime("hora_fin"));
+        h.setActivo(rs.getBoolean("activo"));
+        // Cargar médico si es posible
+        try {
+             h.setMedico(medicoDAO.buscar(rs.getInt("id_doctor")));
+        } catch(Exception e) {}
+        return h;
+    }
+    
+    private void cerrarRecursos() {
+        try { if (rs != null) rs.close(); } catch (SQLException e) {}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (conn != null) conn.close(); } catch (SQLException e) {}
+    }
+
+}

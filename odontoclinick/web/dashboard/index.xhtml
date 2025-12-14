@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -11,257 +13,180 @@
 
     <ui:define name="contenido">
 
+        <!-- ================= ESTILOS ================= -->
         <style>
-            .welcome-header { margin-bottom: 20px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; }
-            .welcome-text { color: #0d6efd; font-weight: bold; }
-            
-            /* Cajas de Info (Admin) */
-            .info-box { display: block; min-height: 90px; background: #fff; width: 100%; box-shadow: 0 1px 1px rgba(0,0,0,0.1); border-radius: 2px; margin-bottom: 15px; color: #fff; padding: 10px; overflow: hidden; }
-            .info-box-content { padding: 5px 10px; margin-left: 0; }
-            .info-box-text { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
-            .info-box-number { display: block; font-weight: bold; font-size: 38px; }
-            
-            /* Colores */
-            .bg-aqua { background-color: #00c0ef !important; }
-            .bg-green { background-color: #00a65a !important; }
-            .bg-yellow { background-color: #f39c12 !important; }
-            .bg-red { background-color: #dd4b39 !important; }
-            .bg-cyan { background-color: #00bcd4 !important; }
+            .info-box {
+                min-height: 90px;
+                border-radius: 4px;
+                color: white;
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .bg-aqua { background-color: #00c0ef; }
+            .bg-green { background-color: #00a65a; }
+            .bg-yellow { background-color: #f39c12; }
+            .bg-cyan { background-color: #00bcd4; }
 
-            /* Alertas de Citas (Médico/Paciente) */
-            .cita-alert { border-left: 5px solid #0d6efd; background-color: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-            .cita-header { display: flex; justify-content: space-between; font-weight: bold; color: #333; }
-            .cita-details { margin-top: 5px; color: #666; font-size: 0.9rem; }
-            .badge-status { padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; color: white; font-weight: bold; }
+            .info-box-text {
+                font-size: 14px;
+                text-transform: uppercase;
+            }
+            .info-box-number {
+                font-size: 32px;
+                font-weight: bold;
+            }
+
+            .cita-alert {
+                background: #f8f9fa;
+                border-left: 5px solid #0d6efd;
+                padding: 12px;
+                margin-bottom: 10px;
+                border-radius: 4px;
+            }
+
+            .badge-status {
+                padding: 3px 8px;
+                border-radius: 10px;
+                color: white;
+                font-size: 12px;
+            }
         </style>
 
-        <div class="ui-g">
-            <div class="ui-g-12">
-                <h2 style="color: #3c8dbc; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-                    Bienvenido, <span style="color: #3c8dbc;">#{sesionBean.usuarioLogueado.nombre} #{sesionBean.usuarioLogueado.apellidos}</span>
-                </h2>
-            </div>
-        </div>
+        <!-- ================= BIENVENIDA ================= -->
+        <h2 style="margin-bottom:10px;">
+            Bienvenido,
+            <span style="color:#3c8dbc;">
+                #{sesionBean.usuarioLogueado.nombre}
+                #{sesionBean.usuarioLogueado.apellidos}
+            </span>
+        </h2>
 
+        <!-- ================= GUIA VISUAL ================= -->
+        <p:panel header="Guía rápida de acciones" style="margin:20px 0;">
+            <div class="ui-g ui-fluid">
+
+                <div class="ui-g-12 ui-md-4">
+                    <i class="pi pi-arrow-right" style="font-size:1.5em;color:#0d6efd;"></i>
+                    <strong> Gestionar</strong>
+                    <p>Accede al módulo para administrar información.</p>
+                </div>
+
+                <div class="ui-g-12 ui-md-4">
+                    <i class="pi pi-pencil" style="font-size:1.5em;color:#f39c12;"></i>
+                    <strong> Editar / Reprogramar</strong>
+                    <p>Permite modificar los datos o fecha de una cita.</p>
+                </div>
+
+                <div class="ui-g-12 ui-md-4">
+                    <i class="pi pi-times-circle" style="font-size:1.5em;color:#dd4b39;"></i>
+                    <strong> Cancelar</strong>
+                    <p>Cancela una cita (requiere confirmación).</p>
+                </div>
+
+                <div class="ui-g-12 ui-md-4">
+                    <i class="pi pi-calendar-plus" style="font-size:1.5em;color:#00a65a;"></i>
+                    <strong> Nueva Cita</strong>
+                    <p>Registrar una nueva cita médica.</p>
+                </div>
+
+                <div class="ui-g-12 ui-md-4">
+                    <i class="pi pi-user-plus" style="font-size:1.5em;color:#3c8dbc;"></i>
+                    <strong> Nuevo Paciente</strong>
+                    <p>Registrar un nuevo paciente en el sistema.</p>
+                </div>
+
+            </div>
+        </p:panel>
+
+        <!-- ================= ADMIN ================= -->
         <h:panelGroup rendered="#{sesionBean.esAdmin()}">
-            <div class="ui-g dashboard-cards">
-                
+            <div class="ui-g">
+
                 <div class="ui-g-12 ui-md-4">
                     <div class="info-box bg-aqua">
-                        <div class="info-box-content">
-                            <span class="info-box-text"><i class="pi pi-id-card"></i> Médicos</span>
-                            <span class="info-box-number">#{dashboardBean.listaMedicosAdmin.size()}</span>
-                            <div style="margin-top: 10px;">
-                                <p:button value="Gestionar" outcome="/admin/medicos/index" icon="pi pi-arrow-right" style="background:none; border:1px solid white; color:white;"/>
-                            </div>
-                        </div>
+                        <span class="info-box-text">Médicos</span>
+                        <span class="info-box-number">#{dashboardBean.listaMedicosAdmin.size()}</span>
+                        <p:button value="Gestionar"
+                                  icon="pi pi-arrow-right"
+                                  outcome="/admin/medicos/index"
+                                  styleClass="ui-button-secondary"/>
                     </div>
                 </div>
 
                 <div class="ui-g-12 ui-md-4">
                     <div class="info-box bg-green">
-                        <div class="info-box-content">
-                            <span class="info-box-text"><i class="pi pi-users"></i> Secretarias</span>
-                            <span class="info-box-number">#{dashboardBean.listaSecretariasAdmin.size()}</span>
-                            <div style="margin-top: 10px;">
-                                <p:button value="Gestionar" outcome="/admin/secretarias/index" icon="pi pi-arrow-right" style="background:none; border:1px solid white; color:white;"/>
-                            </div>
-                        </div>
+                        <span class="info-box-text">Secretarias</span>
+                        <span class="info-box-number">#{dashboardBean.listaSecretariasAdmin.size()}</span>
+                        <p:button value="Gestionar"
+                                  icon="pi pi-arrow-right"
+                                  outcome="/admin/secretarias/index"
+                                  styleClass="ui-button-secondary"/>
                     </div>
                 </div>
 
                 <div class="ui-g-12 ui-md-4">
                     <div class="info-box bg-yellow">
-                        <div class="info-box-content">
-                            <span class="info-box-text"><i class="pi pi-dollar"></i> Pagos</span>
-                            <span class="info-box-number">#{dashboardBean.listaPagosAdmin.size()}</span>
-                            <div style="margin-top: 10px;">
-                                <p:button value="Ver Reporte" outcome="/secretaria/pagos/index" icon="pi pi-arrow-right" style="background:none; border:1px solid white; color:white;"/>
-                            </div>
-                        </div>
+                        <span class="info-box-text">Pagos</span>
+                        <span class="info-box-number">#{dashboardBean.listaPagosAdmin.size()}</span>
+                        <p:button value="Ver Reporte"
+                                  icon="pi pi-arrow-right"
+                                  outcome="/secretaria/pagos/index"
+                                  styleClass="ui-button-secondary"/>
                     </div>
                 </div>
+
             </div>
         </h:panelGroup>
 
+        <!-- ================= MEDICO ================= -->
         <h:panelGroup rendered="#{sesionBean.esMedico()}">
-            <div class="ui-g">
-                
-                <div class="ui-g-12 ui-md-6">
-                    <p:panel header="Mi Agenda (Próximas Citas)" styleClass="ui-panel-success">
-                        <f:facet name="actions">
-                            <i class="pi pi-calendar"></i>
-                        </f:facet>
-                        
-                        <p:dataScroller value="#{dashboardBean.citasProximas}" var="cita" mode="inline" scrollHeight="300">
-                            
-                            <div class="cita-alert" style="border-left-color: #2ed8b6;">
-                                <div class="cita-header">
-                                    <span><i class="pi pi-user"/> #{cita.paciente.usuario.nombre} #{cita.paciente.usuario.apellidos}</span>
-                                    <p:button icon="pi pi-pencil" title="Atender" 
-                                              outcome="/medico/historiales/index" styleClass="ui-button-rounded ui-button-info ui-button-flat">
-                                        <f:param name="idCita" value="#{cita.id_cita}" />
-                                    </p:button>
-                                </div>
-                                <div class="cita-details">
-                                    <i class="pi pi-calendar"/> 
-                                    <h:outputText value="#{cita.fecha_hora}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" />
-                                    </h:outputText>
-                                    &nbsp;
-                                    <i class="pi pi-clock"/>
-                                    <h:outputText value="#{cita.fecha_hora}">
-                                        <f:convertDateTime pattern="HH:mm a" />
-                                    </h:outputText>
-                                    <br/>
-                                    <span style="font-style: italic;">"#{cita.notas_paciente}"</span>
-                                </div>
-                            </div>
-                        </p:dataScroller>
-
-                        <h:panelGroup rendered="#{empty dashboardBean.citasProximas}">
-                            <div style="padding: 20px; text-align: center; color: #777; background-color: #f8f9fa; border: 1px dashed #ccc;">
-                                <i class="pi pi-check-circle" style="font-size: 2em; display:block; margin-bottom: 10px;"></i>
-                                No tienes citas próximas asignadas.
-                            </div>
-                        </h:panelGroup>
-
-                    </p:panel>
-                </div>
-
-                <div class="ui-g-12 ui-md-6">
-                    
-                    <div class="dash-card bg-cyan" style="padding: 20px; border-radius: 5px; text-align: center; color: white; margin-bottom: 20px;">
-                        <i class="pi pi-folder-open" style="font-size: 3em; margin-bottom: 10px; display:block;"></i>
-                        <h3 style="margin: 0 0 10px 0;">Historiales Clínicos</h3>
-                        <p:button value="Ver Todos" outcome="/medico/historiales/index" styleClass="ui-button-warning" icon="pi pi-search"/>
+            <p:panel header="Mi Agenda (Próximas Citas)">
+                <ui:repeat value="#{dashboardBean.citasProximas}" var="cita">
+                    <div class="cita-alert">
+                        <strong>
+                            #{cita.paciente.usuario.nombre}
+                            #{cita.paciente.usuario.apellidos}
+                        </strong>
+                        <br/>
+                        <h:outputText value="#{cita.fecha_hora}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                        <p:button icon="pi pi-pencil"
+                                  title="Atender"
+                                  outcome="/medico/historiales/index"
+                                  styleClass="ui-button-info ui-button-flat"/>
                     </div>
-
-                    <p:panel header="Historial Reciente">
-                        <p:dataTable value="#{dashboardBean.citasPasadas}" var="cita" rows="5" paginator="true"
-                                     emptyMessage="No hay historial reciente.">
-                            <p:column headerText="Paciente">
-                                <h:outputText value="#{cita.paciente.usuario.nombre} #{cita.paciente.usuario.apellidos}" />
-                            </p:column>
-                            <p:column headerText="Fecha" width="90">
-                                <h:outputText value="#{cita.fecha_hora}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                                </h:outputText>
-                            </p:column>
-                        </p:dataTable>
-                    </p:panel>
-                </div>
-            </div>
+                </ui:repeat>
+            </p:panel>
         </h:panelGroup>
 
+        <!-- ================= SECRETARIA ================= -->
         <h:panelGroup rendered="#{sesionBean.esSecretaria()}">
-            <div class="ui-g">
-                <div class="ui-g-12" style="margin-bottom: 15px;">
-                    <p:commandButton value="Nueva Cita" icon="pi pi-calendar-plus" 
-                                     action="/secretaria/citas/index?faces-redirect=true" 
-                                     styleClass="ui-button-success" style="margin-right: 10px;"/>
-                    
-                    <p:commandButton value="Nuevo Paciente" icon="pi pi-user-plus" 
-                                     action="/secretaria/pacientes/index?faces-redirect=true" 
-                                     styleClass="ui-button-primary"/>
-                </div>
-
-                <div class="ui-g-12">
-                    <p:panel header="Agenda General (Próximas Citas)">
-                        <p:dataTable value="#{dashboardBean.citasProximas}" var="cita" rows="10" paginator="true" 
-                                     reflow="true" emptyMessage="No hay citas próximas.">
-                            
-                            <p:column headerText="Fecha" width="100" style="text-align: center;">
-                                <h:outputText value="#{cita.fecha_hora}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                                </h:outputText>
-                            </p:column>
-
-                            <p:column headerText="Hora" width="80" style="text-align: center;">
-                                <h:outputText value="#{cita.fecha_hora}">
-                                    <f:convertDateTime pattern="HH:mm a" />
-                                </h:outputText>
-                            </p:column>
-
-                            <p:column headerText="Paciente" filterBy="#{cita.paciente.usuario.nombre}" filterMatchMode="contains">
-                                <h:outputText value="#{cita.paciente.usuario.nombre} #{cita.paciente.usuario.apellidos}" />
-                            </p:column>
-
-                            <p:column headerText="Doctor" filterBy="#{cita.medico.usuario.nombre}" filterMatchMode="contains">
-                                <h:outputText value="#{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}" />
-                            </p:column>
-
-                            <p:column headerText="Estado" width="110" style="text-align: center;">
-                                <span class="badge-status" style="background-color: #{cita.estadoCita.color}">
-                                    #{cita.estadoCita.nombre_estado}
-                                </span>
-                            </p:column>
-                        </p:dataTable>
-                    </p:panel>
-                </div>
-            </div>
+            <p:commandButton value="Nueva Cita"
+                             icon="pi pi-calendar-plus"
+                             action="/secretaria/citas/index?faces-redirect=true"
+                             styleClass="ui-button-success"/>
+            <p:commandButton value="Nuevo Paciente"
+                             icon="pi pi-user-plus"
+                             action="/secretaria/pacientes/index?faces-redirect=true"
+                             styleClass="ui-button-primary"
+                             style="margin-left:10px"/>
         </h:panelGroup>
 
+        <!-- ================= PACIENTE ================= -->
         <h:panelGroup rendered="#{sesionBean.esPaciente()}">
-            <div class="ui-g">
-                
-                <div class="ui-g-12 ui-md-6">
-                    <p:panel header="Mis Próximas Citas" styleClass="ui-panel-primary">
-                        <ui:repeat value="#{dashboardBean.citasProximas}" var="cita">
-                            <div class="cita-alert" style="background-color: #e3f2fd; border-color: #0d6efd;">
-                                <div class="cita-header">
-                                    <span><i class="pi pi-user-md"/> Dr. #{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}</span>
-                                    <span class="badge-status" style="background-color: #{cita.estadoCita.color}">
-                                        #{cita.estadoCita.nombre_estado}
-                                    </span>
-                                </div>
-                                <div class="cita-details">
-                                    <h:outputText value="#{cita.fecha_hora}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" />
-                                    </h:outputText>
-                                    - 
-                                    <i class="pi pi-clock"></i>
-                                    <h:outputText value="#{cita.fecha_hora}">
-                                        <f:convertDateTime pattern="HH:mm a" />
-                                    </h:outputText>
-                                </div>
-                            </div>
-                        </ui:repeat>
-                        
-                        <h:panelGroup rendered="#{empty dashboardBean.citasProximas}">
-                            <div class="alert alert-warning" style="padding: 10px; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
-                                No tienes citas programadas.
-                            </div>
-                        </h:panelGroup>
-                    </p:panel>
-                </div>
-                
-                <div class="ui-g-12 ui-md-6">
-                    <p:panel header="Mi Historial">
-                        <ui:repeat value="#{dashboardBean.citasPasadas}" var="cita">
-                            <div style="border-bottom: 1px solid #eee; padding: 10px;">
-                                <strong>Dr. #{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}</strong>
-                                <br/>
-                                <span style="color: #666; font-size: 0.9em;">
-                                    <h:outputText value="#{cita.fecha_hora}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm a" />
-                                    </h:outputText>
-                                </span>
-                                <span class="badge-status" style="background-color: #6c757d; float: right;">
-                                    #{cita.estadoCita.nombre_estado}
-                                </span>
-                            </div>
-                        </ui:repeat>
-                        
-                        <h:panelGroup rendered="#{empty dashboardBean.citasPasadas}">
-                            <div class="alert alert-info" style="padding: 10px; background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;">
-                                No tienes citas pasadas.
-                            </div>
-                        </h:panelGroup>
-                    </p:panel>
-                </div>
-
-            </div>
+            <p:panel header="Mis Próximas Citas">
+                <ui:repeat value="#{dashboardBean.citasProximas}" var="cita">
+                    <div class="cita-alert">
+                        Dr. #{cita.medico.usuario.nombre}
+                        #{cita.medico.usuario.apellidos}
+                        <br/>
+                        <h:outputText value="#{cita.fecha_hora}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </div>
+                </ui:repeat>
+            </p:panel>
         </h:panelGroup>
 
     </ui:define>

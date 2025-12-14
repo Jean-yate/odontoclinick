@@ -57,9 +57,11 @@ public class HistorialMedicoBean implements Serializable {
         listaHistoriales = historialDAO.listarHistoriales();
         listaPacientes = pacienteDAO.listarTodos();
         listaMedicos = medicoDAO.listarTodos();
-        listaCitas = citaDAO.listarTodos(); 
         
-        //Inicializar fecha 
+        // COMBINADO: Usamos tu lógica nueva de filtros, pero mantenemos la fecha del remoto
+        listaCitas = citaDAO.listarConFiltros(null,null,null); 
+        
+        // Inicializar fecha (Esto venía del remoto y es útil para la vista)
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         fechaActual = sdf.format(new Date());
     }

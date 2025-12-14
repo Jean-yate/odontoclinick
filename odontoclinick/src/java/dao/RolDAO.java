@@ -7,14 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Resource;
-import javax.sql.DataSource;
 
 public class RolDAO {
 
-    @Resource(lookup = "jdbc/odontoclinic")
-    private DataSource ds;
-
+    // 1. Eliminamos @Resource y DataSource
+    
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
@@ -25,7 +22,7 @@ public class RolDAO {
         String sql = "SELECT * FROM rol";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar(); // 2. Usamos nuestra clase Conexion
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             
@@ -51,7 +48,7 @@ public class RolDAO {
         String sql = "SELECT * FROM rol WHERE id_rol = ?";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
@@ -76,7 +73,7 @@ public class RolDAO {
         String sql = "INSERT INTO rol(nombre_rol, descripcion) VALUES (?, ?)";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setString(1, rol.getNombre_rol());
             ps.setString(2, rol.getDescripcion());
@@ -93,7 +90,7 @@ public class RolDAO {
         String sql = "UPDATE rol SET nombre_rol = ?, descripcion = ? WHERE id_rol = ?";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setString(1, rol.getNombre_rol());
             ps.setString(2, rol.getDescripcion());
@@ -111,7 +108,7 @@ public class RolDAO {
         String sql = "DELETE FROM rol WHERE id_rol = ?";
         
         try {
-            conn = ds.getConnection();
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ps.executeUpdate();
