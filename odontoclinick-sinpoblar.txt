@@ -1,0 +1,301 @@
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0; -- Desactivar revisión para la creación
+
+-- --------------------------------------------------------
+-- 1. Tablas Independientes (Catálogos y Usuarios Base)
+-- --------------------------------------------------------
+
+CREATE TABLE `rol` (
+  `id_rol` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_rol` varchar(50) NOT NULL,
+  `descripcion` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id_rol`),
+  UNIQUE KEY `nombre_rol` (`nombre_rol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `estado` (
+  `id_estado` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_estado` varchar(20) NOT NULL,
+  PRIMARY KEY (`id_estado`),
+  UNIQUE KEY `nombre_estado` (`nombre_estado`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `especialidad` (
+  `id_especialidad` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_especialidad` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  PRIMARY KEY (`id_especialidad`),
+  UNIQUE KEY `nombre_especialidad` (`nombre_especialidad`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `categoria_producto` (
+  `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_categoria` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  PRIMARY KEY (`id_categoria`),
+  UNIQUE KEY `nombre_categoria` (`nombre_categoria`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `metodo_pago` (
+  `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_metodo` varchar(50) NOT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id_metodo_pago`),
+  UNIQUE KEY `nombre_metodo` (`nombre_metodo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `estado_cita` (
+  `id_estado_cita` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_estado` varchar(50) NOT NULL,
+  `color` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id_estado_cita`),
+  UNIQUE KEY `nombre_estado` (`nombre_estado`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- 2. Tabla Principal de Usuarios
+-- --------------------------------------------------------
+
+CREATE TABLE `usuario` (
+  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_usuario` varchar(50) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  `apellidos` varchar(100) NOT NULL,
+  `correo` varchar(100) NOT NULL,
+  `telefono` varchar(15) DEFAULT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `id_rol` int(11) NOT NULL,
+  `id_estado` int(11) NOT NULL DEFAULT 1,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE KEY `nombre_usuario` (`nombre_usuario`),
+  UNIQUE KEY `correo` (`correo`),
+  KEY `idx_rol` (`id_rol`),
+  KEY `idx_estado` (`id_estado`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- 3. Tablas de Perfiles (Extensión de Usuario)
+-- --------------------------------------------------------
+
+CREATE TABLE `medico` (
+  `id_doctor` int(11) NOT NULL AUTO_INCREMENT,
+  `id_usuario` int(11) NOT NULL,
+  `id_especialidad` int(11) NOT NULL,
+  `licencia_medica` varchar(50) DEFAULT NULL,
+  `anos_experiencia` int(11) DEFAULT 0,
+  `fecha_ingreso` date DEFAULT NULL,
+  PRIMARY KEY (`id_doctor`),
+  UNIQUE KEY `id_usuario` (`id_usuario`),
+  KEY `idx_especialidad` (`id_especialidad`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `paciente` (
+  `id_paciente` int(11) NOT NULL AUTO_INCREMENT,
+  `id_usuario` int(11) NOT NULL,
+  `fecha_nacimiento` date DEFAULT NULL,
+  `direccion` varchar(255) DEFAULT NULL,
+  `eps` varchar(100) DEFAULT NULL,
+  `rh` varchar(5) DEFAULT NULL,
+  `alergias` text DEFAULT NULL,
+  `enfermedades_preexistentes` text DEFAULT NULL,
+  `contacto_emergencia_nombre` varchar(100) DEFAULT NULL,
+  `contacto_emergencia_telefono` varchar(15) DEFAULT NULL,
+  `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_paciente`),
+  UNIQUE KEY `id_usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `secretaria` (
+  `id_secretaria` int(11) NOT NULL AUTO_INCREMENT,
+  `id_usuario` int(11) NOT NULL,
+  `fecha_ingreso` date DEFAULT NULL,
+  `turno` enum('Mañana','Tarde','Completo') DEFAULT 'Completo',
+  PRIMARY KEY (`id_secretaria`),
+  UNIQUE KEY `id_usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- 4. Tablas Operativas (Citas, Tratamientos, Productos)
+-- --------------------------------------------------------
+
+CREATE TABLE `horario` (
+  `id_horario` int(11) NOT NULL AUTO_INCREMENT,
+  `id_doctor` int(11) NOT NULL,
+  `dia_semana` enum('Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo') NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `duracion_cita_minutos` int(11) NOT NULL DEFAULT 30,
+  `activo` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id_horario`),
+  KEY `idx_doctor` (`id_doctor`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `producto` (
+  `id_producto` int(11) NOT NULL AUTO_INCREMENT,
+  `codigo_producto` varchar(50) DEFAULT NULL,
+  `nombre_producto` varchar(255) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `id_categoria` int(11) NOT NULL,
+  `precio_compra` decimal(10,2) NOT NULL,
+  `precio_venta` decimal(10,2) NOT NULL,
+  `stock_actual` int(11) NOT NULL DEFAULT 0,
+  `stock_minimo` int(11) NOT NULL DEFAULT 5,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_producto`),
+  UNIQUE KEY `codigo_producto` (`codigo_producto`),
+  KEY `idx_categoria` (`id_categoria`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `movimiento_inventario` (
+  `id_movimiento` int(11) NOT NULL AUTO_INCREMENT,
+  `id_producto` int(11) NOT NULL,
+  `tipo_movimiento` enum('ENTRADA','SALIDA','AJUSTE') NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `stock_anterior` int(11) NOT NULL,
+  `stock_nuevo` int(11) NOT NULL,
+  `motivo` varchar(255) DEFAULT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `fecha_movimiento` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_movimiento`),
+  KEY `idx_producto` (`id_producto`),
+  KEY `idx_usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `tratamiento` (
+  `id_tratamiento` int(11) NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(20) DEFAULT NULL,
+  `nombre_tratamiento` varchar(255) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `costo_base` decimal(10,2) NOT NULL,
+  `duracion_estimada_minutos` int(11) DEFAULT 30,
+  `activo` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id_tratamiento`),
+  UNIQUE KEY `codigo` (`codigo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `tratamiento_producto` (
+  `id_tratamiento_producto` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tratamiento` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad_requerida` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id_tratamiento_producto`),
+  UNIQUE KEY `uk_tratamiento_producto` (`id_tratamiento`,`id_producto`),
+  KEY `idx_producto` (`id_producto`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cita` (
+  `id_cita` int(11) NOT NULL AUTO_INCREMENT,
+  `id_paciente` int(11) NOT NULL,
+  `id_doctor` int(11) NOT NULL,
+  `fecha_hora` datetime NOT NULL,
+  `id_estado_cita` int(11) NOT NULL DEFAULT 1,
+  `notas_paciente` text DEFAULT NULL,
+  `notas_doctor` text DEFAULT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_cita`),
+  KEY `idx_paciente` (`id_paciente`),
+  KEY `idx_doctor` (`id_doctor`),
+  KEY `idx_estado` (`id_estado_cita`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cita_tratamiento` (
+  `id_cita_tratamiento` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cita` int(11) NOT NULL,
+  `id_tratamiento` int(11) NOT NULL,
+  `costo_aplicado` decimal(10,2) NOT NULL,
+  `observaciones` text DEFAULT NULL,
+  `completado` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id_cita_tratamiento`),
+  UNIQUE KEY `uk_cita_tratamiento` (`id_cita`,`id_tratamiento`),
+  KEY `idx_tratamiento` (`id_tratamiento`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `historial_medico` (
+  `id_historial` int(11) NOT NULL AUTO_INCREMENT,
+  `id_paciente` int(11) NOT NULL,
+  `id_cita` int(11) DEFAULT NULL,
+  `id_doctor` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `diagnostico` text NOT NULL,
+  `tratamiento_realizado` text NOT NULL,
+  `observaciones` text DEFAULT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_historial`),
+  KEY `idx_paciente` (`id_paciente`),
+  KEY `idx_cita` (`id_cita`),
+  KEY `idx_doctor` (`id_doctor`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `pago` (
+  `id_pago` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cita` int(11) NOT NULL,
+  `fecha_pago` datetime NOT NULL DEFAULT current_timestamp(),
+  `monto` decimal(10,2) NOT NULL,
+  `id_metodo_pago` int(11) NOT NULL,
+  `referencia` varchar(100) DEFAULT NULL,
+  `notas` text DEFAULT NULL,
+  PRIMARY KEY (`id_pago`),
+  KEY `idx_cita` (`id_cita`),
+  KEY `idx_metodo` (`id_metodo_pago`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- 5. Relacionalidad (Foreign Keys)
+-- --------------------------------------------------------
+
+-- Usuario y Roles
+ALTER TABLE `usuario`
+  ADD CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`id_rol`) REFERENCES `rol` (`id_rol`),
+  ADD CONSTRAINT `fk_usuario_estado` FOREIGN KEY (`id_estado`) REFERENCES `estado` (`id_estado`);
+
+-- Perfiles (Relación 1 a 1 con Usuario)
+ALTER TABLE `medico`
+  ADD CONSTRAINT `fk_medico_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_medico_especialidad` FOREIGN KEY (`id_especialidad`) REFERENCES `especialidad` (`id_especialidad`);
+
+ALTER TABLE `paciente`
+  ADD CONSTRAINT `fk_paciente_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE;
+
+ALTER TABLE `secretaria`
+  ADD CONSTRAINT `fk_secretaria_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE;
+
+-- Productos e Inventario
+ALTER TABLE `producto`
+  ADD CONSTRAINT `fk_producto_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria_producto` (`id_categoria`);
+
+ALTER TABLE `movimiento_inventario`
+  ADD CONSTRAINT `fk_mov_inv_producto` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`),
+  ADD CONSTRAINT `fk_mov_inv_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`);
+
+ALTER TABLE `tratamiento_producto`
+  ADD CONSTRAINT `fk_trat_prod_tratamiento` FOREIGN KEY (`id_tratamiento`) REFERENCES `tratamiento` (`id_tratamiento`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_trat_prod_producto` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`);
+
+-- Citas y Operación
+ALTER TABLE `horario`
+  ADD CONSTRAINT `fk_horario_medico` FOREIGN KEY (`id_doctor`) REFERENCES `medico` (`id_doctor`) ON DELETE CASCADE;
+
+ALTER TABLE `cita`
+  ADD CONSTRAINT `fk_cita_paciente` FOREIGN KEY (`id_paciente`) REFERENCES `paciente` (`id_paciente`),
+  ADD CONSTRAINT `fk_cita_doctor` FOREIGN KEY (`id_doctor`) REFERENCES `medico` (`id_doctor`),
+  ADD CONSTRAINT `fk_cita_estado` FOREIGN KEY (`id_estado_cita`) REFERENCES `estado_cita` (`id_estado_cita`);
+
+ALTER TABLE `cita_tratamiento`
+  ADD CONSTRAINT `fk_cita_trat_cita` FOREIGN KEY (`id_cita`) REFERENCES `cita` (`id_cita`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_cita_trat_tratamiento` FOREIGN KEY (`id_tratamiento`) REFERENCES `tratamiento` (`id_tratamiento`);
+
+ALTER TABLE `historial_medico`
+  ADD CONSTRAINT `fk_historial_paciente` FOREIGN KEY (`id_paciente`) REFERENCES `paciente` (`id_paciente`),
+  ADD CONSTRAINT `fk_historial_doctor` FOREIGN KEY (`id_doctor`) REFERENCES `medico` (`id_doctor`),
+  ADD CONSTRAINT `fk_historial_cita` FOREIGN KEY (`id_cita`) REFERENCES `cita` (`id_cita`);
+
+ALTER TABLE `pago`
+  ADD CONSTRAINT `fk_pago_cita` FOREIGN KEY (`id_cita`) REFERENCES `cita` (`id_cita`),
+  ADD CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`id_metodo_pago`) REFERENCES `metodo_pago` (`id_metodo_pago`);
+
+SET FOREIGN_KEY_CHECKS = 1;

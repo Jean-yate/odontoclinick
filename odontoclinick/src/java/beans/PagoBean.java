@@ -82,6 +82,18 @@ public class PagoBean implements Serializable {
         pagoActual = new Pago();
         pagoActual.setMonto(BigDecimal.ZERO);
     }
+   
+    public double getTotalIngresos() {
+        double total = 0;
+        if (listaPagos != null) {
+            for (Pago p : listaPagos) {
+                if (p.getMonto() != null) {
+                    total += p.getMonto().doubleValue();
+                }
+            }
+        }
+        return total;
+    }
 
     // --- Getters y Setters ---
 
