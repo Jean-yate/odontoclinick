@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/plantilla.xhtml">
+
+    <ui:define name="titulo">Editar Historial Clínico</ui:define>
+
+    <f:metadata>
+        <f:viewParam name="idHistorial" value="#{historialMedicoBean.idHistorialAEditar}" />
+        <f:event type="preRenderView" listener="#{historialMedicoBean.cargarHistorialParaEdicion}" />
+    </f:metadata>
+
+    <ui:define name="contenido">
+        
+        <div class="ui-g">
+            <div class="ui-g-12 ui-md-8 ui-lg-6" style="margin: 0 auto;">
+                
+                <h:form id="formEdicion">
+                    <p:growl showDetail="true" />
+                    
+                    <p:panel header="Edición de Historial Clínico" style="border-top: 4px solid #ffc107; padding: 20px;">
+                        
+                        <div class="ui-fluid">
+                            
+                            <p:outputLabel value="Paciente" style="font-weight: bold;"/>
+                            <p:inputText value="#{historialMedicoBean.historialActual.paciente.usuario.nombre} #{historialMedicoBean.historialActual.paciente.usuario.apellidos}"
+                                         readonly="true" style="background-color: #f8f9fa;"/>
+                            
+                            <p:separator style="margin-top: 15px; margin-bottom: 15px;"/>
+                            
+                            <p:outputLabel value="Fecha Atención" for="fecha" style="font-weight: bold; margin-top: 10px; display: block;"/>
+                            <p:calendar id="fecha" 
+                                        value="#{historialMedicoBean.historialActual.fecha}" 
+                                        pattern="dd/MM/yyyy" 
+                                        required="true" 
+                                        showOn="button"/>
+                            
+                            <p:outputLabel value="Procedimiento Realizado" for="proc" style="font-weight: bold; margin-top: 10px; display: block;"/>
+                            <p:inputTextarea id="proc" 
+                                             value="#{historialMedicoBean.historialActual.tratamiento_realizado}" 
+                                             rows="4" 
+                                             required="true"/>
+                            
+                            <p:outputLabel value="Diagnóstico" for="diag" style="font-weight: bold; margin-top: 10px; display: block;"/>
+                            <p:inputTextarea id="diag" 
+                                             value="#{historialMedicoBean.historialActual.diagnostico}" 
+                                             rows="4" 
+                                             required="true"/>
+                            
+                            <p:outputLabel value="Observaciones / Receta" for="obs" style="font-weight: bold; margin-top: 10px; display: block;"/>
+                            <p:inputTextarea id="obs" 
+                                             value="#{historialMedicoBean.historialActual.observaciones}" 
+                                             rows="2" 
+                                             placeholder="Indicaciones adicionales..."/>
+
+                            
+                            <div style="margin-top: 25px; text-align: right;">
+                                <p:button value="Cancelar" 
+                                          outcome="/medico/historiales/index" 
+                                          styleClass="ui-button-secondary" 
+                                          style="margin-right: 10px;"/>
+                                
+                                <p:commandButton value="Guardar Cambios" 
+                                                 action="#{historialMedicoBean.guardar()}" 
+                                                 update="@form" 
+                                                 icon="pi pi-save" 
+                                                 styleClass="ui-button-warning"/>
+                            </div>
+                        </div>
+                    </p:panel>
+                    
+                </h:form>
+                
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

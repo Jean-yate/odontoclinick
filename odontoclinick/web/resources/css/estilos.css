@@ -169,6 +169,92 @@ body, html {
     padding: 10px !important;
 }
 
+/* ================= ICONOS SVG EN BOTONES ================= */
+.btn-icon-img img {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.btn-icon-img {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================
+   PRIMEFACES 8 - COLORES DE ACCIONES
+   ========================================= */
+
+.ui-button.ui-button-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.ui-button.ui-button-warning:hover {
+    background-color: #e0a800 !important;
+}
+
+.ui-button.ui-button-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.ui-button.ui-button-danger:hover {
+    background-color: #bb2d3b !important;
+}
+
+.acciones .ui-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50% !important;
+    margin: 0 3px;
+}
+
+/* Filas alternadas estilo moderno */
+.tabla-striped .ui-datatable-even {
+    background-color: #f8f9fa !important;
+}
+
+.tabla-striped .ui-datatable-odd {
+    background-color: #ffffff !important;
+}
+.tabla-pacientes tbody tr:nth-child(even) {
+    background-color: #f4f6f9;
+}
+
+.tabla-pacientes tbody tr:hover {
+    background-color: #e3f0ff;
+    transition: background-color 0.2s ease;
+}
+
+/* Tabla Pagos */
+.tabla-pagos tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.tabla-pagos tbody tr:hover {
+    background-color: #eaf2ff;
+}
+
+/* Monto */
+.monto-pago {
+    color: #198754;
+    font-weight: 700;
+}
+
+/* Método de pago */
+.metodo-pago {
+    background: #0d6efd;
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+
 /* =========================================
    5. RESPONSIVE (MÓVIL)
    ========================================= */

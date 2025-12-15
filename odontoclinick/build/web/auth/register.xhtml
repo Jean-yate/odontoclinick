@@ -8,10 +8,9 @@
 <h:head>
     <title>Registro de Usuario (Tema Aristo)</title>
     <style>
-        /* BASE Y CENTRADO */
+        /* FONDO CON DEGRADADO AZUL */
         body {
-            /* Mantenemos un fondo claro y el centrado */
-            background-color: #F8F8F8; 
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
@@ -19,24 +18,23 @@
             min-height: 100vh;
             margin: 0;
         }
-        /* TARJETA PRINCIPAL (Simulando un p:panel grande) */
+        /* TARJETA PRINCIPAL */
         .registro-box {
             width: 100%;
             max-width: 550px;
-            background: #fff;
+            background: #ffffff;
             padding: 30px;
-            /* Usamos la sombra y borde de Aristo */
-            border-radius: 6px; 
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
-        /* TÍTULO (Usamos el color primario de Aristo) */
+        /* TÍTULO */
         .titulo {
             text-align: center;
-            color: #4B78A5; /* Color azul de Aristo */
+            color: #2563EB; /* Azul intenso */
             margin-bottom: 25px;
             font-weight: 700;
             font-size: 1.8em;
-            text-shadow: 1px 1px 0 #eee; /* Leve sombra para el estilo Aristo */
+            text-shadow: 1px 1px 0 #e0e0e0;
         }
         /* ESPACIADO Y GRIDS */
         .ui-fluid .ui-inputtext, 
@@ -51,30 +49,25 @@
         .ui-g-6 {
             padding: 5px;
         }
-        
-        /* PANELES DE DATOS ADICIONALES (Respetamos los bordes de PF) */
-        .ui-panel {
-            margin-top: 20px;
-        }
+        /* PANELES COLOREADOS */
         .paciente-panel .ui-panel-titlebar { background-color: #d1e2f7 !important; border-color: #9ac2e6 !important; }
         .medico-panel .ui-panel-titlebar { background-color: #d0e7d0 !important; border-color: #a3c9a3 !important; }
         .secretaria-panel .ui-panel-titlebar { background-color: #fff3c9 !important; border-color: #e6d39a !important; }
-        
-        /* BOTÓN PRINCIPAL (Adoptando el estilo Primary de Aristo, es decir, 'ui-button-action') */
+        /* BOTÓN PRINCIPAL */
         .register-button {
-            background: #4B78A5 !important;
-            background-image: linear-gradient(to bottom, #7da5d7 0%, #4B78A5 100%) !important; /* Degradado de Aristo */
+            background: #2563EB !important;
+            background-image: linear-gradient(to bottom, #3B82F6 0%, #2563EB 100%) !important;
             color: white !important;
-            border-color: #3b6289 !important;
+            border-color: #1E40AF !important;
             height: 50px !important;
             font-size: 1.1em !important;
             margin-top: 25px !important;
-            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+            text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
             border-radius: 4px;
         }
         /* LINK INICIAR SESIÓN */
         .login-link {
-            color: #4B78A5 !important;
+            color: #2563EB !important;
             text-decoration: none;
             font-weight: 500;
         }
@@ -226,7 +219,7 @@
                     </p:selectOneMenu>
                 </p:panel>
 
-                </h:panelGroup>
+            </h:panelGroup>
 
             <p:commandButton value="Crear Cuenta"
                              action="#{registroBean.registrar}"

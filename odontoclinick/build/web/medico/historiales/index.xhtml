@@ -12,6 +12,14 @@
     <ui:define name="contenido">
         
         <h:form id="formHistorial">
+            <p:messages id="msgs" showDetail="true" closable="true"/>
+
+            <div style="margin-bottom: 20px; text-align: right;">
+                <p:button value="Nuevo Historial" 
+                          outcome="/medico/historiales/crearHistorial"
+                          icon="pi pi-plus" 
+                          styleClass="ui-button-primary"/>
+            </div>
             
             <div class="card-modern" style="padding: 20px; border-left: 5px solid #0d6efd;">
                 <h3 style="margin-top: 0; color: #0d6efd;"><i class="pi pi-search"></i> Filtros de Búsqueda</h3>
@@ -38,8 +46,11 @@
                     </div>
                     
                     <div class="p-field p-col-12 p-md-2" style="display: flex; align-items: flex-end;">
-                        <p:commandButton value="Buscar" actionListener="#{historialMedicoBean.buscarConFiltros()}" 
-                                         update="tablaHistoriales" icon="pi pi-search" styleClass="btn-success"/>
+                        <p:commandButton value="Buscar" 
+                                         actionListener="#{historialMedicoBean.buscarConFiltros()}" 
+                                         update="tablaHistoriales msgs" 
+                                         icon="pi pi-search" 
+                                         styleClass="ui-button-success"/>
                     </div>
                 </div>
             </div>
@@ -68,12 +79,20 @@
                         <h:outputText value="#{h.diagnostico}" />
                     </p:column>
 
-                    <p:column headerText="Acciones" style="text-align: center; width: 120px;">
+                    <p:column headerText="Acciones" style="text-align: center; width: 150px;">
+                        
                         <p:commandButton icon="pi pi-eye" title="Ver Detalle" 
                                          oncomplete="PF('dlgVer').show()" update=":dialogoVer"
-                                         styleClass="btn-info" style="margin-right: 5px;">
+                                         styleClass="ui-button-info ui-button-flat" style="margin-right: 5px;">
                             <f:setPropertyActionListener value="#{h}" target="#{historialMedicoBean.historialActual}" />
                         </p:commandButton>
+                        
+                        <p:button icon="pi pi-pencil" title="Editar Historial"
+                                  outcome="/medico/historiales/editarHistorial"
+                                  styleClass="ui-button-warning ui-button-flat">
+                            <f:param name="idHistorial" value="#{h.id_historial}" />
+                        </p:button>
+                        
                     </p:column>
 
                 </p:dataTable>

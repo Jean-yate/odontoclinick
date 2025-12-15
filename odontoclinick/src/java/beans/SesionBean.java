@@ -25,21 +25,33 @@ public class SesionBean implements Serializable {
     // Usuario autenticado
     private Usuario usuarioLogueado;
 
-    // Inicialización controlada por JSF
     @PostConstruct
     public void init() {
         usuario = "";
         contrasena = "";
         usuarioLogueado = null;
+        
+        // CORRECCIÓN 1: Inicializar el DAO aquí. Si falla la BD, fallará en el PostConstruct, 
+        // pero aseguramos que el objeto no es nulo dentro del método iniciarSesion().
+        try {
+             usuarioDAO = new UsuarioDAO();
+        } catch (Exception e) {
+             System.err.println("ERROR FATAL AL INICIALIZAR USUARIODAO: " + e.getMessage());
+             // Puedes dejar usuarioDAO como null, pero el iniciarSesion debe manejarlo.
+        }
     }
 
     // LOGIN
     public String iniciarSesion() {
         try {
             if (usuarioDAO == null) {
-                usuarioDAO = new UsuarioDAO();
+                // Si la inicialización del DAO falló en @PostConstruct (Problema de BD/Configuración)
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                        "Error de conexión", "El sistema no pudo iniciar el acceso a la base de datos."));
+                return null;
             }
-
+            
             Usuario u = usuarioDAO.login(usuario, contrasena);
 
             if (u != null) {
@@ -53,9 +65,13 @@ public class SesionBean implements Serializable {
             return null;
 
         } catch (Exception e) {
+            // Este catch capturaría un error SQL si el login falla a nivel de base de datos
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_FATAL,
-                    "Error", "Error de conexión."));
+                    "Error", "Error de conexión en el login."));
+            
+            e.printStackTrace(); // Imprime el stack trace para depuración
+            
             return null;
         }
     }

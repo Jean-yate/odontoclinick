@@ -13,46 +13,44 @@
 
     <ui:define name="contenido">
 
-        <!-- ===================== FORM PRINCIPAL ===================== -->
         <h:form id="formCitas">
 
-            <p:panel header="Agenda de Citas Médicas">
+            <p:panel header="📅 Agenda de Citas Médicas" styleClass="card-modern">
 
                 <!-- FILTROS -->
-                <div class="ui-g ui-fluid" style="margin-bottom:10px;">
+                <div class="ui-g ui-fluid" style="margin-bottom:20px;">
+
                     <div class="ui-g-12 ui-md-3">
                         <p:inputText value="#{citaBean.filtroPaciente}"
-                                     placeholder="Buscar Paciente..." />
+                                     placeholder="Paciente" />
                     </div>
 
                     <div class="ui-g-12 ui-md-3">
                         <p:inputText value="#{citaBean.filtroMedico}"
-                                     placeholder="Buscar Médico..." />
+                                     placeholder="Médico" />
                     </div>
 
                     <div class="ui-g-12 ui-md-3">
                         <p:selectOneMenu value="#{citaBean.filtroEstado}">
                             <f:selectItem itemLabel="-- Estado --" itemValue="" />
                             <f:selectItems value="#{citaBean.listaEstados}"
-                                           var="est"
-                                           itemLabel="#{est.nombre_estado}"
-                                           itemValue="#{est.id_estado_cita}" />
+                                           var="e"
+                                           itemLabel="#{e.nombre_estado}"
+                                           itemValue="#{e.id_estado_cita}" />
                         </p:selectOneMenu>
                     </div>
 
                     <div class="ui-g-12 ui-md-3">
                         <p:commandButton value="Filtrar"
+                                         icon="pi pi-search"
                                          actionListener="#{citaBean.buscar}"
                                          update="tablaCitas"
-                                         icon="pi pi-search"
-                                         styleClass="ui-button-primary"/>
+                                         styleClass="ui-button-primary"
+                                         style="width:100%" />
                     </div>
                 </div>
 
-                <p:separator />
-
-                <!-- BOTÓN NUEVA CITA -->
-                <div style="text-align:right; margin-bottom:10px;">
+                <div style="text-align:right; margin-bottom:15px;">
                     <p:commandButton value="Nueva Cita"
                                      icon="pi pi-calendar-plus"
                                      styleClass="ui-button-success"
@@ -67,8 +65,10 @@
                              var="cita"
                              paginator="true"
                              rows="10"
-                             emptyMessage="No hay citas que coincidan con los filtros."
-                             rowKey="#{cita.id_cita}">
+                             rowKey="#{cita.id_cita}"
+                             emptyMessage="No se encontraron citas."
+                             styleClass="tabla-striped">
+
 
                     <p:column headerText="Fecha" style="text-align:center">
                         <h:outputText value="#{cita.fecha_hora}">
@@ -83,42 +83,47 @@
                     </p:column>
 
                     <p:column headerText="Paciente">
-                        <h:outputText value="#{cita.paciente.usuario.nombre}
-                                              #{cita.paciente.usuario.apellidos}" />
+                        #{cita.paciente.usuario.nombre} #{cita.paciente.usuario.apellidos}
                     </p:column>
 
                     <p:column headerText="Médico">
-                        <h:outputText value="#{cita.medico.usuario.nombre}
-                                              #{cita.medico.usuario.apellidos}" />
+                        #{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}
                     </p:column>
 
                     <p:column headerText="Estado" style="text-align:center">
-                        <span style="background-color:#{cita.estadoCita.color};
-                                     color:white;
-                                     padding:4px 8px;
-                                     border-radius:4px;
-                                     font-weight:bold;">
+                        <span style="
+                            background-color:#{cita.estadoCita.color};
+                            color:#ffffff;
+                            padding:4px 10px;
+                            border-radius:4px;
+                            font-weight:bold;
+                            display:inline-block;
+                            opacity:1;">
                             #{cita.estadoCita.nombre_estado}
                         </span>
                     </p:column>
 
-                    <p:column headerText="Acciones" style="text-align:center; width:120px;">
+
+                    <!-- ACCIONES -->
+                    <p:column headerText="Acciones"
+                              style="text-align:center"
+                              styleClass="acciones">
 
                         <p:commandButton icon="pi pi-pencil"
                                          title="Editar"
+                                         styleClass="ui-button-warning ui-button-rounded"
                                          actionListener="#{citaBean.setCitaActual(cita)}"
                                          update=":dialogoCita"
-                                         oncomplete="PF('wdialogoCita').show();"
-                                         styleClass="ui-button-warning ui-button-flat"/>
+                                         oncomplete="PF('wdialogoCita').show();" />
 
                         <p:commandButton icon="pi pi-times-circle"
                                          title="Cancelar"
-                                         actionListener="#{citaBean.cancelar(cita)}"
-                                         update="tablaCitas"
+                                         styleClass="ui-button-danger ui-button-rounded"
                                          rendered="#{cita.estadoCita.id_estado_cita ne 5}"
-                                         styleClass="ui-button-danger ui-button-flat">
+                                         actionListener="#{citaBean.cancelar(cita)}"
+                                         update="tablaCitas">
                             <p:confirm header="Cancelar Cita"
-                                       message="¿Seguro que desea cancelar esta cita?"
+                                       message="¿Desea cancelar esta cita?"
                                        icon="pi pi-exclamation-triangle"/>
                         </p:commandButton>
 
@@ -129,28 +134,24 @@
             </p:panel>
         </h:form>
 
-        <!-- ===================== DIALOGO ===================== -->
+        <!-- DIALOGO -->
         <p:dialog id="dialogoCita"
                   widgetVar="wdialogoCita"
                   header="Información de la Cita"
                   modal="true"
-                  resizable="false"
                   width="550"
-                  responsive="true"
+                  resizable="false"
                   appendTo="@(body)">
 
             <h:form>
+                <p:messages closable="true"/>
 
-                <p:messages showDetail="true" closable="true"/>
-
-                <h:panelGrid columns="2" cellpadding="5" style="width:100%">
+                <h:panelGrid columns="2" style="width:100%" cellpadding="6">
 
                     <p:outputLabel value="Paciente:" />
                     <p:selectOneMenu value="#{citaBean.citaActual.id_paciente}"
-                                     filter="true"
-                                     required="true"
-                                     style="width:100%">
-                        <f:selectItem itemLabel="Seleccione Paciente" itemValue="" />
+                                     filter="true" required="true">
+                        <f:selectItem itemLabel="Seleccione" itemValue="" />
                         <f:selectItems value="#{citaBean.listaPacientes}"
                                        var="p"
                                        itemLabel="#{p.usuario.nombre} #{p.usuario.apellidos}"
@@ -159,11 +160,9 @@
 
                     <p:outputLabel value="Médico:" />
                     <p:selectOneMenu value="#{citaBean.citaActual.id_doctor}"
-                                     filter="true"
-                                     required="true"
-                                     style="width:100%">
+                                     filter="true" required="true">
                         <p:ajax listener="#{citaBean.cargarHorasDisponibles}" update="hora"/>
-                        <f:selectItem itemLabel="Seleccione Médico" itemValue="" />
+                        <f:selectItem itemLabel="Seleccione" itemValue="" />
                         <f:selectItems value="#{citaBean.listaMedicos}"
                                        var="m"
                                        itemLabel="#{m.usuario.nombre} #{m.usuario.apellidos}"
@@ -173,9 +172,8 @@
                     <p:outputLabel value="Fecha:" />
                     <p:calendar value="#{citaBean.fechaSeleccionada}"
                                 pattern="dd/MM/yyyy"
-                                mindate="today"
-                                showOn="button"
-                                required="true">
+                                required="true"
+                                showOn="button">
                         <p:ajax event="dateSelect"
                                 listener="#{citaBean.cargarHorasDisponibles}"
                                 update="hora"/>
@@ -184,43 +182,39 @@
                     <p:outputLabel value="Hora:" />
                     <p:selectOneMenu id="hora"
                                      value="#{citaBean.horaSeleccionada}"
-                                     required="true"
-                                     style="width:100%">
-                        <f:selectItem itemLabel="-- Seleccione Hora --" itemValue="" />
-                        <f:selectItems value="#{citaBean.horasDisponibles}"
-                                       var="h"
-                                       itemLabel="#{h}"
-                                       itemValue="#{h}" />
+                                     required="true">
+                        <f:selectItem itemLabel="Seleccione" itemValue="" />
+                        <f:selectItems value="#{citaBean.horasDisponibles}" />
                     </p:selectOneMenu>
 
                 </h:panelGrid>
 
-                <div style="text-align:center; margin-top:15px;">
-                    <p:commandButton value="Guardar Cita"
+                <div style="text-align:center; margin-top:20px;">
+                    <p:commandButton value="Guardar"
+                                     icon="pi pi-save"
+                                     styleClass="ui-button-success"
                                      actionListener="#{citaBean.guardar}"
                                      update=":formCitas:tablaCitas :dialogoCita"
-                                     oncomplete="if(!args.validationFailed) PF('wdialogoCita').hide();"
-                                     icon="pi pi-check"
-                                     styleClass="ui-button-success"/>
+                                     oncomplete="if(!args.validationFailed) PF('wdialogoCita').hide();" />
 
                     <p:commandButton value="Cerrar"
                                      type="button"
-                                     onclick="PF('wdialogoCita').hide();"
                                      icon="pi pi-times"
                                      styleClass="ui-button-secondary"
-                                     style="margin-left:10px;"/>
+                                     onclick="PF('wdialogoCita').hide();"
+                                     style="margin-left:10px;" />
                 </div>
-
             </h:form>
         </p:dialog>
 
-        <!-- CONFIRM GLOBAL -->
         <h:form>
             <p:confirmDialog global="true">
                 <p:commandButton value="Sí" type="button"
-                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                                 styleClass="ui-confirmdialog-yes ui-button-success"
+                                 icon="pi pi-check"/>
                 <p:commandButton value="No" type="button"
-                                 styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
+                                 styleClass="ui-confirmdialog-no ui-button-secondary"
+                                 icon="pi pi-times"/>
             </p:confirmDialog>
         </h:form>
 

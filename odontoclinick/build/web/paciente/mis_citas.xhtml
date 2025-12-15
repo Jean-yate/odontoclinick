@@ -13,50 +13,58 @@
         
         <h:form id="formMisCitas">
             
-            <div class="card-modern" style="padding: 20px;">
-                <h2 style="color: #0d6efd; margin-top: 0; margin-bottom: 20px;">
+            <!-- Encabezado tipo card -->
+            <p:panel style="margin-bottom:20px;
+                            background: linear-gradient(135deg,#0d6efd,#0b5ed7);
+                            color: white; border-radius: 10px; padding: 15px;">
+                <h2 style="margin:0">
                     <i class="pi pi-calendar-check"></i> Mi Historial de Citas
                 </h2>
+            </p:panel>
 
-                <p:dataTable value="#{citaBean.listaCitas}" var="cita" 
-                             reflow="true" paginator="true" rows="10"
-                             emptyMessage="No tienes citas registradas.">
+            <!-- Tabla de citas -->
+            <p:dataTable id="tablaCitas" value="#{citaBean.listaCitas}" var="cita" 
+                         rowKey="#{cita.id_cita}"
+                         paginator="true" rows="10" reflow="true"
+                         emptyMessage="No tienes citas registradas."
+                         paginatorPosition="bottom"
+                         styleClass="table-striped">
 
-                    <p:column headerText="Fecha y Hora" sortBy="#{cita.fecha_hora}" width="150">
-                        <h:outputText value="#{cita.fecha_hora}" style="font-weight: bold; font-size: 1.1em; color: #333;">
-                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                        </h:outputText>
-                    </p:column>
+                <p:column headerText="Fecha y Hora" sortBy="#{cita.fecha_hora}" width="160">
+                    <h:outputText value="#{cita.fecha_hora}" style="font-weight:bold; color:#333;">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                    </h:outputText>
+                </p:column>
 
-                    <p:column headerText="Doctor Asignado">
-                        <i class="pi pi-user-md" style="margin-right: 5px; color: #0d6efd;"></i>
-                        <h:outputText value="#{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}" style="font-weight: bold;"/>
-                    </p:column>
+                <p:column headerText="Doctor Asignado">
+                    <i class="pi pi-user-md" style="margin-right:5px; color:#0d6efd;"></i>
+                    <h:outputText value="#{cita.medico.usuario.nombre} #{cita.medico.usuario.apellidos}" style="font-weight:bold;"/>
+                </p:column>
 
-                    <p:column headerText="Motivo / Notas">
-                        <h:outputText value="#{cita.notas_paciente}" style="color: #555; font-style: italic;"/>
-                    </p:column>
+                <p:column headerText="Motivo / Notas">
+                    <h:outputText value="#{cita.notas_paciente}" style="color:#555; font-style:italic;"/>
+                </p:column>
 
-                    <p:column headerText="Estado" style="text-align: center;" width="120">
-                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 1}">
-                            <span class="badge" style="background: #ffc107; color: #000; padding: 5px 10px; border-radius: 4px;">Pendiente</span>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 2}">
-                            <span class="badge" style="background: #0d6efd; color: #fff; padding: 5px 10px; border-radius: 4px;">Confirmada</span>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 3}">
-                            <span class="badge" style="background: #dc3545; color: #fff; padding: 5px 10px; border-radius: 4px;">Cancelada</span>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 4}">
-                            <span class="badge" style="background: #198754; color: #fff; padding: 5px 10px; border-radius: 4px;">Atendida</span>
-                        </h:panelGroup>
-                    </p:column>
+                <p:column headerText="Estado" style="text-align:center; width:120px;">
+                    <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 1}">
+                        <span style="background:#ffc107;color:#000;padding:4px 10px;border-radius:4px;font-weight:bold;">Pendiente</span>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 2}">
+                        <span style="background:#0d6efd;color:white;padding:4px 10px;border-radius:4px;font-weight:bold;">Confirmada</span>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 3}">
+                        <span style="background:#dc3545;color:white;padding:4px 10px;border-radius:4px;font-weight:bold;">Cancelada</span>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{cita.estadoCita.id_estado_cita eq 4}">
+                        <span style="background:#198754;color:white;padding:4px 10px;border-radius:4px;font-weight:bold;">Atendida</span>
+                    </h:panelGroup>
+                </p:column>
 
-                </p:dataTable>
-                
-                <div style="margin-top: 15px; color: #777; font-size: 0.9em;">
-                    <i class="pi pi-info-circle"></i> Para cancelar o reprogramar una cita, por favor comuníquese con la secretaría.
-                </div>
+            </p:dataTable>
+
+            <!-- Mensaje informativo -->
+            <div style="margin-top:15px; color:#777; font-size:0.9em;">
+                <i class="pi pi-info-circle"></i> Para cancelar o reprogramar una cita, por favor comuníquese con la secretaría.
             </div>
 
         </h:form>

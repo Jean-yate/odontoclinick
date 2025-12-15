@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -10,113 +12,164 @@
     <ui:define name="titulo">Gestión de Pacientes</ui:define>
 
     <ui:define name="contenido">
-        
-        <h:form id="formPacientes">
-            <p:panel header="Listado de Pacientes">
 
-                <div class="ui-g ui-fluid" style="margin-bottom: 20px;">
+        <h:form id="formPacientes">
+
+            <p:panel header="👥 Listado de Pacientes" styleClass="card-modern">
+
+                <!-- BUSCADOR -->
+                <div class="ui-g ui-fluid" style="margin-bottom:15px; align-items:center;">
+
                     <div class="ui-g-12 ui-md-6">
                         <div class="ui-inputgroup">
-                            <p:inputText value="#{pacienteBean.textoBusqueda}" placeholder="Buscar por nombre, correo o cédula..." />
-                            <p:commandButton icon="pi pi-search" actionListener="#{pacienteBean.buscar()}" update="tablaPacientes" styleClass="ui-button-primary"/>
+                            <p:inputText value="#{pacienteBean.textoBusqueda}"
+                                         placeholder="Buscar por nombre del paciente..." />
+                            <p:commandButton icon="pi pi-search"
+                                             title="Buscar"
+                                             actionListener="#{pacienteBean.buscar}"
+                                             update="tablaPacientes"
+                                             styleClass="ui-button-primary"/>
                         </div>
                     </div>
-                    <div class="ui-g-12 ui-md-6" style="text-align: right;">
-                        <p:commandButton value="Agregar Paciente" icon="pi pi-user-plus" 
-                                         actionListener="#{pacienteBean.prepararNuevo()}"
-                                         update=":dialogoPaciente" oncomplete="PF('wDialogoPaciente').show();"
-                                         styleClass="ui-button-success" />
+
+                    <div class="ui-g-12 ui-md-6" style="text-align:right;">
+                        <p:commandButton value="Agregar Paciente"
+                                         icon="pi pi-user-plus"
+                                         styleClass="ui-button-success"
+                                         actionListener="#{pacienteBean.prepararNuevo}"
+                                         update=":dialogoPaciente"
+                                         oncomplete="PF('wDialogoPaciente').show();" />
                     </div>
+
                 </div>
 
-                <p:dataTable id="tablaPacientes" value="#{pacienteBean.listaPacientes}" var="pac"
-                             paginator="true" rows="10" emptyMessage="No se encontraron pacientes."
-                             rowKey="#{pac.id_paciente}">
+                <!-- TABLA -->
+                <p:dataTable id="tablaPacientes"
+             value="#{pacienteBean.listaPacientes}"
+             var="pac"
+             paginator="true"
+             rows="10"
+             rowKey="#{pac.id_paciente}"
+             styleClass="tabla-pacientes"
+             emptyMessage="No se encontraron pacientes registrados.">
 
-                    <p:column headerText="ID" width="50" style="text-align: center;">
-                        <h:outputText value="#{pac.id_paciente}" />
+
+                    <p:column headerText="ID" style="text-align:center; width:70px;">
+                        #{pac.id_paciente}
                     </p:column>
 
-                    <p:column headerText="Nombre Completo">
-                        <h:outputText value="#{pac.usuario.nombre} #{pac.usuario.apellidos}" />
+                    <p:column headerText="Paciente">
+                        <strong>#{pac.usuario.nombre} #{pac.usuario.apellidos}</strong>
                     </p:column>
 
                     <p:column headerText="Correo">
-                        <h:outputText value="#{pac.usuario.correo}" />
+                        #{pac.usuario.correo}
                     </p:column>
 
-                    <p:column headerText="Teléfono">
-                        <h:outputText value="#{pac.usuario.telefono}" />
+                    <p:column headerText="Teléfono" style="text-align:center;">
+                        #{pac.usuario.telefono}
                     </p:column>
 
                     <p:column headerText="EPS">
-                        <h:outputText value="#{pac.eps}" />
+                        #{pac.eps}
                     </p:column>
 
-                    <p:column headerText="RH" width="60" style="text-align: center;">
-                        <h:outputText value="#{pac.rh}" />
+                    <p:column headerText="RH" style="text-align:center; width:70px;">
+                        <span style="
+                            background:#6c757d;
+                            color:#ffffff;
+                            padding:4px 10px;
+                            border-radius:12px;
+                            font-weight:700;
+                            font-size:0.85rem;">
+                            #{pac.rh}
+                        </span>
                     </p:column>
 
-                    <p:column headerText="Acciones" style="text-align: center; width: 150px;">
-                        
-                        <p:commandButton icon="pi pi-pencil" title="Editar"
+                    <!-- ACCIONES -->
+                    <p:column headerText="Acciones"
+                              style="text-align:center; width:190px;"
+                              styleClass="acciones">
+
+                        <!-- EDITAR -->
+                        <p:commandButton icon="pi pi-pencil"
+                                         title="Editar"
+                                         styleClass="ui-button-warning ui-button-rounded"
                                          actionListener="#{pacienteBean.prepararEdicion(pac)}"
-                                         update=":dialogoPaciente" oncomplete="PF('wDialogoPaciente').show();"
-                                         styleClass="ui-button-warning ui-button-flat" />
+                                         update=":dialogoPaciente"
+                                         oncomplete="PF('wDialogoPaciente').show();" />
 
-                        <p:button icon="pi pi-book" title="Ver Historial Clínico"
-                                  outcome="/medico/historiales/index" 
-                                  styleClass="ui-button-info ui-button-flat">
+                        <!-- HISTORIAL -->
+                        <p:button icon="pi pi-book"
+                                  title="Historial Clínico"
+                                  outcome="/medico/historiales/index"
+                                  styleClass="ui-button-info ui-button-rounded">
                             <f:param name="idPaciente" value="#{pac.id_paciente}" />
                         </p:button>
 
-                        <p:commandButton icon="pi pi-trash" title="Inactivar"
+                        <!-- INACTIVAR -->
+                        <p:commandButton icon="pi pi-trash"
+                                         title="Inactivar"
+                                         styleClass="ui-button-danger ui-button-rounded"
                                          actionListener="#{pacienteBean.eliminar(pac)}"
-                                         update="tablaPacientes"
-                                         styleClass="ui-button-danger ui-button-flat">
-                            <p:confirm header="Confirmar" message="¿Desea inactivar a este paciente?" icon="pi pi-exclamation-triangle" />
+                                         update="tablaPacientes">
+                            <p:confirm header="Confirmación"
+                                       message="¿Desea inactivar este paciente?"
+                                       icon="pi pi-exclamation-triangle" />
                         </p:commandButton>
 
                     </p:column>
+
                 </p:dataTable>
+
             </p:panel>
         </h:form>
 
-        <p:dialog id="dialogoPaciente" widgetVar="wDialogoPaciente" header="Datos del Paciente" 
-                  modal="true" resizable="false" width="700" responsive="true">
-            
+        <!-- DIALOGO -->
+        <p:dialog id="dialogoPaciente"
+                  widgetVar="wDialogoPaciente"
+                  header="🧾 Datos del Paciente"
+                  modal="true"
+                  width="720"
+                  resizable="false"
+                  appendTo="@(body)">
+
             <h:form>
-                <p:messages showDetail="true" closable="true" />
-                
+
+                <p:messages closable="true" />
+
                 <div class="ui-fluid">
-                    <p:panelGrid columns="4" layout="grid" 
-                                 columnClasses="ui-g-12 ui-md-2, ui-g-12 ui-md-4, ui-g-12 ui-md-2, ui-g-12 ui-md-4" 
+
+                    <h4 style="color:#0d6efd; margin-top:10px;">Datos Personales</h4>
+
+                    <p:panelGrid columns="4" layout="grid"
                                  styleClass="ui-panelgrid-blank">
 
-                        <p:outputLabel for="nom" value="Nombre:" />
-                        <p:inputText id="nom" value="#{pacienteBean.usuarioActual.nombre}" required="true" />
+                        <p:outputLabel value="Nombre:" />
+                        <p:inputText value="#{pacienteBean.usuarioActual.nombre}" required="true"/>
 
-                        <p:outputLabel for="ape" value="Apellidos:" />
-                        <p:inputText id="ape" value="#{pacienteBean.usuarioActual.apellidos}" required="true" />
+                        <p:outputLabel value="Apellidos:" />
+                        <p:inputText value="#{pacienteBean.usuarioActual.apellidos}" required="true"/>
 
-                        <p:outputLabel for="nac" value="F. Nacimiento:" />
-                        <p:calendar id="nac" value="#{pacienteBean.pacienteActual.fecha_nacimiento}" 
-                                    pattern="dd/MM/yyyy" navigator="true" yearRange="c-100:c+0" required="true" showOn="button"/>
+                        <p:outputLabel value="Fecha Nacimiento:" />
+                        <p:calendar value="#{pacienteBean.pacienteActual.fecha_nacimiento}"
+                                    pattern="dd/MM/yyyy"
+                                    showOn="button"
+                                    navigator="true"
+                                    yearRange="c-100:c"
+                                    required="true"/>
 
-                        <p:outputLabel for="mail" value="Correo:" />
-                        <p:inputText id="mail" value="#{pacienteBean.usuarioActual.correo}" required="true" type="email"/>
+                        <p:outputLabel value="Correo:" />
+                        <p:inputText value="#{pacienteBean.usuarioActual.correo}" required="true"/>
 
-                        <p:outputLabel for="dir" value="Dirección:" />
-                        <p:inputText id="dir" value="#{pacienteBean.pacienteActual.direccion}" />
+                        <p:outputLabel value="Teléfono:" />
+                        <p:inputText value="#{pacienteBean.usuarioActual.telefono}"/>
 
-                        <p:outputLabel for="tel" value="Teléfono:" />
-                        <p:inputText id="tel" value="#{pacienteBean.usuarioActual.telefono}" />
+                        <p:outputLabel value="EPS:" />
+                        <p:inputText value="#{pacienteBean.pacienteActual.eps}"/>
 
-                        <p:outputLabel for="eps" value="EPS:" />
-                        <p:inputText id="eps" value="#{pacienteBean.pacienteActual.eps}" />
-
-                        <p:outputLabel for="rh" value="RH:" />
-                        <p:selectOneMenu id="rh" value="#{pacienteBean.pacienteActual.rh}">
+                        <p:outputLabel value="RH:" />
+                        <p:selectOneMenu value="#{pacienteBean.pacienteActual.rh}">
                             <f:selectItem itemLabel="Seleccione" itemValue="" />
                             <f:selectItem itemLabel="O+" itemValue="O+" />
                             <f:selectItem itemLabel="O-" itemValue="O-" />
@@ -128,37 +181,38 @@
 
                     </p:panelGrid>
 
-                    <p:separator />
-                    <h4 style="margin: 5px 0 15px 0; color: #3c8dbc;">Datos de Acceso (Usuario)</h4>
-
-                    <p:panelGrid columns="4" layout="grid" styleClass="ui-panelgrid-blank">
-                        <p:outputLabel for="user" value="Usuario:" />
-                        <p:inputText id="user" value="#{pacienteBean.usuarioActual.nombre_usuario}" required="true" />
-
-                        <p:outputLabel for="pass" value="Contraseña:" />
-                        <p:password id="pass" value="#{pacienteBean.usuarioActual.contrasena}" 
-                                    feedback="true" 
-                                    placeholder="#{pacienteBean.pacienteActual.id_paciente > 0 ? '(Opcional)' : ''}"
-                                    required="#{pacienteBean.pacienteActual.id_paciente == 0}"/>
-                    </p:panelGrid>
                 </div>
 
-                <div style="text-align: center; margin-top: 20px;">
-                    <p:commandButton value="Guardar" actionListener="#{pacienteBean.guardarPaciente()}"
+                <div style="text-align:center; margin-top:20px;">
+                    <p:commandButton value="Guardar"
+                                     icon="pi pi-save"
+                                     styleClass="ui-button-success"
+                                     actionListener="#{pacienteBean.guardarPaciente}"
                                      update=":formPacientes:tablaPacientes :dialogoPaciente"
-                                     oncomplete="if (!args.validationFailed) PF('wDialogoPaciente').hide();"
-                                     icon="pi pi-save" styleClass="ui-button-success" style="margin-right: 10px;"/>
-                    
-                    <p:commandButton value="Cancelar" type="button" onclick="PF('wDialogoPaciente').hide();"
-                                     icon="pi pi-times" styleClass="ui-button-secondary" />
+                                     oncomplete="if(!args.validationFailed) PF('wDialogoPaciente').hide();" />
+
+                    <p:commandButton value="Cancelar"
+                                     type="button"
+                                     icon="pi pi-times"
+                                     styleClass="ui-button-secondary"
+                                     onclick="PF('wDialogoPaciente').hide();"
+                                     style="margin-left:10px;" />
                 </div>
+
             </h:form>
         </p:dialog>
 
+        <!-- CONFIRM GLOBAL -->
         <h:form>
             <p:confirmDialog global="true">
-                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
-                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+                <p:commandButton value="Sí"
+                                 type="button"
+                                 icon="pi pi-check"
+                                 styleClass="ui-confirmdialog-yes ui-button-success"/>
+                <p:commandButton value="No"
+                                 type="button"
+                                 icon="pi pi-times"
+                                 styleClass="ui-confirmdialog-no ui-button-secondary"/>
             </p:confirmDialog>
         </h:form>
 
