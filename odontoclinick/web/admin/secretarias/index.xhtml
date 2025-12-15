@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
+<!DOCTYPE html>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -23,7 +21,9 @@
             </p>
         </p:panel>
 
+        <!-- ===== LISTADO ===== -->
         <h:form id="formLista">
+
             <p:panel header="Listado de Secretarias">
 
                 <div style="text-align:right;margin-bottom:15px">
@@ -35,7 +35,6 @@
                                      oncomplete="PF('wdialogo').show()"/>
                 </div>
 
-                <!-- ===== TABLA ===== -->
                 <p:dataTable id="tablaSecretarias"
                              value="#{secretariaBean.listaSecretarias}"
                              var="sec"
@@ -44,15 +43,12 @@
                              rowKey="#{sec.id_secretaria}"
                              emptyMessage="No hay secretarias registradas">
 
-                    <p:column headerText="ID" width="60" style="text-align:center">
+                    <p:column headerText="ID" width="60">
                         <h:outputText value="#{sec.id_secretaria}"/>
                     </p:column>
 
-                    <p:column headerText="Nombre Completo"
-                              filterBy="#{sec.usuario.nombre} #{sec.usuario.apellidos}"
-                              filterMatchMode="contains">
-                        <h:outputText value="#{sec.usuario.nombre} #{sec.usuario.apellidos}"
-                                      style="font-weight:bold"/>
+                    <p:column headerText="Nombre Completo">
+                        <h:outputText value="#{sec.usuario.nombre} #{sec.usuario.apellidos}"/>
                     </p:column>
 
                     <p:column headerText="Usuario">
@@ -63,66 +59,36 @@
                         <h:outputText value="#{sec.usuario.telefono}"/>
                     </p:column>
 
-                    <p:column headerText="Turno" style="text-align:center">
-                        <span style="background:#0d6efd;color:white;
-                                     padding:4px 10px;border-radius:20px;
-                                     font-size:.85em">
-                            #{sec.turno}
-                        </span>
+                    <p:column headerText="Turno">
+                        #{sec.turno}
                     </p:column>
 
-                    <!-- ===== ESTADO ===== -->
-                    <p:column headerText="Estado" style="text-align:center;width:120px">
-
+                    <p:column headerText="Estado">
                         <h:panelGroup rendered="#{sec.usuario.estado.id_estado eq 1}">
-                            <span style="background:#198754;color:white;
-                                         padding:5px 12px;border-radius:20px;
-                                         font-weight:bold;font-size:.85em">
-                                <i class="pi pi-check-circle"></i> Activo
-                            </span>
+                            <span style="color:green;font-weight:bold">Activo</span>
                         </h:panelGroup>
-
                         <h:panelGroup rendered="#{sec.usuario.estado.id_estado ne 1}">
-                            <span style="background:#dc3545;color:white;
-                                         padding:5px 12px;border-radius:20px;
-                                         font-weight:bold;font-size:.85em">
-                                <i class="pi pi-ban"></i> Inactivo
-                            </span>
+                            <span style="color:red;font-weight:bold">Inactivo</span>
                         </h:panelGroup>
-
                     </p:column>
 
-                    <!-- ===== ACCIONES ===== -->
-                    <p:column headerText="Acciones" style="text-align:center;width:160px">
+                    <p:column headerText="Acciones">
 
-                        <!-- EDITAR -->
                         <p:commandButton icon="pi pi-pencil"
-                                         title="Editar"
                                          styleClass="ui-button-warning ui-button-flat"
-                                         actionListener="#{secretariaBean.setSecretariaActual(sec)}"
-                                         action="#{secretariaBean.setUsuarioActual(sec.usuario)}"
+                                         actionListener="#{secretariaBean.prepararEdicion(sec)}"
                                          update=":dialogoForm"
                                          oncomplete="PF('wdialogo').show()"/>
 
-                        <!-- INACTIVAR -->
                         <p:commandButton icon="pi pi-ban"
-                                         title="Inactivar"
                                          styleClass="ui-button-danger ui-button-flat"
                                          actionListener="#{secretariaBean.eliminar(sec)}"
                                          update="tablaSecretarias"
                                          rendered="#{sec.usuario.estado.id_estado eq 1}">
-                            <p:confirm header="Confirmar"
-                                       message="¿Inactivar a esta secretaria?"
-                                       icon="pi pi-exclamation-triangle"/>
+                            <p:confirm message="¿Inactivar secretaria?"
+                                       header="Confirmar"/>
                         </p:commandButton>
 
-                        <!-- REACTIVAR -->
-                        <p:commandButton icon="pi pi-check-circle"
-                                         title="Reactivar"
-                                         styleClass="ui-button-success ui-button-flat"
-                                         actionListener="#{secretariaBean.reactivar(sec)}"
-                                         update="tablaSecretarias"
-                                         rendered="#{sec.usuario.estado.id_estado ne 1}"/>
                     </p:column>
 
                 </p:dataTable>
@@ -134,13 +100,14 @@
                   widgetVar="wdialogo"
                   header="Datos de Secretaria"
                   modal="true"
-                  width="600"
-                  resizable="false">
+                  width="600">
 
-            <h:form class="ui-fluid">
+            <!-- 🔴 TODO DENTRO DEL FORM -->
+            <h:form id="formDialogo" class="ui-fluid">
+
                 <p:messages showDetail="true" closable="true"/>
 
-                <h3 style="color:#6f42c1">Datos Personales</h3>
+                <h3>Datos Personales</h3>
 
                 <p:outputLabel value="Nombre"/>
                 <p:inputText value="#{secretariaBean.usuarioActual.nombre}" required="true"/>
@@ -156,7 +123,7 @@
 
                 <p:separator/>
 
-                <h3 style="color:#6f42c1">Datos Laborales</h3>
+                <h3>Datos Laborales</h3>
 
                 <p:outputLabel value="Turno"/>
                 <p:selectOneMenu value="#{secretariaBean.secretariaActual.turno}" required="true">
@@ -165,24 +132,19 @@
                     <f:selectItem itemLabel="Tarde" itemValue="Tarde"/>
                 </p:selectOneMenu>
 
-                <p:outputLabel value="Fecha Ingreso"/>
-                <p:calendar value="#{secretariaBean.secretariaActual.fecha_ingreso}"
-                            pattern="dd/MM/yyyy" showOn="button"/>
-
                 <p:outputLabel value="Usuario"/>
                 <p:inputText value="#{secretariaBean.usuarioActual.nombre_usuario}" required="true"/>
 
                 <p:outputLabel value="Contraseña"/>
                 <p:password value="#{secretariaBean.usuarioActual.contrasena}"
-                            feedback="true"
-                            placeholder="#{secretariaBean.secretariaActual.id_secretaria > 0 ? '(Dejar vacío para mantener)' : ''}"
                             required="#{secretariaBean.secretariaActual.id_secretaria == 0}"/>
 
-                <f:facet name="footer">
+                <!-- ===== BOTONES (ANTES ERA F:facet) ===== -->
+                <div style="text-align:right;margin-top:15px">
+
                     <p:commandButton value="Cancelar"
                                      type="button"
                                      icon="pi pi-times"
-                                     styleClass="ui-button-secondary ui-button-flat"
                                      onclick="PF('wdialogo').hide()"/>
 
                     <p:commandButton value="Guardar"
@@ -191,7 +153,8 @@
                                      actionListener="#{secretariaBean.guardarSecretaria}"
                                      update=":formLista:tablaSecretarias"
                                      oncomplete="if(!args.validationFailed) PF('wdialogo').hide()"/>
-                </f:facet>
+
+                </div>
 
             </h:form>
         </p:dialog>
@@ -200,9 +163,9 @@
         <h:form>
             <p:confirmDialog global="true">
                 <p:commandButton value="Sí" type="button"
-                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                                 styleClass="ui-confirmdialog-yes"/>
                 <p:commandButton value="No" type="button"
-                                 styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
+                                 styleClass="ui-confirmdialog-no"/>
             </p:confirmDialog>
         </h:form>
 

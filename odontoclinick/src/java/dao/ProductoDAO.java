@@ -9,12 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.Producto;
 
-/*
-imports innecesarios, imports de relacionalidad
-import modelo.CategoriaProducto;
-*/
-
-
 public class ProductoDAO {
 
     private final Connection conn = Conexion.conectar();
@@ -22,7 +16,9 @@ public class ProductoDAO {
     private ResultSet rs;
     private final CategoriaProductoDAO catDAO = new CategoriaProductoDAO();
 
-    // Listar todos los productos
+    // =============================
+    // LISTAR PRODUCTOS
+    // =============================
     public List<Producto> listar() {
         List<Producto> lista = new ArrayList<>();
         try {
@@ -56,12 +52,16 @@ public class ProductoDAO {
         return lista;
     }
 
-    // Guardar producto
+    // =============================
+    // GUARDAR PRODUCTO
+    // =============================
     public void guardar(Producto prod) {
         try {
-            String sql = "INSERT INTO producto(codigo_producto, nombre_producto, descripcion, precio_compra, precio_venta, stock_actual, stock_minimo, fecha_vencimiento, fecha_creacion, activo, id_categoria) "
-                    + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO producto (codigo_producto, nombre_producto, descripcion, precio_compra, precio_venta, stock_actual, stock_minimo, fecha_vencimiento, fecha_creacion, activo, id_categoria) "
+                       + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
             ps = conn.prepareStatement(sql);
+
             ps.setString(1, prod.getCodigo());
             ps.setString(2, prod.getNombre_producto());
             ps.setString(3, prod.getDescripcion());
@@ -70,8 +70,14 @@ public class ProductoDAO {
             ps.setInt(6, prod.getStock_actual());
             ps.setInt(7, prod.getStock_minimo());
 
-            // Convertir java.util.Date a java.sql.Date
-            ps.setDate(8, new Date(prod.getFecha_vencimiento().getTime()));
+            // 🔹 FECHA VENCIMIENTO NO OBLIGATORIA (CORRECCIÓN)
+            if (prod.getFecha_vencimiento() != null) {
+                ps.setDate(8, new Date(prod.getFecha_vencimiento().getTime()));
+            } else {
+                ps.setDate(8, null);
+            }
+
+            // Fecha creación (DEBE tener valor)
             ps.setDate(9, new Date(prod.getFecha_creacion().getTime()));
 
             ps.setBoolean(10, prod.isActivo());
@@ -84,7 +90,9 @@ public class ProductoDAO {
         }
     }
 
-    // Buscar producto por ID
+    // =============================
+    // BUSCAR POR ID
+    // =============================
     public Producto buscar(int id) {
         Producto prod = null;
         try {
@@ -117,12 +125,16 @@ public class ProductoDAO {
         return prod;
     }
 
-    // Actualizar producto
+    // =============================
+    // ACTUALIZAR PRODUCTO
+    // =============================
     public void actualizar(Producto prod) {
         try {
-            String sql = "UPDATE producto SET codigo_producto = ?, nombre_producto = ?, descripcion = ?, precio_compra = ?, precio_venta = ?, stock_actual = ?, stock_minimo = ?, fecha_vencimiento = ?, fecha_creacion = ?, activo = ?, id_categoria = ? "
-                    + "WHERE id_producto = ?";
+            String sql = "UPDATE producto SET codigo_producto=?, nombre_producto=?, descripcion=?, precio_compra=?, precio_venta=?, stock_actual=?, stock_minimo=?, fecha_vencimiento=?, fecha_creacion=?, activo=?, id_categoria=? "
+                       + "WHERE id_producto=?";
+
             ps = conn.prepareStatement(sql);
+
             ps.setString(1, prod.getCodigo());
             ps.setString(2, prod.getNombre_producto());
             ps.setString(3, prod.getDescripcion());
@@ -130,7 +142,13 @@ public class ProductoDAO {
             ps.setFloat(5, prod.getPrecio_venta());
             ps.setInt(6, prod.getStock_actual());
             ps.setInt(7, prod.getStock_minimo());
-            ps.setDate(8, new Date(prod.getFecha_vencimiento().getTime()));
+
+            if (prod.getFecha_vencimiento() != null) {
+                ps.setDate(8, new Date(prod.getFecha_vencimiento().getTime()));
+            } else {
+                ps.setDate(8, null);
+            }
+
             ps.setDate(9, new Date(prod.getFecha_creacion().getTime()));
             ps.setBoolean(10, prod.isActivo());
             ps.setInt(11, prod.getCategoria().getId_categoria());
@@ -143,7 +161,9 @@ public class ProductoDAO {
         }
     }
 
-    // Eliminar producto
+    // =============================
+    // ELIMINAR PRODUCTO
+    // =============================
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM producto WHERE id_producto = ?";

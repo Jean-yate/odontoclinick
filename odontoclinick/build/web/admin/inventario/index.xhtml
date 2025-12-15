@@ -119,68 +119,69 @@
         </h:form>
 
         <!-- ===== DIALOGO ===== -->
-        <p:dialog id="dialogoForm"
-                  widgetVar="dlgProd"
-                  header="Datos del Producto"
-                  modal="true"
-                  width="500"
-                  showEffect="fade"
-                  hideEffect="fade">
+           <p:dialog id="dialogoForm"
+          widgetVar="dlgProd"
+          header="Datos del Producto"
+          modal="true"
+          width="500"
+          showEffect="fade"
+          hideEffect="fade">
 
-            <h:form class="ui-fluid">
+    <h:form class="ui-fluid">
 
-                <p:messages showDetail="true" closable="true"/>
+        <p:messages showDetail="true" closable="true"/>
 
-                <p:outputLabel value="Categoría"/>
-                <p:selectOneMenu value="#{productoBean.idCategoriaSeleccionada}"
-                                 required="true" filter="true">
-                    <f:selectItem itemLabel="Seleccione..." itemValue=""/>
-                    <f:selectItems value="#{productoBean.listaCategorias}"
-                                   var="c"
-                                   itemLabel="#{c.nombre_categoria}"
-                                   itemValue="#{c.id_categoria}"/>
-                </p:selectOneMenu>
+        <p:outputLabel value="Categoría"/>
+        <p:selectOneMenu value="#{productoBean.idCategoriaSeleccionada}" required="true">
+            <f:selectItem itemLabel="Seleccione..." itemValue=""/>
+            <f:selectItems value="#{productoBean.listaCategorias}"
+                           var="c"
+                           itemLabel="#{c.nombre_categoria}"
+                           itemValue="#{c.id_categoria}"/>
+        </p:selectOneMenu>
 
-                <p:outputLabel value="Código"/>
-                <p:inputText value="#{productoBean.productoActual.codigo_producto}" required="true"/>
+        <p:outputLabel value="Código"/>
+        <p:inputText value="#{productoBean.productoActual.codigo_producto}" required="true"/>
 
-                <p:outputLabel value="Nombre"/>
-                <p:inputText value="#{productoBean.productoActual.nombre_producto}" required="true"/>
+        <p:outputLabel value="Nombre"/>
+        <p:inputText value="#{productoBean.productoActual.nombre_producto}" required="true"/>
 
-                <p:outputLabel value="Descripción"/>
-                <p:inputTextarea value="#{productoBean.productoActual.descripcion}" rows="2"/>
+        <p:outputLabel value="Descripción"/>
+        <p:inputTextarea value="#{productoBean.productoActual.descripcion}" rows="2"/>
 
-                <p:outputLabel value="Stock Actual"/>
-                <p:spinner value="#{productoBean.productoActual.stock_actual}" min="0"/>
+        <p:outputLabel value="Stock Actual"/>
+        <p:spinner value="#{productoBean.productoActual.stock_actual}" min="0"/>
 
-                <p:outputLabel value="Stock Mínimo"/>
-                <p:spinner value="#{productoBean.productoActual.stock_minimo}" min="0"/>
+        <p:outputLabel value="Stock Mínimo"/>
+        <p:spinner value="#{productoBean.productoActual.stock_minimo}" min="0"/>
 
-                <p:outputLabel value="Precio Compra"/>
-                <p:inputNumber value="#{productoBean.productoActual.precio_compra}"
-                               symbol="$ " decimalPlaces="2"/>
+        <p:outputLabel value="Precio Compra"/>
+        <p:inputNumber value="#{productoBean.productoActual.precio_compra}"
+                       symbol="$ " decimalPlaces="2"/>
 
-                <p:outputLabel value="Precio Venta"/>
-                <p:inputNumber value="#{productoBean.productoActual.precio_venta}"
-                               symbol="$ " decimalPlaces="2"/>
+        <p:outputLabel value="Precio Venta"/>
+        <p:inputNumber value="#{productoBean.productoActual.precio_venta}"
+                       symbol="$ " decimalPlaces="2"/>
 
-                <f:facet name="footer">
-                    <p:commandButton value="Cancelar"
-                                     type="button"
-                                     icon="pi pi-times"
-                                     styleClass="ui-button-secondary ui-button-flat"
-                                     onclick="PF('dlgProd').hide()"/>
+        <!-- FOOTER DENTRO DEL FORM -->
+        <div style="text-align:right;margin-top:15px">
+            <p:commandButton value="Cancelar"
+                             type="button"
+                             icon="pi pi-times"
+                             styleClass="ui-button-secondary"
+                             onclick="PF('dlgProd').hide()"/>
 
-                    <p:commandButton value="Guardar"
-                                     icon="pi pi-save"
-                                     styleClass="ui-button-primary"
-                                     actionListener="#{productoBean.guardar}"
-                                     update=":formInventario:tabla"
-                                     oncomplete="if(!args.validationFailed) PF('dlgProd').hide()"/>
-                </f:facet>
+            <p:commandButton value="Guardar"
+                             icon="pi pi-save"
+                             styleClass="ui-button-primary"
+                             actionListener="#{productoBean.guardar}"
+                             update=":formInventario:tabla"
+                             oncomplete="if(!args.validationFailed) PF('dlgProd').hide()"/>
+        </div>
 
-            </h:form>
-        </p:dialog>
+    </h:form>
+</p:dialog>
+
 
         <!-- ===== CONFIRM GLOBAL ===== -->
         <h:form>

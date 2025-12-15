@@ -98,6 +98,7 @@ public class PagoDAO {
         } catch (SQLException e) {
             System.out.println("Error guardar pago: " + e.getMessage());
         }
+        
     }
 
     // Buscar pago por ID

@@ -54,26 +54,40 @@ public class ProductoBean implements Serializable {
     }
 
     public void registrar() {
-        try {
-            CategoriaProducto cat = new CategoriaProducto();
-            cat.setId_categoria(idCategoriaSeleccionada);
-            producto.setCategoria(cat);
-            
-            if (producto.getId_producto() > 0) {
-                productoDAO.actualizar(producto);
-                mensaje("Éxito", "Producto actualizado correctamente.");
-            } else {
-                productoDAO.guardar(producto);
-                mensaje("Éxito", "Producto registrado correctamente.");
-            }
-            
-            limpiar();
-            listar(); 
-        } catch (Exception e) {
-            System.out.println("Error al registrar: " + e.getMessage());
-            mensajeError("Error", e.getMessage());
+        
+        System.out.println("Fecha vencimiento: " + producto.getFecha_vencimiento());
+System.out.println("Fecha creación: " + producto.getFecha_creacion());
+
+    try {
+        CategoriaProducto cat = new CategoriaProducto();
+        cat.setId_categoria(idCategoriaSeleccionada);
+        producto.setCategoria(cat);
+
+        // 🔹 FECHA AUTOMÁTICA
+        if (producto.getFecha_creacion() == null) {
+            producto.setFecha_creacion(new java.util.Date());
         }
+
+        if (producto.getFecha_vencimiento() == null) {
+            producto.setFecha_vencimiento(new java.util.Date());
+        }
+
+        if (producto.getId_producto() > 0) {
+            productoDAO.actualizar(producto);
+            mensaje("Éxito", "Producto actualizado correctamente.");
+        } else {
+            productoDAO.guardar(producto);
+            mensaje("Éxito", "Producto registrado correctamente.");
+        }
+
+        limpiar();
+        listar();
+    } catch (Exception e) {
+        e.printStackTrace();
+        mensajeError("Error", "Error al guardar el producto");
     }
+}
+
 
     public void leer(Producto prodSeleccionado) {
         this.producto = prodSeleccionado;

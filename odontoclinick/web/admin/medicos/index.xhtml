@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
+<!DOCTYPE html>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -23,7 +21,9 @@
             </p>
         </p:panel>
 
+        <!-- ===== LISTADO ===== -->
         <h:form id="formMedicos">
+
             <p:panel header="Listado de Médicos">
 
                 <div style="text-align:right;margin-bottom:15px">
@@ -35,7 +35,6 @@
                                      oncomplete="PF('dlgMedico').show()"/>
                 </div>
 
-                <!-- ===== TABLA ===== -->
                 <p:dataTable id="tabla"
                              value="#{medicoBean.listaMedicos}"
                              var="med"
@@ -44,79 +43,48 @@
                              rowKey="#{med.id_doctor}"
                              emptyMessage="No hay médicos registrados">
 
-                    <p:column headerText="Especialidad"
-                              filterBy="#{med.especialidad.nombre_especialidad}"
-                              filterMatchMode="contains">
-
-                        <span style="background:#e7f1ff;color:#0d6efd;
-                                     padding:5px 12px;border-radius:20px;
-                                     font-weight:bold;font-size:.85em">
-                            #{med.especialidad.nombre_especialidad}
-                        </span>
+                    <p:column headerText="Especialidad">
+                        #{med.especialidad.nombre_especialidad}
                     </p:column>
 
-                    <p:column headerText="Médico"
-                              filterBy="#{med.usuario.nombre} #{med.usuario.apellidos}"
-                              filterMatchMode="contains">
-
+                    <p:column headerText="Médico">
                         <strong>
                             #{med.usuario.nombre} #{med.usuario.apellidos}
-                        </strong>
-                        <br/>
-                        <span style="font-size:.85em;color:#6c757d">
-                            Licencia: #{med.licencia_medica}
-                        </span>
+                        </strong><br/>
+                        Licencia: #{med.licencia_medica}
                     </p:column>
 
                     <p:column headerText="Contacto">
-                        <i class="pi pi-envelope"></i> #{med.usuario.correo}<br/>
-                        <i class="pi pi-phone"></i> #{med.usuario.telefono}
+                        #{med.usuario.correo}<br/>
+                        #{med.usuario.telefono}
                     </p:column>
 
-                    <!-- ===== ESTADO ===== -->
-                    <p:column headerText="Estado" style="text-align:center;width:120px">
-
+                    <p:column headerText="Estado">
                         <h:panelGroup rendered="#{med.usuario.estado.id_estado eq 1}">
-                            <span style="background:#198754;color:white;
-                                         padding:5px 12px;border-radius:20px;
-                                         font-weight:bold;font-size:.85em">
-                                <i class="pi pi-check-circle"></i> Activo
-                            </span>
+                            <span style="color:green;font-weight:bold">Activo</span>
                         </h:panelGroup>
-
                         <h:panelGroup rendered="#{med.usuario.estado.id_estado ne 1}">
-                            <span style="background:#dc3545;color:white;
-                                         padding:5px 12px;border-radius:20px;
-                                         font-weight:bold;font-size:.85em">
-                                <i class="pi pi-ban"></i> Inactivo
-                            </span>
+                            <span style="color:red;font-weight:bold">Inactivo</span>
                         </h:panelGroup>
-
                     </p:column>
 
-                    <!-- ===== ACCIONES ===== -->
-                    <p:column headerText="Acciones" style="text-align:center;width:160px">
+                    <p:column headerText="Acciones">
 
                         <p:commandButton icon="pi pi-pencil"
-                                         title="Editar"
                                          styleClass="ui-button-warning ui-button-flat"
                                          actionListener="#{medicoBean.prepararEdicion(med)}"
                                          update=":dialogoForm"
                                          oncomplete="PF('dlgMedico').show()"/>
 
                         <p:commandButton icon="pi pi-ban"
-                                         title="Desactivar"
                                          styleClass="ui-button-danger ui-button-flat"
                                          actionListener="#{medicoBean.eliminar(med)}"
                                          update="tabla"
                                          rendered="#{med.usuario.estado.id_estado eq 1}">
-                            <p:confirm header="Confirmar"
-                                       message="¿Desactivar médico?"
-                                       icon="pi pi-exclamation-triangle"/>
+                            <p:confirm message="¿Desactivar médico?" header="Confirmar"/>
                         </p:commandButton>
 
                         <p:commandButton icon="pi pi-check-circle"
-                                         title="Reactivar"
                                          styleClass="ui-button-success ui-button-flat"
                                          actionListener="#{medicoBean.reactivar(med)}"
                                          update="tabla"
@@ -132,13 +100,13 @@
                   widgetVar="dlgMedico"
                   header="Datos del Médico"
                   modal="true"
-                  width="720"
-                  resizable="false">
+                  width="720">
 
-            <h:form class="ui-fluid">
+            <h:form id="formDialogoMedico" class="ui-fluid">
+
                 <p:messages showDetail="true" closable="true"/>
 
-                <h3 style="color:#0d6efd">Datos Personales</h3>
+                <h3>Datos Personales</h3>
 
                 <p:outputLabel value="Nombre"/>
                 <p:inputText value="#{medicoBean.usuarioActual.nombre}" required="true"/>
@@ -154,12 +122,13 @@
 
                 <p:separator/>
 
-                <h3 style="color:#0d6efd">Información Profesional</h3>
+                <h3>Información Profesional</h3>
 
                 <p:outputLabel value="Especialidad"/>
                 <p:selectOneMenu value="#{medicoBean.medicoActual.id_especialidad}" required="true">
                     <f:selectItem itemLabel="Seleccione..." itemValue=""/>
-                    <f:selectItems value="#{medicoBean.listaEspecialidades}" var="e"
+                    <f:selectItems value="#{medicoBean.listaEspecialidades}"
+                                   var="e"
                                    itemLabel="#{e.nombre_especialidad}"
                                    itemValue="#{e.id_especialidad}"/>
                 </p:selectOneMenu>
@@ -170,28 +139,23 @@
                 <p:outputLabel value="Años de Experiencia"/>
                 <p:spinner value="#{medicoBean.medicoActual.anos_experiencia}" min="0"/>
 
-                <p:outputLabel value="Fecha Ingreso"/>
-                <p:calendar value="#{medicoBean.medicoActual.fecha_ingreso}"
-                            pattern="dd/MM/yyyy" showOn="button"/>
-
                 <p:separator/>
 
-                <h3 style="color:#0d6efd">Acceso</h3>
+                <h3>Acceso</h3>
 
                 <p:outputLabel value="Usuario"/>
                 <p:inputText value="#{medicoBean.usuarioActual.nombre_usuario}" required="true"/>
 
                 <p:outputLabel value="Contraseña"/>
                 <p:password value="#{medicoBean.usuarioActual.contrasena}"
-                            feedback="true"
-                            placeholder="#{medicoBean.medicoActual.id_doctor > 0 ? '(Dejar vacío para mantener)' : ''}"
                             required="#{medicoBean.medicoActual.id_doctor == 0}"/>
 
-                <f:facet name="footer">
+                <!-- ===== BOTONES (CORRECTO) ===== -->
+                <div style="text-align:right;margin-top:15px">
+
                     <p:commandButton value="Cancelar"
                                      type="button"
                                      icon="pi pi-times"
-                                     styleClass="ui-button-secondary ui-button-flat"
                                      onclick="PF('dlgMedico').hide()"/>
 
                     <p:commandButton value="Guardar Médico"
@@ -200,18 +164,19 @@
                                      actionListener="#{medicoBean.guardarMedico}"
                                      update=":formMedicos:tabla"
                                      oncomplete="if(!args.validationFailed) PF('dlgMedico').hide()"/>
-                </f:facet>
+
+                </div>
 
             </h:form>
         </p:dialog>
 
-        <!-- ===== CONFIRM ===== -->
+        <!-- ===== CONFIRM GLOBAL ===== -->
         <h:form>
             <p:confirmDialog global="true">
                 <p:commandButton value="Sí" type="button"
-                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                                 styleClass="ui-confirmdialog-yes"/>
                 <p:commandButton value="No" type="button"
-                                 styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
+                                 styleClass="ui-confirmdialog-no"/>
             </p:confirmDialog>
         </h:form>
 
