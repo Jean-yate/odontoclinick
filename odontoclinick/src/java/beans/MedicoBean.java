@@ -170,6 +170,22 @@ public class MedicoBean implements Serializable {
             mensajeError("Error", "No se pudo reactivar.");
         }
     }
+    
+    public void cambiarEstado(Medico med) {
+    int estadoActual = med.getUsuario().getId_estado();
+    int nuevoEstado = (estadoActual == 1) ? 2 : 1;
+
+    boolean exito = medicoDAO.cambiarEstado(med.getUsuario().getId_usuario(), nuevoEstado);
+
+        if (exito) {
+            med.getUsuario().setId_estado(nuevoEstado);
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Estado actualizado", null));
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al actualizar", null));
+        }
+    }
 
     // --- UTILIDADES ---
     private void mensaje(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, t, m)); }

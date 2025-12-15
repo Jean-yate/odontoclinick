@@ -9,20 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EstadoDAO {
-
-    // 1. Eliminamos @Resource y DataSource
     
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // Listar todos los estados
     public List<Estado> listarTodos() {
         List<Estado> estados = new ArrayList<>();
         String sql = "SELECT * FROM estado";
         
         try {
-            conn = Conexion.conectar(); // 2. Usamos nuestra clase Conexion
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             
@@ -41,7 +38,6 @@ public class EstadoDAO {
         return estados;
     }
 
-    // Buscar un estado por ID
     public Estado buscar(int id) {
         Estado estado = null;
         String sql = "SELECT * FROM estado WHERE id_estado = ?";
@@ -62,11 +58,9 @@ public class EstadoDAO {
         } finally {
             cerrarRecursos();
         }
-        
         return estado;
     }
 
-    // Guardar un nuevo estado
     public void guardar(Estado estado) {
         String sql = "INSERT INTO estado(nombre_estado) VALUES (?)";
         
@@ -82,7 +76,6 @@ public class EstadoDAO {
         }
     }
 
-    // Actualizar un estado existente
     public void actualizar(Estado estado) {
         String sql = "UPDATE estado SET nombre_estado = ? WHERE id_estado = ?";
         
@@ -99,7 +92,6 @@ public class EstadoDAO {
         }
     }
 
-    // Eliminar un estado por ID
     public void eliminar(int id) {
         String sql = "DELETE FROM estado WHERE id_estado = ?";
         
@@ -115,7 +107,6 @@ public class EstadoDAO {
         }
     }
 
-    // Método privado para cerrar recursos
     private void cerrarRecursos() {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (ps != null) ps.close(); } catch (SQLException e) {}

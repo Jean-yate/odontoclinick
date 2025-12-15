@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 
 public class Pago implements Serializable {
     
-    // Campos primitivos (los que ya tenías)
     private int idPago, idCita, idMetodoPago;
     private Timestamp fechaPago;
     private BigDecimal monto;

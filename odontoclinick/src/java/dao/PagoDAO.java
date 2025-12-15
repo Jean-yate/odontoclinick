@@ -8,23 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.Pago;
 
-/*
-imports innecesarios, imports de tipos de datos sql
-import java.sql.Timestamp;
-import java.math.BigDecimal;
-*/
-
 public class PagoDAO {
 
     private Connection conn = Conexion.conectar();
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // Listar todos los pagos
     public List<Pago> listar() {
         List<Pago> lista = new ArrayList<>();
-        
-        // EL CAMBIO CLAVE: Usamos JOIN para conectar las tablas y llegar al nombre
+
         String sql = "SELECT p.*, " +
                      "u.nombre, u.apellidos " + 
                      "FROM pago p " +
@@ -34,7 +26,6 @@ public class PagoDAO {
                      "ORDER BY p.fecha_pago DESC";
 
         try {
-            // Aseguramos la conexión
             if (conn == null || conn.isClosed()) {
                 conn = Conexion.conectar();
             }
@@ -44,8 +35,7 @@ public class PagoDAO {
 
             while (rs.next()) {
                 Pago pago = new Pago();
-                
-                // 1. Datos del Pago (lo que ya tenías)
+
                 pago.setIdPago(rs.getInt("id_pago"));
                 pago.setIdCita(rs.getInt("id_cita"));
                 pago.setIdMetodoPago(rs.getInt("id_metodo_pago"));
@@ -54,23 +44,17 @@ public class PagoDAO {
                 pago.setReferencia(rs.getString("referencia"));
                 pago.setNotas(rs.getString("notas"));
 
-                // 2. CONSTRUCCIÓN DEL OBJETO ANIDADO (La magia para el reporte)
-                
-                // A. Usuario (Nombre y Apellido)
                 modelo.Usuario u = new modelo.Usuario();
                 u.setNombre(rs.getString("nombre"));
                 u.setApellidos(rs.getString("apellidos"));
 
-                // B. Paciente (con el Usuario dentro)
                 modelo.Paciente pac = new modelo.Paciente();
                 pac.setUsuario(u);
 
-                // C. Cita (con el Paciente dentro)
                 modelo.Cita c = new modelo.Cita();
                 c.setId_cita(rs.getInt("id_cita"));
                 c.setPaciente(pac);
 
-                // D. Guardamos la Cita completa dentro del Pago
                 pago.setCita(c);
                 
                 lista.add(pago);
@@ -83,7 +67,6 @@ public class PagoDAO {
         return lista;
     }
 
-    // Guardar pago
     public void guardar(Pago pago) {
         try {
             String sql = "INSERT INTO pago(id_cita, id_metodo_pago, fecha_pago, monto, referencia, notas) VALUES(?, ?, ?, ?, ?, ?)";
@@ -101,7 +84,6 @@ public class PagoDAO {
         
     }
 
-    // Buscar pago por ID
     public Pago buscar(int id) {
         Pago pago = null;
         try {
@@ -127,7 +109,6 @@ public class PagoDAO {
         return pago;
     }
 
-    // Actualizar pago
     public void actualizar(Pago pago) {
         try {
             String sql = "UPDATE pago SET id_cita = ?, id_metodo_pago = ?, fecha_pago = ?, monto = ?, referencia = ?, notas = ? WHERE id_pago = ?";
@@ -145,7 +126,6 @@ public class PagoDAO {
         }
     }
 
-    // Eliminar pago
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM pago WHERE id_pago = ?";

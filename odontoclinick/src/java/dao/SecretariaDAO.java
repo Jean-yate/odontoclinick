@@ -8,42 +8,75 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.Secretaria;
 
-/*
-imports innecesarios, imports de relacionalidad y tipo de datos
-import java.util.Date;
-import modelo.Usuario;
-*/
-
 public class SecretariaDAO {
-    private final Connection conn = Conexion.conectar();
+    private Connection conn = Conexion.conectar();
     private PreparedStatement ps;
     private ResultSet rs;
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO(); // Para traer el objeto Usuario completo
-
-    // Listar todas las secretarias
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO(); 
+    
     public List<Secretaria> listar() {
-        List<Secretaria> lista = new ArrayList<>();
-        try {
-            String sql = "SELECT * FROM secretaria";
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
+    List<Secretaria> lista = new ArrayList<>();
+    String sql = "SELECT s.id_secretaria, s.turno, s.fecha_ingreso, " +
+                 "u.id_usuario, u.nombre, u.apellidos, u.correo, u.id_estado, " +
+                 "u.telefono, u.nombre_usuario " + 
+                 "FROM secretaria s " +
+                 "INNER JOIN usuario u ON s.id_usuario = u.id_usuario";
 
-            while (rs.next()) {
-                Secretaria sec = new Secretaria();
-                sec.setId_secretaria(rs.getInt("id_secretaria"));
-                sec.setId_usuario(rs.getInt("id_usuario"));
-                sec.setTurno(rs.getString("turno"));
-                sec.setFecha_ingreso(rs.getDate("fecha_ingreso"));
-                sec.setUsuario(usuarioDAO.buscar(rs.getInt("id_usuario")));
-                lista.add(sec);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error listar Secretaria: " + e.getMessage());
+    try {
+        conn = Conexion.conectar();
+        ps = conn.prepareStatement(sql);
+        rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Secretaria sec = new Secretaria();
+            sec.setId_secretaria(rs.getInt("id_secretaria"));
+            sec.setTurno(rs.getString("turno"));
+            sec.setFecha_ingreso(rs.getDate("fecha_ingreso"));
+            sec.setId_usuario(rs.getInt("id_usuario"));
+
+            modelo.Usuario u = new modelo.Usuario();
+            u.setId_usuario(rs.getInt("id_usuario"));
+            u.setNombre(rs.getString("nombre"));
+            u.setApellidos(rs.getString("apellidos"));
+            u.setCorreo(rs.getString("correo"));
+            u.setId_estado(rs.getInt("id_estado"));
+            u.setTelefono(rs.getString("telefono"));
+            u.setNombre_usuario(rs.getString("nombre_usuario"));
+
+            sec.setUsuario(u);
+            lista.add(sec);
         }
-        return lista;
+    } catch (SQLException e) {
+        System.out.println("Error listar: " + e.getMessage());
+    } finally {
+        try { if (rs != null) rs.close(); } catch (SQLException e) {}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (conn != null) conn.close(); } catch (SQLException e) {}
     }
+    return lista;
+}
 
-    // Buscar secretaria por ID
+    public boolean cambiarEstado(int idUsuario, int nuevoEstado) {
+    String sql = "UPDATE usuario SET id_estado = ? WHERE id_usuario = ?";
+    
+    try {
+        conn = Conexion.conectar(); 
+        ps = conn.prepareStatement(sql);
+        
+        ps.setInt(1, nuevoEstado);
+        ps.setInt(2, idUsuario);
+        
+        return ps.executeUpdate() > 0;
+        
+    } catch (SQLException e) {
+        System.out.println("Error SQL cambiar estado: " + e.getMessage());
+        return false;
+    } finally {
+        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (conn != null) conn.close(); } catch (SQLException e) {}
+    }
+}
+
     public Secretaria buscar(int id) {
         Secretaria sec = null;
         try {
@@ -66,7 +99,6 @@ public class SecretariaDAO {
         return sec;
     }
 
-    // Guardar nueva secretaria
     public void guardar(Secretaria sec) {
         try {
             String sql = "INSERT INTO secretaria(id_usuario, turno, fecha_ingreso) VALUES(?, ?, ?)";
@@ -80,7 +112,6 @@ public class SecretariaDAO {
         }
     }
 
-    // Actualizar secretaria existente
     public void actualizar(Secretaria sec) {
         try {
             String sql = "UPDATE secretaria SET id_usuario = ?, turno = ?, fecha_ingreso = ? WHERE id_secretaria = ?";
@@ -95,7 +126,6 @@ public class SecretariaDAO {
         }
     }
 
-    // Eliminar secretaria por ID
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM secretaria WHERE id_secretaria = ?";
@@ -115,12 +145,10 @@ public class SecretariaDAO {
         ResultSet rsKeys = null;
 
         try {
-            // Usamos tu clase de Conexión
-            connTransaccion = dao.Conexion.conectar();
-            connTransaccion.setAutoCommit(false); // INICIO TRANSACCIÓN
 
-            // 1. Insertar Usuario (Rol 3 = Secretaria, Estado 1 = Activo)
-            // Nota: El teléfono personal va en la tabla usuario
+            connTransaccion = dao.Conexion.conectar();
+            connTransaccion.setAutoCommit(false);
+
             String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, 3, 1, NOW())";
             
             psUser = connTransaccion.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
@@ -132,7 +160,6 @@ public class SecretariaDAO {
             psUser.setString(6, u.getContrasena());
             psUser.executeUpdate();
 
-            // 2. Obtener el ID generado automáticamente
             rsKeys = psUser.getGeneratedKeys();
             int idGenerado = -1;
             if (rsKeys.next()) {
@@ -141,14 +168,11 @@ public class SecretariaDAO {
                 throw new SQLException("No se pudo generar el ID del usuario.");
             }
 
-            // 3. Insertar Secretaria
-            // Nota: fecha_ingreso se inserta o se usa la actual
             String sqlSec = "INSERT INTO secretaria (id_usuario, turno, fecha_ingreso) VALUES (?, ?, ?)";
             psSec = connTransaccion.prepareStatement(sqlSec);
             psSec.setInt(1, idGenerado);
             psSec.setString(2, s.getTurno());
-            
-            // Manejo seguro de la fecha
+
             if (s.getFecha_ingreso() != null) {
                 psSec.setDate(3, new java.sql.Date(s.getFecha_ingreso().getTime()));
             } else {
@@ -157,7 +181,7 @@ public class SecretariaDAO {
 
             psSec.executeUpdate();
 
-            connTransaccion.commit(); // CONFIRMAR CAMBIOS
+            connTransaccion.commit();
             exito = true;
 
         } catch (SQLException e) {
@@ -165,9 +189,8 @@ public class SecretariaDAO {
             if (connTransaccion != null) {
                 try { connTransaccion.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             }
-            throw e; // Relanzar para que el Bean sepa que falló
+            throw e; 
         } finally {
-            // Cerrar recursos manuales de este método
             try { if (rsKeys != null) rsKeys.close(); } catch (SQLException e) {}
             try { if (psUser != null) psUser.close(); } catch (SQLException e) {}
             try { if (psSec != null) psSec.close(); } catch (SQLException e) {}

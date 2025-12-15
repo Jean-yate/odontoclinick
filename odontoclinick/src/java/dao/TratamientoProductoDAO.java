@@ -14,7 +14,6 @@ public class TratamientoProductoDAO {
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // Listar todos los registros
     public List<TratamientoProducto> listar() {
         List<TratamientoProducto> lista = new ArrayList<>();
         try {
@@ -36,7 +35,6 @@ public class TratamientoProductoDAO {
         return lista;
     }
 
-    // Buscar por ID
     public TratamientoProducto buscar(int id) {
         TratamientoProducto tp = null;
         try {
@@ -58,7 +56,6 @@ public class TratamientoProductoDAO {
         return tp;
     }
 
-    // Guardar nuevo registro
     public void guardar(TratamientoProducto tp) {
         try {
             String sql = "INSERT INTO tratamiento_producto VALUES(null, ?, ?, ?)";
@@ -72,7 +69,6 @@ public class TratamientoProductoDAO {
         }
     }
 
-    // Actualizar registro
     public void actualizar(TratamientoProducto tp) {
         try {
             String sql = "UPDATE tratamiento_producto SET id_tratamiento = ?, id_producto = ?, cantidad_requerida = ? WHERE id_tratamiento_producto = ?";
@@ -87,7 +83,6 @@ public class TratamientoProductoDAO {
         }
     }
 
-    // Eliminar registro
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM tratamiento_producto WHERE id_tratamiento_producto = ?";

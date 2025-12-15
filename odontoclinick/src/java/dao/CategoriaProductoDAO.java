@@ -14,7 +14,6 @@ public class CategoriaProductoDAO {
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // Listar todas las categorías
     public List<CategoriaProducto> listar() {
         List<CategoriaProducto> lista = new ArrayList<>();
         try {
@@ -35,7 +34,6 @@ public class CategoriaProductoDAO {
         return lista;
     }
 
-    // Guardar nueva categoría
     public void guardar(CategoriaProducto cat) {
         try {
             String sql = "INSERT INTO categoria_producto(nombre_categoria, descripcion) VALUES(?, ?)";
@@ -48,7 +46,6 @@ public class CategoriaProductoDAO {
         }
     }
 
-    // Buscar categoría por ID
     public CategoriaProducto buscar(int id) {
         CategoriaProducto cat = null;
         try {
@@ -69,7 +66,6 @@ public class CategoriaProductoDAO {
         return cat;
     }
 
-    // Actualizar categoría
     public void actualizar(CategoriaProducto cat) {
         try {
             String sql = "UPDATE categoria_producto SET nombre_categoria = ?, descripcion = ? WHERE id_categoria = ?";
@@ -83,7 +79,6 @@ public class CategoriaProductoDAO {
         }
     }
 
-    // Eliminar categoría
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM categoria_producto WHERE id_categoria = ?";

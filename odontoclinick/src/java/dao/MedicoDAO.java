@@ -11,66 +11,74 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MedicoDAO {
-
-    // 1. ELIMINAMOS @Resource private DataSource ds;
     
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
-
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
 
-    // Listar todos los médicos
-    public List<Medico> listarTodos() {
-        List<Medico> medicos = new ArrayList<>();
-        // Hacemos JOIN para traer datos del usuario y la especialidad de una vez
-        // Esto es mucho más rápido y evita errores de conexión anidados
-        String sql = "SELECT m.*, u.nombre, u.apellidos, e.nombre_especialidad " +
-                     "FROM medico m " +
-                     "JOIN usuario u ON m.id_usuario = u.id_usuario " +
-                     "JOIN especialidad e ON m.id_especialidad = e.id_especialidad";
+   public List<Medico> listarTodos() {
+    List<Medico> medicos = new ArrayList<>();
+    String sql = "SELECT m.*, u.nombre, u.apellidos, u.correo, u.telefono, u.nombre_usuario, u.id_estado, e.nombre_especialidad " +
+                 "FROM medico m " +
+                 "JOIN usuario u ON m.id_usuario = u.id_usuario " +
+                 "JOIN especialidad e ON m.id_especialidad = e.id_especialidad";
 
-        try {
-            conn = Conexion.conectar(); // USAMOS LA CLASE CONEXION
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
+    try {
+        conn = Conexion.conectar();
+        ps = conn.prepareStatement(sql);
+        rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Medico m = new Medico();
-                m.setId_doctor(rs.getInt("id_doctor"));
-                m.setId_usuario(rs.getInt("id_usuario"));
-                m.setId_especialidad(rs.getInt("id_especialidad"));
-                m.setAnos_experiencia(rs.getInt("anos_experiencia"));
-                m.setLicencia_medica(rs.getString("licencia_medica"));
-                m.setFecha_ingreso(rs.getDate("fecha_ingreso"));
+        while (rs.next()) {
+            Medico m = new Medico();
+            m.setId_doctor(rs.getInt("id_doctor"));
+            m.setId_usuario(rs.getInt("id_usuario"));
+            m.setId_especialidad(rs.getInt("id_especialidad"));
+            m.setAnos_experiencia(rs.getInt("anos_experiencia"));
+            m.setLicencia_medica(rs.getString("licencia_medica"));
+            m.setFecha_ingreso(rs.getDate("fecha_ingreso"));
 
-                // Llenamos datos básicos del usuario para el Combo Box (SelectOneMenu)
-                modelo.Usuario u = new modelo.Usuario();
-                u.setId_usuario(rs.getInt("id_usuario"));
-                u.setNombre(rs.getString("nombre"));
-                u.setApellidos(rs.getString("apellidos"));
-                m.setUsuario(u);
+            modelo.Usuario u = new modelo.Usuario();
+            u.setId_usuario(rs.getInt("id_usuario"));
+            u.setNombre(rs.getString("nombre"));
+            u.setApellidos(rs.getString("apellidos"));
+            u.setCorreo(rs.getString("correo"));
+            u.setTelefono(rs.getString("telefono"));
+            u.setNombre_usuario(rs.getString("nombre_usuario"));
+            u.setId_estado(rs.getInt("id_estado"));
+            m.setUsuario(u);
 
-                // Llenamos datos de especialidad
-                modelo.Especialidad e = new modelo.Especialidad();
-                e.setId_especialidad(rs.getInt("id_especialidad"));
-                e.setNombre_especialidad(rs.getString("nombre_especialidad"));
-                m.setEspecialidad(e);
+            modelo.Especialidad e = new modelo.Especialidad();
+            e.setId_especialidad(rs.getInt("id_especialidad"));
+            e.setNombre_especialidad(rs.getString("nombre_especialidad"));
+            m.setEspecialidad(e);
 
-                medicos.add(m);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error al listar médicos: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            cerrarRecursos();
+            medicos.add(m);
         }
-
-        return medicos;
+    } catch (SQLException e) {
+        System.out.println("Error: " + e.getMessage());
+    } finally {
+        cerrarRecursos();
     }
+    return medicos;
+}
 
-    // Buscar médico por ID (Implementación corregida)
+public boolean cambiarEstado(int idUsuario, int nuevoEstado) {
+    String sql = "UPDATE usuario SET id_estado = ? WHERE id_usuario = ?";
+    try {
+        conn = Conexion.conectar();
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, nuevoEstado);
+        ps.setInt(2, idUsuario);
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        return false;
+    } finally {
+        cerrarRecursos();
+    }
+}
+
     public Medico buscar(int id) {
         Medico m = null;
         String sql = "SELECT * FROM medico WHERE id_doctor = ?";
@@ -89,8 +97,6 @@ public class MedicoDAO {
                 m.setAnos_experiencia(rs.getInt("anos_experiencia"));
                 m.setLicencia_medica(rs.getString("licencia_medica"));
                 m.setFecha_ingreso(rs.getDate("fecha_ingreso"));
-
-                // Aquí sí llamamos a los DAOs auxiliares porque es solo 1 registro
                 m.setUsuario(usuarioDAO.buscar(rs.getInt("id_usuario")));
                 m.setEspecialidad(especialidadDAO.buscar(rs.getInt("id_especialidad")));
             }
@@ -102,7 +108,6 @@ public class MedicoDAO {
         return m;
     }
 
-    // Buscar por Usuario ID
     public Medico buscarPorIdUsuario(int idUsuario) {
         Medico m = null;
         String sql = "SELECT * FROM medico WHERE id_usuario = ?";
@@ -133,7 +138,6 @@ public class MedicoDAO {
         return m;
     }
 
-    // Guardar (Simple)
     public void guardar(Medico m) {
         String sql = "INSERT INTO medico(id_usuario, id_especialidad, anos_experiencia, licencia_medica, fecha_ingreso) VALUES (?, ?, ?, ?, ?)";
         try {
@@ -152,7 +156,6 @@ public class MedicoDAO {
         }
     }
     
-    // Actualizar
     public void actualizar(Medico m) {
         String sql = "UPDATE medico SET id_especialidad = ?, anos_experiencia = ?, licencia_medica = ?, fecha_ingreso = ? WHERE id_doctor = ?";
         try {
@@ -171,7 +174,6 @@ public class MedicoDAO {
         }
     }
     
-    // Transacción Compleja (Registrar Usuario + Médico)
     public boolean registrarMedicoTransaccion(Usuario u, Medico m) throws SQLException {
         boolean exito = false;
         Connection connTx = null;
@@ -180,10 +182,9 @@ public class MedicoDAO {
         ResultSet rsKeys = null;
 
         try {
-            connTx = Conexion.conectar(); // CONEXION DEL POOL
+            connTx = Conexion.conectar(); 
             connTx.setAutoCommit(false);
 
-            // 1. Usuario
             String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, 2, 1, NOW())";
             psUser = connTx.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
             psUser.setString(1, u.getNombre());
@@ -202,7 +203,6 @@ public class MedicoDAO {
                 throw new SQLException("No se pudo generar el ID del usuario médico.");
             }
 
-            // 2. Médico
             String sqlMed = "INSERT INTO medico (id_usuario, id_especialidad, licencia_medica, anos_experiencia, fecha_ingreso) VALUES (?, ?, ?, ?, ?)";
             psMed = connTx.prepareStatement(sqlMed);
             psMed.setInt(1, idGenerado);
@@ -225,15 +225,15 @@ public class MedicoDAO {
             e.printStackTrace();
             throw e;
         } finally {
-            try { if (rsKeys != null) rsKeys.close(); } catch (Exception e) {}
-            try { if (psUser != null) psUser.close(); } catch (Exception e) {}
-            try { if (psMed != null) psMed.close(); } catch (Exception e) {}
+            try { if (rsKeys != null) rsKeys.close(); } catch (SQLException e) {}
+            try { if (psUser != null) psUser.close(); } catch (SQLException e) {}
+            try { if (psMed != null) psMed.close(); } catch (SQLException e) {}
             try { 
                 if (connTx != null) {
-                    connTx.setAutoCommit(true); // Restaurar estado
+                    connTx.setAutoCommit(true);
                     connTx.close(); 
                 }
-            } catch (Exception e) {}
+            } catch (SQLException e) {}
         }
         return exito;
     }

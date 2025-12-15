@@ -10,15 +10,11 @@ import modelo.Horario;
 
 public class HorarioDAO {
 
-    // Variables de conexión
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
-    
-    // Instancia de MedicoDAO
     private final MedicoDAO medicoDAO = new MedicoDAO();
 
-    // 1. Listar todos los horarios
     public List<Horario> listar() {
         List<Horario> horarios = new ArrayList<>();
         String sql = "SELECT * FROM horario";
@@ -41,7 +37,6 @@ public class HorarioDAO {
         return horarios;
     }
 
-    // 2. Buscar horario por ID
     public Horario buscar(int id) {
         Horario h = null;
         String sql = "SELECT * FROM horario WHERE id_horario = ?";
@@ -63,7 +58,6 @@ public class HorarioDAO {
         return h;
     }
     
-    // 3. Guardar nuevo horario
     public void guardar(Horario h) {
         String sql = "INSERT INTO horario (id_doctor, dia_semana, duracion_cita_minutos, hora_inicio, hora_fin, activo) VALUES (?, ?, ?, ?, ?, ?)";
         try {
@@ -83,7 +77,6 @@ public class HorarioDAO {
         }
     }
 
-    // 4. Actualizar horario existente
     public void actualizar(Horario h) {
         String sql = "UPDATE horario SET id_doctor = ?, dia_semana = ?, duracion_cita_minutos = ?, hora_inicio = ?, hora_fin = ?, activo = ? WHERE id_horario = ?";
         try {
@@ -104,7 +97,6 @@ public class HorarioDAO {
         }
     }
 
-    // 5. Eliminar horario
     public void eliminar(int id) {
         String sql = "DELETE FROM horario WHERE id_horario = ?";
         try {
@@ -118,8 +110,7 @@ public class HorarioDAO {
             cerrarRecursos();
         }
     }
-    
-    // 6. Buscar por Médico y Día
+
     public modelo.Horario buscarPorMedicoYDia(int idDoctor, String diaSemana) {
         modelo.Horario h = null;
         String sql = "SELECT * FROM horario WHERE id_doctor = ? AND LOWER(dia_semana) = LOWER(?) AND activo = 1";
@@ -149,7 +140,6 @@ public class HorarioDAO {
         return h;
     }
 
-    // 7. Listar por Doctor (Estaba fuera de la clase, ahora está dentro)
     public List<modelo.Horario> listarPorDoctor(int idDoctor) {
         List<modelo.Horario> lista = new ArrayList<>();
         String sql = "SELECT * FROM horario WHERE id_doctor = ?";
@@ -173,12 +163,10 @@ public class HorarioDAO {
         } catch (SQLException e) {
             System.out.println("Error listarPorDoctor: " + e.getMessage());
         } finally {
-            cerrarRecursos(); // Agregado finally para seguridad
+            cerrarRecursos();
         }
         return lista;
     }
-
-    // --- MÉTODOS PRIVADOS / UTILITARIOS ---
 
     private Horario mapResultSetToHorario(ResultSet rs) throws SQLException {
         Horario h = new Horario();

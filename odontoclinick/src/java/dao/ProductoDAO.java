@@ -16,9 +16,6 @@ public class ProductoDAO {
     private ResultSet rs;
     private final CategoriaProductoDAO catDAO = new CategoriaProductoDAO();
 
-    // =============================
-    // LISTAR PRODUCTOS
-    // =============================
     public List<Producto> listar() {
         List<Producto> lista = new ArrayList<>();
         try {
@@ -52,9 +49,6 @@ public class ProductoDAO {
         return lista;
     }
 
-    // =============================
-    // GUARDAR PRODUCTO
-    // =============================
     public void guardar(Producto prod) {
         try {
             String sql = "INSERT INTO producto (codigo_producto, nombre_producto, descripcion, precio_compra, precio_venta, stock_actual, stock_minimo, fecha_vencimiento, fecha_creacion, activo, id_categoria) "
@@ -70,14 +64,12 @@ public class ProductoDAO {
             ps.setInt(6, prod.getStock_actual());
             ps.setInt(7, prod.getStock_minimo());
 
-            // 🔹 FECHA VENCIMIENTO NO OBLIGATORIA (CORRECCIÓN)
             if (prod.getFecha_vencimiento() != null) {
                 ps.setDate(8, new Date(prod.getFecha_vencimiento().getTime()));
             } else {
                 ps.setDate(8, null);
             }
 
-            // Fecha creación (DEBE tener valor)
             ps.setDate(9, new Date(prod.getFecha_creacion().getTime()));
 
             ps.setBoolean(10, prod.isActivo());
@@ -90,9 +82,6 @@ public class ProductoDAO {
         }
     }
 
-    // =============================
-    // BUSCAR POR ID
-    // =============================
     public Producto buscar(int id) {
         Producto prod = null;
         try {
@@ -125,9 +114,6 @@ public class ProductoDAO {
         return prod;
     }
 
-    // =============================
-    // ACTUALIZAR PRODUCTO
-    // =============================
     public void actualizar(Producto prod) {
         try {
             String sql = "UPDATE producto SET codigo_producto=?, nombre_producto=?, descripcion=?, precio_compra=?, precio_venta=?, stock_actual=?, stock_minimo=?, fecha_vencimiento=?, fecha_creacion=?, activo=?, id_categoria=? "
@@ -161,9 +147,7 @@ public class ProductoDAO {
         }
     }
 
-    // =============================
-    // ELIMINAR PRODUCTO
-    // =============================
+
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM producto WHERE id_producto = ?";

@@ -11,7 +11,6 @@
 
     <ui:define name="contenido">
 
-        <!-- ===== HEADER ===== -->
         <p:panel style="margin-bottom:20px;
                         background:linear-gradient(135deg,#6610f2,#6f42c1);
                         color:white;border-radius:10px">
@@ -21,7 +20,6 @@
             </p>
         </p:panel>
 
-        <!-- ===== LISTADO ===== -->
         <h:form id="formLista">
 
             <p:panel header="Listado de Secretarias">
@@ -43,7 +41,7 @@
                              rowKey="#{sec.id_secretaria}"
                              emptyMessage="No hay secretarias registradas">
 
-                    <p:column headerText="ID" width="60">
+                    <p:column headerText="ID" width="60" style="text-align: center;">
                         <h:outputText value="#{sec.id_secretaria}"/>
                     </p:column>
 
@@ -60,33 +58,33 @@
                     </p:column>
 
                     <p:column headerText="Turno">
-                        #{sec.turno}
+                        <h:outputText value="#{sec.turno}"/>
                     </p:column>
 
-                    <p:column headerText="Estado">
-                        <h:panelGroup rendered="#{sec.usuario.estado.id_estado eq 1}">
-                            <span style="color:green;font-weight:bold">Activo</span>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{sec.usuario.estado.id_estado ne 1}">
-                            <span style="color:red;font-weight:bold">Inactivo</span>
-                        </h:panelGroup>
+                    <p:column headerText="Estado" style="text-align: center;">
+                        <h:outputText value="ACTIVO" 
+                                      rendered="#{sec.usuario.id_estado == 1}" 
+                                      style="color:green; font-weight:bold; background: #e8f5e9; padding: 5px; border-radius: 4px;"/>
+                        
+                        <h:outputText value="INACTIVO" 
+                                      rendered="#{sec.usuario.id_estado != 1}" 
+                                      style="color:red; font-weight:bold; background: #ffebee; padding: 5px; border-radius: 4px;"/>
                     </p:column>
 
-                    <p:column headerText="Acciones">
-
+                    <p:column headerText="Acciones" style="text-align: center;">
+                        
                         <p:commandButton icon="pi pi-pencil"
                                          styleClass="ui-button-warning ui-button-flat"
                                          actionListener="#{secretariaBean.prepararEdicion(sec)}"
                                          update=":dialogoForm"
-                                         oncomplete="PF('wdialogo').show()"/>
+                                         oncomplete="PF('wdialogo').show()"
+                                         title="Editar"/>
 
-                        <p:commandButton icon="pi pi-ban"
-                                         styleClass="ui-button-danger ui-button-flat"
-                                         actionListener="#{secretariaBean.eliminar(sec)}"
+                        <p:commandButton icon="#{sec.usuario.id_estado == 1 ? 'pi pi-ban' : 'pi pi-check'}"
+                                         styleClass="ui-button-flat #{sec.usuario.id_estado == 1 ? 'ui-button-danger' : 'ui-button-success'}"
+                                         actionListener="#{secretariaBean.cambiarEstado(sec)}"
                                          update="tablaSecretarias"
-                                         rendered="#{sec.usuario.estado.id_estado eq 1}">
-                            <p:confirm message="¿Inactivar secretaria?"
-                                       header="Confirmar"/>
+                                         title="#{sec.usuario.id_estado == 1 ? 'Desactivar Usuario' : 'Activar Usuario'}">
                         </p:commandButton>
 
                     </p:column>
@@ -95,56 +93,71 @@
             </p:panel>
         </h:form>
 
-        <!-- ===== DIALOGO ===== -->
         <p:dialog id="dialogoForm"
                   widgetVar="wdialogo"
                   header="Datos de Secretaria"
                   modal="true"
-                  width="600">
+                  width="600"
+                  responsive="true">
 
-            <!-- 🔴 TODO DENTRO DEL FORM -->
             <h:form id="formDialogo" class="ui-fluid">
 
                 <p:messages showDetail="true" closable="true"/>
 
                 <h3>Datos Personales</h3>
 
-                <p:outputLabel value="Nombre"/>
-                <p:inputText value="#{secretariaBean.usuarioActual.nombre}" required="true"/>
+                <div class="p-field">
+                    <p:outputLabel value="Nombre"/>
+                    <p:inputText value="#{secretariaBean.usuarioActual.nombre}" required="true"/>
+                </div>
 
-                <p:outputLabel value="Apellidos"/>
-                <p:inputText value="#{secretariaBean.usuarioActual.apellidos}" required="true"/>
+                <div class="p-field">
+                    <p:outputLabel value="Apellidos"/>
+                    <p:inputText value="#{secretariaBean.usuarioActual.apellidos}" required="true"/>
+                </div>
 
-                <p:outputLabel value="Teléfono"/>
-                <p:inputText value="#{secretariaBean.usuarioActual.telefono}"/>
+                <div class="p-field">
+                    <p:outputLabel value="Teléfono"/>
+                    <p:inputText value="#{secretariaBean.usuarioActual.telefono}"/>
+                </div>
 
-                <p:outputLabel value="Correo"/>
-                <p:inputText value="#{secretariaBean.usuarioActual.correo}" required="true"/>
+                <div class="p-field">
+                    <p:outputLabel value="Correo"/>
+                    <p:inputText value="#{secretariaBean.usuarioActual.correo}" required="true"/>
+                </div>
 
                 <p:separator/>
 
                 <h3>Datos Laborales</h3>
 
-                <p:outputLabel value="Turno"/>
-                <p:selectOneMenu value="#{secretariaBean.secretariaActual.turno}" required="true">
-                    <f:selectItem itemLabel="Completo" itemValue="Completo"/>
-                    <f:selectItem itemLabel="Mañana" itemValue="Mañana"/>
-                    <f:selectItem itemLabel="Tarde" itemValue="Tarde"/>
-                </p:selectOneMenu>
+                <div class="p-field">
+                    <p:outputLabel value="Turno"/>
+                    <p:selectOneMenu value="#{secretariaBean.secretariaActual.turno}" required="true">
+                        <f:selectItem itemLabel="Completo" itemValue="Completo"/>
+                        <f:selectItem itemLabel="Mañana" itemValue="Mañana"/>
+                        <f:selectItem itemLabel="Tarde" itemValue="Tarde"/>
+                    </p:selectOneMenu>
+                </div>
 
-                <p:outputLabel value="Usuario"/>
-                <p:inputText value="#{secretariaBean.usuarioActual.nombre_usuario}" required="true"/>
+                <div class="p-field">
+                    <p:outputLabel value="Usuario"/>
+                    <p:inputText value="#{secretariaBean.usuarioActual.nombre_usuario}" required="true"/>
+                </div>
 
-                <p:outputLabel value="Contraseña"/>
-                <p:password value="#{secretariaBean.usuarioActual.contrasena}"
-                            required="#{secretariaBean.secretariaActual.id_secretaria == 0}"/>
+                <div class="p-field">
+                    <p:outputLabel value="Contraseña"/>
+                    <p:password value="#{secretariaBean.usuarioActual.contrasena}"
+                        required="#{secretariaBean.secretariaActual.id_secretaria eq 0}"
+                        placeholder="#{secretariaBean.secretariaActual.id_secretaria ne 0 ? 'Dejar vacío para no cambiar' : ''}"
+                    feedback="false"/>
+                </div>
 
-                <!-- ===== BOTONES (ANTES ERA F:facet) ===== -->
                 <div style="text-align:right;margin-top:15px">
 
                     <p:commandButton value="Cancelar"
                                      type="button"
                                      icon="pi pi-times"
+                                     styleClass="ui-button-secondary"
                                      onclick="PF('wdialogo').hide()"/>
 
                     <p:commandButton value="Guardar"
@@ -159,13 +172,10 @@
             </h:form>
         </p:dialog>
 
-        <!-- ===== CONFIRM GLOBAL ===== -->
         <h:form>
             <p:confirmDialog global="true">
-                <p:commandButton value="Sí" type="button"
-                                 styleClass="ui-confirmdialog-yes"/>
-                <p:commandButton value="No" type="button"
-                                 styleClass="ui-confirmdialog-no"/>
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes"/>
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/>
             </p:confirmDialog>
         </h:form>
 

@@ -21,7 +21,6 @@ public class CitaDAO {
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // --- 1. LISTAR CON FILTROS ---
     public List<Cita> listarConFiltros(String paciente, String medico, Integer estado) {
         List<Cita> lista = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
@@ -69,7 +68,7 @@ public class CitaDAO {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                lista.add(mapearCita(rs)); // Refactoricé el mapeo para reusarlo
+                lista.add(mapearCita(rs));
             }
         } catch (SQLException e) {
             System.out.println("Error listarConFiltros: " + e.getMessage());
@@ -79,13 +78,10 @@ public class CitaDAO {
         return lista;
     }
 
-    // --- 2. LISTAR TODOS (EL QUE FALTABA) ---
-    // Simplemente llama al método de filtros con todo en null para traer todo
     public List<Cita> listarTodos() {
         return listarConFiltros(null, null, 0);
     }
 
-    // --- 3. ELIMINAR (EL QUE FALTABA) ---
     public void eliminar(int idCita) {
         String sql = "DELETE FROM cita WHERE id_cita = ?";
         try {
@@ -100,7 +96,6 @@ public class CitaDAO {
         }
     }
 
-    // --- 4. OBTENER HORAS OCUPADAS ---
     public List<String> obtenerHorasOcupadas(int idMedico, Date fecha) {
         List<String> horas = new ArrayList<>();
         String sql = "SELECT fecha_hora FROM cita WHERE id_doctor = ? " +
@@ -124,7 +119,6 @@ public class CitaDAO {
         return horas;
     }
 
-    // --- 5. EXISTE CITA EN HORARIO ---
     public boolean existeCitaEnHorario(int idMedico, Date fechaHora) {
         boolean existe = false;
         String sql = "SELECT COUNT(*) FROM cita WHERE id_doctor = ? AND fecha_hora = ? AND id_estado_cita != 5";
@@ -143,7 +137,6 @@ public class CitaDAO {
         return existe;
     }
 
-    // --- 6. GUARDAR ---
     public void guardar(Cita c) {
         String sql = "INSERT INTO cita (id_paciente, id_doctor, fecha_hora, notas_paciente, id_estado_cita, fecha_creacion) VALUES (?, ?, ?, ?, ?, NOW())";
         try {
@@ -163,7 +156,6 @@ public class CitaDAO {
         }
     }
 
-    // --- 7. ACTUALIZAR ---
     public void actualizar(Cita c) {
         String sql = "UPDATE cita SET id_paciente=?, id_doctor=?, fecha_hora=?, notas_paciente=?, id_estado_cita=?, fecha_actualizacion=NOW() WHERE id_cita=?";
         try {
@@ -184,14 +176,12 @@ public class CitaDAO {
         }
     }
 
-    // --- 8. DASHBOARD ---
     public List<Cita> listarPorFiltrosDashboard(Integer idDoctor, Integer idPaciente, boolean futuras) {
         List<Cita> lista = new ArrayList<>();
         String operador = futuras ? ">=" : "<";
         String orden = futuras ? "ASC" : "DESC";
         StringBuilder sql = new StringBuilder();
         
-        // Usamos el mismo JOIN completo para que el Dashboard muestre nombres reales
         sql.append("SELECT c.*, ec.nombre_estado, ec.color, ");
         sql.append(" u_pac.nombre as nom_pac, u_pac.apellidos as ape_pac, ");
         sql.append(" u_med.nombre as nom_med, u_med.apellidos as ape_med ");
@@ -206,7 +196,7 @@ public class CitaDAO {
         if (idDoctor != null) sql.append(" AND c.id_doctor = ? ");
         if (idPaciente != null) sql.append(" AND c.id_paciente = ? ");
         
-        sql.append(" AND c.id_estado_cita != 5 "); // Ignorar canceladas
+        sql.append(" AND c.id_estado_cita != 5 ");
         sql.append(" ORDER BY c.fecha_hora ").append(orden).append(" LIMIT 10");
 
         try {
@@ -228,12 +218,10 @@ public class CitaDAO {
         return lista;
     }
 
-    // --- 9. BUSCAR POR ID ---
     public Cita buscar(int id) {
         Cita c = null;
         String sql = "SELECT * FROM cita WHERE id_cita = ?"; 
-        // Nota: Si necesitas nombres aquí, deberías hacer JOINs, 
-        // pero para editar suele bastar el ID.
+        
         try {
             conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
@@ -247,7 +235,6 @@ public class CitaDAO {
                 c.setFecha_hora(rs.getTimestamp("fecha_hora"));
                 c.setNotas_paciente(rs.getString("notas_paciente"));
                 c.setId_estado_cita(rs.getInt("id_estado_cita"));
-                // Cargamos objetos "vacíos" con IDs para que el selectOneMenu funcione
                 Paciente p = new Paciente(); p.setId_paciente(c.getId_paciente()); c.setPaciente(p);
                 Medico m = new Medico(); m.setId_doctor(c.getId_doctor()); c.setMedico(m);
                 EstadoCita ec = new EstadoCita(); ec.setId_estado_cita(c.getId_estado_cita()); c.setEstadoCita(ec);
@@ -260,8 +247,6 @@ public class CitaDAO {
         return c;
     }
 
-    // --- HELPER: Mapear ResultSet a Objeto Cita ---
-    // (Esto evita repetir código en listarConFiltros y Dashboard)
     private Cita mapearCita(ResultSet rs) throws SQLException {
         Cita c = new Cita();
         c.setId_cita(rs.getInt("id_cita"));

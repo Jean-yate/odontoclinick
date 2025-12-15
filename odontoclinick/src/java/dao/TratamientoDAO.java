@@ -10,11 +10,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-/*
-imports innecesarios, imports de relacionalidad
-import modelo.CitaTratamiento;
-*/
-
 public class TratamientoDAO {
 
     @Resource(lookup = "jdbc/odontoclinic")
@@ -23,8 +18,7 @@ public class TratamientoDAO {
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
-    
-    // Listar todos los tratamientos
+
     public List<Tratamiento> listarTodos() {
         List<Tratamiento> lista = new ArrayList<>();
         String sql = "SELECT * FROM tratamiento";
@@ -43,10 +37,6 @@ public class TratamientoDAO {
                 t.setCosto_base(rs.getFloat("costo_base"));
                 t.setDuracion_estimada_minutos(rs.getInt("duracion_estimada_minutos"));
                 t.setActivo(rs.getBoolean("activo"));
-
-                // Si quieres, también puedes traer los CitaTratamientos asociados
-                // t.setCitaTratamientos(citaTratDAO.listarPorTratamiento(t.getId_tratamiento()));
-
                 lista.add(t);
             }
 
@@ -59,7 +49,6 @@ public class TratamientoDAO {
         return lista;
     }
 
-    // Buscar tratamiento por ID
     public Tratamiento buscar(int id) {
         Tratamiento t = null;
         String sql = "SELECT * FROM tratamiento WHERE id_tratamiento = ?";
@@ -90,7 +79,6 @@ public class TratamientoDAO {
         return t;
     }
 
-    // Guardar tratamiento
     public void guardar(Tratamiento t) {
         String sql = "INSERT INTO tratamiento(codigo, nombre_tratamiento, descripcion, costo_base, duracion_estimada_minutos, activo) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
@@ -113,7 +101,6 @@ public class TratamientoDAO {
         }
     }
 
-    // Actualizar tratamiento
     public void actualizar(Tratamiento t) {
         String sql = "UPDATE tratamiento SET codigo = ?, nombre_tratamiento = ?, descripcion = ?, "
                    + "costo_base = ?, duracion_estimada_minutos = ?, activo = ? WHERE id_tratamiento = ?";
@@ -137,7 +124,6 @@ public class TratamientoDAO {
         }
     }
 
-    // Eliminar tratamiento
     public void eliminar(int id) {
         String sql = "DELETE FROM tratamiento WHERE id_tratamiento = ?";
 
@@ -153,7 +139,6 @@ public class TratamientoDAO {
         }
     }
 
-    // Cerrar recursos
     private void cerrarRecursos() {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (ps != null) ps.close(); } catch (SQLException e) {}

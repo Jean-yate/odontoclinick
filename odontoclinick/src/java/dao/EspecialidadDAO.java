@@ -10,20 +10,16 @@ import modelo.Especialidad;
 
 public class EspecialidadDAO {
 
-    // 1. ELIMINAMOS la variable global 'conn'
-    // private final Connection conn = Conexion.conectar(); <--- ESTO ESTABA MAL
-    
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // Listar todas las especialidades
     public List<Especialidad> listar() {
         List<Especialidad> lista = new ArrayList<>();
         String sql = "SELECT * FROM especialidad";
         
         try {
-            conn = Conexion.conectar(); // 2. Pedimos conexión aquí
+            conn = Conexion.conectar(); 
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
@@ -37,18 +33,17 @@ public class EspecialidadDAO {
         } catch (SQLException e) {
             System.out.println("Error listar Especialidad: " + e.getMessage());
         } finally {
-            cerrarRecursos(); // 3. Cerramos siempre
+            cerrarRecursos(); 
         }
         return lista;
     }
 
-    // Buscar especialidad por ID
     public Especialidad buscar(int id) {
         Especialidad esp = null;
         String sql = "SELECT * FROM especialidad WHERE id_especialidad = ?";
         
         try {
-            conn = Conexion.conectar(); // Pedimos conexión
+            conn = Conexion.conectar();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
@@ -67,7 +62,6 @@ public class EspecialidadDAO {
         return esp;
     }
 
-    // Guardar nueva especialidad
     public void guardar(Especialidad esp) {
         String sql = "INSERT INTO especialidad(nombre_especialidad, descripcion) VALUES(?, ?)";
         try {
@@ -83,7 +77,6 @@ public class EspecialidadDAO {
         }
     }
 
-    // Actualizar especialidad existente
     public void actualizar(Especialidad esp) {
         String sql = "UPDATE especialidad SET nombre_especialidad = ?, descripcion = ? WHERE id_especialidad = ?";
         try {
@@ -100,7 +93,6 @@ public class EspecialidadDAO {
         }
     }
 
-    // Eliminar especialidad por ID
     public void eliminar(int id) {
         String sql = "DELETE FROM especialidad WHERE id_especialidad = ?";
         try {
@@ -115,7 +107,6 @@ public class EspecialidadDAO {
         }
     }
     
-    // Método helper para cerrar todo
     private void cerrarRecursos() {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (ps != null) ps.close(); } catch (SQLException e) {}

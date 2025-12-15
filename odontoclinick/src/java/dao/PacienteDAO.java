@@ -9,31 +9,20 @@ import java.sql.SQLException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-
-// NOTA: Eliminamos los imports de javax.annotation.Resource y javax.sql.DataSource
-// porque usaremos nuestra clase helper Conexion.java
-
 public class PacienteDAO {
 
-    // Ya no usamos @Resource private DataSource ds;
-    
     private Connection conn;
     private PreparedStatement ps;
     private ResultSet rs;
-
-    // OJO: Asegúrate de que UsuarioDAO también use Conexion.conectar()
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    // 1. Listar todos los pacientes (Usado en CitaBean)
     public List<Paciente> listarTodos() {
         List<Paciente> pacientes = new ArrayList<>();
-        // OPTIMIZACIÓN: Hacemos JOIN para no llamar a la BD 100 veces si hay 100 pacientes
         String sql = "SELECT p.*, u.nombre, u.apellidos FROM paciente p " +
                      "INNER JOIN usuario u ON p.id_usuario = u.id_usuario " +
-                     "WHERE u.id_estado = 1"; // Solo activos
+                     "WHERE u.id_estado = 1";
 
         try {
-            // CORRECCIÓN PRINCIPAL: Usamos nuestra clase Conexion
             conn = Conexion.conectar(); 
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
@@ -43,9 +32,6 @@ public class PacienteDAO {
                 p.setId_paciente(rs.getInt("id_paciente"));
                 p.setId_usuario(rs.getInt("id_usuario"));
                 p.setDireccion(rs.getString("direccion"));
-                // ... mapea el resto de campos si los necesitas en la tabla ...
-                
-                // Mapeo rápido del usuario para que salga el nombre en el SelectOneMenu
                 Usuario u = new Usuario();
                 u.setId_usuario(rs.getInt("id_usuario"));
                 u.setNombre(rs.getString("nombre"));
@@ -64,20 +50,18 @@ public class PacienteDAO {
         return pacientes;
     }
 
-    // 2. Buscar paciente por ID
     public Paciente buscar(int id) {
         Paciente p = null;
         String sql = "SELECT * FROM paciente WHERE id_paciente = ?";
 
         try {
-            conn = Conexion.conectar(); // Usamos Conexion.conectar()
+            conn = Conexion.conectar(); 
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                p = mapResultSetToPaciente(rs); // Usamos un helper para no repetir código
-                // Aquí sí podemos llamar al DAO auxiliar si es necesario
+                p = mapResultSetToPaciente(rs);
                 p.setUsuario(usuarioDAO.buscar(rs.getInt("id_usuario")));
             }
         } catch (SQLException e) {
@@ -88,7 +72,6 @@ public class PacienteDAO {
         return p;
     }
     
-    // Método helper para mapear (ahorra espacio)
     private Paciente mapResultSetToPaciente(ResultSet rs) throws SQLException {
         Paciente p = new Paciente();
         p.setId_paciente(rs.getInt("id_paciente"));
@@ -105,7 +88,6 @@ public class PacienteDAO {
         return p;
     }
 
-    // 3. Método Buscar por ID Usuario (Login)
     public Paciente buscarPorIdUsuario(int idUsuario) {
         Paciente p = null;
         String sql = "SELECT * FROM paciente WHERE id_usuario = ?";
@@ -117,8 +99,6 @@ public class PacienteDAO {
 
             if (rs.next()) {
                 p = mapResultSetToPaciente(rs);
-                // Si UsuarioDAO también falla, comenta esta línea temporalmente
-                // p.setUsuario(usuarioDAO.buscar(rs.getInt("id_usuario")));
             }
         } catch (SQLException e) {
             System.out.println("Error al buscar paciente por usuario: " + e.getMessage());
@@ -128,7 +108,6 @@ public class PacienteDAO {
         return p;
     }
 
-    // 4. Listar con Filtro
     public List<Paciente> listarConFiltro(String textoBusqueda) {
         List<Paciente> lista = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
@@ -143,7 +122,7 @@ public class PacienteDAO {
         }
 
         try {
-            conn = Conexion.conectar(); // Corrección aquí
+            conn = Conexion.conectar(); 
             ps = conn.prepareStatement(sql.toString());
             
             if (textoBusqueda != null && !textoBusqueda.isEmpty()) {
@@ -174,19 +153,16 @@ public class PacienteDAO {
         return lista;
     }
 
-    // 5. Guardar Paciente (Transacción manual)
     public boolean registrarPacienteTransaccion(modelo.Usuario u, Paciente p) throws SQLException {
         boolean exito = false;
-        Connection connTransaccion = null; // Usamos variable local para no mezclar
+        Connection connTransaccion = null;
 
         try {
-            connTransaccion = Conexion.conectar(); // Corrección aquí
+            connTransaccion = Conexion.conectar();
             connTransaccion.setAutoCommit(false); 
-
-            // A. Insertar Usuario
+            
             String sqlUser = "INSERT INTO usuario (nombre, apellidos, nombre_usuario, correo, telefono, contrasena, id_rol, id_estado, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, 4, 1, NOW())";
             PreparedStatement psUser = connTransaccion.prepareStatement(sqlUser, java.sql.Statement.RETURN_GENERATED_KEYS);
-            // ... set parameters ...
             psUser.setString(1, u.getNombre());
             psUser.setString(2, u.getApellidos());
             psUser.setString(3, u.getNombre_usuario());
@@ -205,7 +181,6 @@ public class PacienteDAO {
             rsKeys.close();
             psUser.close();
 
-            // B. Insertar Paciente
             String sqlPac = "INSERT INTO paciente (id_usuario, direccion, eps, rh, alergias, enfermedades_preexistentes, contacto_emergencia_nombre, contacto_emergencia_telefono, fecha_nacimiento, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
             PreparedStatement psPac = connTransaccion.prepareStatement(sqlPac);
             psPac.setInt(1, idGenerado);
@@ -234,15 +209,12 @@ public class PacienteDAO {
             throw e; 
         } finally {
             if (connTransaccion != null) {
-                try { connTransaccion.setAutoCommit(true); } catch(Exception ex){}
-                try { connTransaccion.close(); } catch(Exception ex){}
+                try { connTransaccion.setAutoCommit(true); } catch(SQLException ex){}
+                try { connTransaccion.close(); } catch(SQLException ex){}
             }
         }
         return exito;
     }
-    
-    // Métodos update/delete simples omitidos por brevedad, 
-    // pero recuerda cambiar 'ds.getConnection()' por 'Conexion.conectar()' en todos.
 
     private void cerrarRecursos() {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}

@@ -14,7 +14,6 @@ public class MetodoPagoDAO {
     private PreparedStatement ps;
     private ResultSet rs;
 
-    // Listar todos los métodos de pago
     public List<MetodoPago> listar() {
         List<MetodoPago> lista = new ArrayList<>();
         try {
@@ -36,7 +35,6 @@ public class MetodoPagoDAO {
         return lista;
     }
 
-    // Guardar método de pago
     public void guardar(MetodoPago metodo) {
         try {
             String sql = "INSERT INTO metodo_pago(nombre_metodo, activo) VALUES(?, ?)";
@@ -49,7 +47,6 @@ public class MetodoPagoDAO {
         }
     }
 
-    // Buscar método de pago por ID
     public MetodoPago buscar(int id) {
         MetodoPago metodo = null;
         try {
@@ -71,7 +68,6 @@ public class MetodoPagoDAO {
         return metodo;
     }
 
-    // Actualizar método de pago
     public void actualizar(MetodoPago metodo) {
         try {
             String sql = "UPDATE metodo_pago SET nombre_metodo = ?, activo = ? WHERE id_metodo_pago = ?";
@@ -85,7 +81,6 @@ public class MetodoPagoDAO {
         }
     }
 
-    // Eliminar método de pago
     public void eliminar(int id) {
         try {
             String sql = "DELETE FROM metodo_pago WHERE id_metodo_pago = ?";

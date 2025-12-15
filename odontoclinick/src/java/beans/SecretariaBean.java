@@ -143,6 +143,22 @@ public class SecretariaBean implements Serializable {
             mensajeError("Error", "No se pudo reactivar: " + e.getMessage());
         }
     }
+    public void cambiarEstado(Secretaria sec) {
+    int estadoActual = sec.getUsuario().getId_estado();
+    int nuevoEstado = (estadoActual == 1) ? 2 : 1;
+
+    boolean exito = secretariaDAO.cambiarEstado(sec.getUsuario().getId_usuario(), nuevoEstado);
+
+    if (exito) {
+        sec.getUsuario().setId_estado(nuevoEstado);
+        FacesContext.getCurrentInstance().addMessage(null, 
+            new FacesMessage(FacesMessage.SEVERITY_INFO, "Estado actualizado", null));
+    } else {
+        FacesContext.getCurrentInstance().addMessage(null, 
+            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al actualizar", null));
+    }
+}
+    
     
     // Mensajes helpers (igual que AdminBean)
     private void mensaje(String t, String m) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, t, m)); }

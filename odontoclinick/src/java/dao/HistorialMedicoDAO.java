@@ -8,13 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.HistorialMedico;
 
-/*
-imports innecesarios, imports de relacionalidad
-import modelo.Paciente;
-import modelo.Cita;
-import modelo.Medico;
-*/
-
 public class HistorialMedicoDAO {
     private final Connection conn = Conexion.conectar();
     private PreparedStatement ps;
